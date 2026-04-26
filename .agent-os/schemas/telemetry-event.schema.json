@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/telemetry-event.schema.json",
+  "title": "Agent OS Telemetry Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "session_id",
+    "trace_id",
+    "span_id",
+    "parent_span_id",
+    "system_id",
+    "constitution_version",
+    "harness_id",
+    "timestamp",
+    "payload"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "BINDING",
+        "HEARTBEAT",
+        "STATE_TRANSITION",
+        "VIOLATION",
+        "SKILL_LOAD",
+        "SKILL_UNLOAD",
+        "PERMISSION_DENIED"
+      ]
+    },
+    "session_id": { "type": "string", "minLength": 1 },
+    "trace_id": { "type": "string", "minLength": 1 },
+    "span_id": { "type": "string", "pattern": "^[a-f0-9]{16}$" },
+    "parent_span_id": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "string", "pattern": "^[a-f0-9]{16}$" }
+      ]
+    },
+    "system_id": { "const": "agent-os" },
+    "constitution_version": { "type": "string", "pattern": "^v[0-9]+$" },
+    "harness_id": { "type": "string", "enum": ["claude-code", "copilot", "codex", "other"] },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "payload": { "type": "object" }
+  }
+}

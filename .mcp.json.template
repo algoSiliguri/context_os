@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "knowledge-brain": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/agnivadc/knowledge-brain.git",
+        "brain-mcp"
+      ],
+      "env": {
+        "BRAIN_DB_PATH": "__DB_PATH__"
+      }
+    }
+  }
+}

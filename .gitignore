@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Brain DB is a local artifact rebuilt from data_store/knowledge.jsonl on
+# every bootstrap; only the JSONL is committed and tracked across collaborators.
+data_store/*.db
+data_store/*.db-journal
+data_store/*.db-wal
+data_store/*.db-shm
+
+# Claude Code per-user/machine state (MCP approvals, local permissions)
+.claude/settings.local.json
+
+.vscode/
+.idea/
+.DS_Store
+
+# Brain-capture skill draft buffer (per-session, not committed)
+.brain-drafts/
+
+# Generated per-machine by scripts/bootstrap.* — has absolute paths
+.mcp.json

@@ -1,0 +1,16 @@
+{
+  "component_id": "verification-gate",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "name": "fs.read",
+      "scope": ["/repo/**"],
+      "ttl_seconds": 900
+    },
+    {
+      "name": "tool.exec",
+      "scope": ["rg", "git status", "python3"],
+      "ttl_seconds": 900
+    }
+  ]
+}

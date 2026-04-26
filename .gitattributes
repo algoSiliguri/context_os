@@ -1,0 +1,10 @@
+# Bash scripts must be LF on all platforms — CRLF breaks the shebang on
+# macOS/Linux ("/usr/bin/env: 'bash\r': No such file or directory").
+*.sh text eol=lf
+
+# PowerShell scripts can be either, but pin to CRLF for consistency on Windows.
+*.ps1 text eol=crlf
+
+# Brain JSONL is byte-stable across export/import; CRLF would create phantom
+# diffs after every round-trip on Windows clones.
+*.jsonl text eol=lf

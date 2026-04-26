@@ -1,0 +1,8 @@
+{
+  "algorithm": "ed25519",
+  "key_id": "unset",
+  "signed_artifact": ".agent-os/contracts/index.json",
+  "signed_hash": "925f0232b6dd919fbebe2e369970d0332eb2ef222aec26c15cfaf9719561fd72",
+  "signature": null,
+  "verified": false
+}

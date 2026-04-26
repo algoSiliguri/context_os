@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/constitution-binding.schema.json",
+  "title": "Constitution Binding Header",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "system-id",
+    "version",
+    "canonical-path",
+    "content-hash",
+    "schema-version",
+    "contract-index-hash",
+    "clause-count",
+    "blocks",
+    "binding-mode",
+    "signature-required"
+  ],
+  "properties": {
+    "system-id": { "const": "agent-os" },
+    "version": { "type": "string", "pattern": "^v[0-9]+$" },
+    "canonical-path": { "type": "string", "minLength": 1 },
+    "content-hash": { "type": "string", "pattern": "^[a-f0-9]{64}$|^$" },
+    "schema-version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "contract-index-hash": { "type": "string", "pattern": "^[a-f0-9]{64}$|^$" },
+    "clause-count": { "type": "integer", "minimum": 1 },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^B[0-9]+$" }
+    },
+    "binding-mode": { "type": "string", "enum": ["header-first"] },
+    "signature-required": { "type": "boolean" }
+  }
+}

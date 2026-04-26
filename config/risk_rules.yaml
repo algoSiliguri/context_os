@@ -1,0 +1,7 @@
+# Engine-enforced risk constraints
+risk:
+  max_position_size: 1
+  max_concurrent_positions: 1
+  daily_drawdown_pct: 1.5
+  vix_skip_threshold: 35.0
+  override_allowed: false
