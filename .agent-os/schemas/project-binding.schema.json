@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/project-binding.schema.json",
+  "title": "Project Binding Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "project_id",
+    "domain_type",
+    "runtime_version",
+    "memory_namespace",
+    "verification_profile"
+  ],
+  "properties": {
+    "project_id": { "type": "string", "minLength": 1 },
+    "domain_type": { "type": "string", "minLength": 1 },
+    "runtime_version": { "type": "string", "minLength": 1 },
+    "memory_namespace": { "type": "string", "minLength": 1 },
+    "verification_profile": { "type": "string", "minLength": 1 },
+    "project_constitution": { "type": "string" },
+    "global_memory_read": { "type": "boolean", "default": true },
+    "global_memory_write": { "type": "boolean", "default": false }
+  }
+}
