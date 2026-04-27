@@ -32,7 +32,7 @@ def derive_action_status(log_path: Path, *, session_id: str, action_hash: str) -
             approved = True
             final_status = "APPROVED"
 
-    if requested_event is not None:
+    if requested_event is not None and final_status == "PENDING":
         expires_at = datetime.fromisoformat(str(requested_event["expires_at"]))
         if now > expires_at:
             final_status = "EXPIRED"
