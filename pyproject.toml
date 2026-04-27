@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "context-os-runtime"
+version = "0.1.0"
+description = "Machine-local governance runtime for Agent OS."
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.6",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+context-os = "context_os_runtime.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["context_os_runtime"]
