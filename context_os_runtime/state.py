@@ -5,7 +5,10 @@ from enum import StrEnum
 
 class SessionState(StrEnum):
     BOUND = "BOUND"
+    IDLE = "IDLE"
     PLANNED = "PLANNED"
+    AWAITING_APPROVAL = "AWAITING_APPROVAL"
+    EXECUTING = "EXECUTING"
     EXECUTED = "EXECUTED"
     VERIFIED = "VERIFIED"
     REVIEWED = "REVIEWED"
@@ -13,8 +16,11 @@ class SessionState(StrEnum):
 
 
 _ALLOWED = {
-    SessionState.BOUND: {SessionState.PLANNED},
-    SessionState.PLANNED: {SessionState.EXECUTED},
+    SessionState.BOUND: {SessionState.IDLE},
+    SessionState.IDLE: {SessionState.PLANNED},
+    SessionState.PLANNED: {SessionState.AWAITING_APPROVAL, SessionState.EXECUTING},
+    SessionState.AWAITING_APPROVAL: {SessionState.IDLE, SessionState.EXECUTING},
+    SessionState.EXECUTING: {SessionState.EXECUTED},
     SessionState.EXECUTED: {SessionState.VERIFIED},
     SessionState.VERIFIED: {SessionState.REVIEWED, SessionState.COMPLETE},
     SessionState.REVIEWED: {SessionState.COMPLETE},
