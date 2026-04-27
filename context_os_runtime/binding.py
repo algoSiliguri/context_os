@@ -9,6 +9,7 @@ from .models import SessionBindingRecord
 from .versioning import resolve_runtime_version
 
 _PROFILE_BASELINES = {
+    "default": [],
     "sandbox": [],
     "research": ["external_api_call", "global_memory_write"],
     "production": ["external_api_call", "global_memory_write", "trade_execute", "deploy"],

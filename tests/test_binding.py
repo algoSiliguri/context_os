@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from context_os_runtime.binding import bind_project
@@ -50,6 +51,9 @@ def test_bind_project_captures_critical_actions_and_session_id(tmp_path: Path) -
     record = bind_project(repo_root)
 
     assert record.project_id == "brain-playground"
-    assert record.session_id.startswith("sess-")
+    assert re.fullmatch(r"sess-[0-9a-f]{12}", record.session_id)
     assert "trade_execute" in record.effective_critical_actions
+    assert "deploy" in record.effective_critical_actions  # only from baseline
+    assert "external_api_call" in record.effective_critical_actions  # only from baseline
+    assert record.effective_critical_actions == sorted({"deploy", "external_api_call", "global_memory_write", "trade_execute"})
     assert record.state == "BOUND"
