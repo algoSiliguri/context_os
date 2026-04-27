@@ -10,6 +10,7 @@ def mirror_approval_event(event: dict[str, object], *, namespace: str, db_path: 
         store = ApprovalStore(db_path)
         store.init_schema()
         final_status = {
+            "ACTION_REQUESTED": "PENDING",
             "HUMAN_APPROVAL_RECEIVED": "APPROVED",
             "HUMAN_APPROVAL_DENIED": "DENIED",
             "SYSTEM_AUTO_REJECTED": "EXPIRED",

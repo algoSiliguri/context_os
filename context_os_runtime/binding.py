@@ -16,10 +16,17 @@ _PROFILE_BASELINES = {
 }
 
 
+def resolve_effective_critical_actions(verification_profile: str, critical_actions: list[str]) -> list[str]:
+    baseline = _PROFILE_BASELINES.get(verification_profile, [])
+    return sorted(set([*baseline, *critical_actions]))
+
+
 def bind_project(repo_root: Path) -> SessionBindingRecord:
     manifest = load_project_manifest(repo_root / ".agent-os.yaml")
-    baseline = _PROFILE_BASELINES.get(manifest.verification_profile, [])
-    effective = sorted(set([*baseline, *manifest.critical_actions]))
+    effective = resolve_effective_critical_actions(
+        manifest.verification_profile,
+        manifest.critical_actions,
+    )
     return SessionBindingRecord(
         session_id=f"sess-{uuid4().hex[:12]}",
         project_id=manifest.project_id,
