@@ -1,5 +1,8 @@
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from context_os_runtime.approval import derive_action_status
+from context_os_runtime.events import append_event
 from context_os_runtime.interceptor import compute_action_hash, guard_memory_write
 
 
@@ -36,3 +39,25 @@ def test_guard_memory_write_blocks_global_and_logs_violation(tmp_path: Path) -> 
     contents = log_path.read_text(encoding="utf-8")
     assert "SECURITY_VIOLATION" in contents
     assert "global_memory_write_blocked" in contents
+
+
+def test_expired_request_is_forced_back_to_idle(tmp_path: Path) -> None:
+    log_path = tmp_path / "events.jsonl"
+    append_event(
+        log_path,
+        {
+            "session_id": "sess-123",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "event_type": "ACTION_REQUESTED",
+            "action_hash": "hash-ttl",
+            "capability": "trade_execute",
+            "params_digest_source": '{"ticker":"BTC","size":1.0}',
+            "requested_at": datetime.now(UTC).isoformat(),
+            "expires_at": (datetime.now(UTC) - timedelta(seconds=1)).isoformat(),
+        },
+    )
+
+    status = derive_action_status(log_path, session_id="sess-123", action_hash="hash-ttl")
+
+    assert status.final_status == "EXPIRED"
+    assert status.executable is False
