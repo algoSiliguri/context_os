@@ -4,9 +4,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
+from .authority import verify_runtime_bundle
 from .constitution_verifier import verify_constitution
 from .manifest import load_project_manifest
 from .models import SessionBindingRecord
+from .runtime_paths import runtime_dir
 from .versioning import resolve_runtime_version
 
 _PROFILE_BASELINES: dict[str, list[str]] = {
@@ -30,6 +32,7 @@ def resolve_effective_critical_actions(verification_profile: str, critical_actio
 
 
 def bind_project(repo_root: Path) -> SessionBindingRecord:
+    verify_runtime_bundle()
     manifest = load_project_manifest(repo_root / ".agent-os.yaml")
     effective = resolve_effective_critical_actions(
         manifest.verification_profile,
@@ -43,6 +46,7 @@ def bind_project(repo_root: Path) -> SessionBindingRecord:
         project_id=manifest.project_id,
         runtime_version=resolve_runtime_version(manifest.runtime_version),
         repo_root=str(repo_root),
+        runtime_dir=str(runtime_dir(repo_root)),
         memory_namespace=manifest.memory_namespace,
         state="BOUND",
         effective_critical_actions=effective,

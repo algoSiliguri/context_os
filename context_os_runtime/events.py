@@ -5,12 +5,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
+from .session_store import append_jsonl_event_atomic
+
 
 def _base_event(
     *,
     session_id: str,
     event_type: str,
-    payload: dict[str, object],
+    payload: dict[str, object] | None = None,
     timestamp: str | None = None,
     parent_span_id: str | None = None,
 ) -> dict[str, object]:
@@ -25,7 +27,7 @@ def _base_event(
         "constitution_version": "v2",
         "harness_id": "context-os-runtime",
         "timestamp": timestamp or datetime.now(UTC).isoformat(),
-        "payload": payload,
+        "payload": payload or {},
     }
 
 
@@ -33,22 +35,23 @@ def build_binding_event(
     *,
     session_id: str,
     project_id: str,
+    state: str | None = None,
+    runtime_version: str | None = None,
     conditions_verified: list[str] | None = None,
     failed_condition: str | None = None,
     soft_failed: list[str] | None = None,
     detail: str | None = None,
 ) -> dict[str, object]:
-    return _base_event(
-        session_id=session_id,
-        event_type="BINDING",
-        payload={
-            "project_id": project_id,
-            "conditions_verified": conditions_verified or [],
-            "failed_condition": failed_condition,
-            "soft_failed": soft_failed or [],
-            "detail": detail,
-        },
-    )
+    payload: dict[str, object] = {
+        "project_id": project_id,
+        "state": state,
+        "runtime_version": runtime_version,
+        "conditions_verified": conditions_verified or [],
+        "failed_condition": failed_condition,
+        "soft_failed": soft_failed or [],
+        "detail": detail,
+    }
+    return _base_event(session_id=session_id, event_type="BINDING", payload=payload)
 
 
 def build_state_transition_event(*, session_id: str, to_state: str) -> dict[str, object]:
@@ -59,7 +62,12 @@ def build_state_transition_event(*, session_id: str, to_state: str) -> dict[str,
     )
 
 
-def build_heartbeat_event(*, session_id: str, state: str, timestamp: str | None = None) -> dict[str, object]:
+def build_heartbeat_event(
+    *,
+    session_id: str,
+    state: str,
+    timestamp: str | None = None,
+) -> dict[str, object]:
     return _base_event(
         session_id=session_id,
         event_type="HEARTBEAT",
@@ -142,10 +150,7 @@ def build_human_approval_received_event(
         session_id=session_id,
         event_type="HUMAN_APPROVAL_RECEIVED",
         timestamp=timestamp,
-        payload={
-            "action_hash": action_hash,
-            "approver_meta": approver_meta,
-        },
+        payload={"action_hash": action_hash, "approver_meta": approver_meta},
     )
 
 
@@ -160,10 +165,7 @@ def build_human_approval_denied_event(
         session_id=session_id,
         event_type="HUMAN_APPROVAL_DENIED",
         timestamp=timestamp,
-        payload={
-            "action_hash": action_hash,
-            "reason": reason,
-        },
+        payload={"action_hash": action_hash, "reason": reason},
     )
 
 
@@ -178,17 +180,30 @@ def build_system_auto_rejected_event(
         session_id=session_id,
         event_type="SYSTEM_AUTO_REJECTED",
         timestamp=timestamp,
-        payload={
-            "action_hash": action_hash,
-            "reason": reason,
-        },
+        payload={"action_hash": action_hash, "reason": reason},
+    )
+
+
+def build_human_approval_event(
+    *, session_id: str, action_hash: str, approver_meta: dict[str, object]
+) -> dict[str, object]:
+    return build_human_approval_received_event(
+        session_id=session_id,
+        action_hash=action_hash,
+        approver_meta=approver_meta,
+    )
+
+
+def build_human_denial_event(*, session_id: str, action_hash: str, reason: str) -> dict[str, object]:
+    return build_human_approval_denied_event(
+        session_id=session_id,
+        action_hash=action_hash,
+        reason=reason,
     )
 
 
 def append_event(path: Path, payload: dict[str, object]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(json.dumps(payload, sort_keys=True) + "\n")
+    append_jsonl_event_atomic(path, payload)
 
 
 def read_events(path: Path) -> list[dict[str, object]]:

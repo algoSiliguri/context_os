@@ -18,12 +18,13 @@ def derive_action_status(log_path: Path, *, session_id: str, action_hash: str) -
     now = datetime.now(UTC)
     requested_event: dict[str, object] | None = None
     approved = False
-    final_status = "PENDING"
+    final_status = "NOT_ACTIONABLE"
     for event in read_events(log_path):
         if event.get("session_id") != session_id or _event_value(event, "action_hash") != action_hash:
             continue
         if event["event_type"] == "ACTION_REQUESTED":
             requested_event = event
+            final_status = "PENDING"
         elif event["event_type"] == "HUMAN_APPROVAL_DENIED":
             final_status = "DENIED"
         elif event["event_type"] == "SYSTEM_AUTO_REJECTED":

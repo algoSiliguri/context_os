@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from .events import read_events
 from .manifest import load_project_manifest
+from .session_store import write_json_atomic
 
 
 class LockRecord(BaseModel):
@@ -16,7 +17,7 @@ class LockRecord(BaseModel):
 
 
 def write_lock(path: Path, record: LockRecord) -> None:
-    path.write_text(record.model_dump_json(indent=2), encoding="utf-8")
+    write_json_atomic(path, record.model_dump(mode="json"))
 
 
 def read_lock(path: Path) -> LockRecord:
