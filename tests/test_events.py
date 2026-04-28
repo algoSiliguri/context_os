@@ -50,6 +50,31 @@ def test_append_event_persists_canonical_envelope(tmp_path: Path) -> None:
     assert events[0]["payload"]["project_id"] == "brain-playground"
 
 
+def test_build_binding_event_includes_verification_fields() -> None:
+    event = build_binding_event(
+        session_id="sess-1",
+        project_id="test",
+        conditions_verified=["C11", "C4"],
+        failed_condition="C8",
+        soft_failed=[],
+        detail="contract-index-hash mismatch",
+    )
+
+    assert event["payload"]["conditions_verified"] == ["C11", "C4"]
+    assert event["payload"]["failed_condition"] == "C8"
+    assert event["payload"]["soft_failed"] == []
+    assert event["payload"]["detail"] == "contract-index-hash mismatch"
+
+
+def test_build_binding_event_defaults_verification_fields() -> None:
+    event = build_binding_event(session_id="sess-1", project_id="test")
+
+    assert event["payload"]["conditions_verified"] == []
+    assert event["payload"]["failed_condition"] is None
+    assert event["payload"]["soft_failed"] == []
+    assert event["payload"]["detail"] is None
+
+
 def test_builder_helpers_cover_visibility_and_completeness_families() -> None:
     heartbeat = build_heartbeat_event(session_id="sess-1", state="ACTIVE")
     transition = build_state_transition_event(session_id="sess-1", to_state="IDLE")

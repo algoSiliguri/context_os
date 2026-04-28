@@ -29,11 +29,25 @@ def _base_event(
     }
 
 
-def build_binding_event(*, session_id: str, project_id: str) -> dict[str, object]:
+def build_binding_event(
+    *,
+    session_id: str,
+    project_id: str,
+    conditions_verified: list[str] | None = None,
+    failed_condition: str | None = None,
+    soft_failed: list[str] | None = None,
+    detail: str | None = None,
+) -> dict[str, object]:
     return _base_event(
         session_id=session_id,
         event_type="BINDING",
-        payload={"project_id": project_id},
+        payload={
+            "project_id": project_id,
+            "conditions_verified": conditions_verified or [],
+            "failed_condition": failed_condition,
+            "soft_failed": soft_failed or [],
+            "detail": detail,
+        },
     )
 
 
