@@ -9,7 +9,13 @@ from colorama import Style
 
 from .approval import derive_action_status
 from .binding import bind_project
-from .events import append_event, build_binding_event, build_human_approval_event, read_events
+from .events import (
+    append_event,
+    build_binding_event,
+    build_human_approval_event,
+    build_human_denial_event,
+    read_events,
+)
 from .lock import LockRecord, read_lock, validate_lock, write_lock
 from .runtime_paths import event_log_path, lock_path, session_path
 from .session_store import write_json_atomic
@@ -30,6 +36,25 @@ def approve_command(*, repo_root: Path, action_hash: str, approver_meta: dict[st
             session_id=lock.session_id,
             action_hash=action_hash,
             approver_meta=approver_meta,
+        ),
+    )
+
+
+def deny_command(*, repo_root: Path, action_hash: str, reason: str) -> None:
+    current_lock_path = repo_root / ".agent-os.lock"
+    try:
+        lock = read_lock(current_lock_path)
+    except FileNotFoundError:
+        raise RuntimeError("Cannot deny in a detached session. Please re-bind the project.")
+    is_valid, _reason = validate_lock(lock, repo_root=repo_root)
+    if not is_valid:
+        raise RuntimeError("Cannot deny in a detached session. Please re-bind the project.")
+    append_event(
+        Path(lock.log_path),
+        build_human_denial_event(
+            session_id=lock.session_id,
+            action_hash=action_hash,
+            reason=reason,
         ),
     )
 
@@ -84,7 +109,8 @@ def main(argv: list[str] | None = None) -> None:
         approve_command(repo_root=Path.cwd(), action_hash=args.action_hash, approver_meta={"actor": "human"})
         return
     if args.cmd == "deny":
-        raise NotImplementedError("deny wired in task implementation")
+        deny_command(repo_root=Path.cwd(), action_hash=args.action_hash, reason=args.reason)
+        return
     if args.cmd == "status":
         print(render_status(active=False, canonical_state="NO SESSIONS FOUND", projection_state=None))
         return

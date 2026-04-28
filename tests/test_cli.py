@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from context_os_runtime.approval import derive_action_status
-from context_os_runtime.cli import approve_command, main
+from context_os_runtime.cli import approve_command, deny_command, main
 from context_os_runtime.events import append_event
 
 
@@ -82,3 +82,23 @@ def test_bind_command_creates_lock_and_runtime_layout(
     assert (repo_root / ".agent-os.lock").exists()
     assert (repo_root / ".agent-os" / "runtime" / "events.jsonl").exists()
     assert (repo_root / ".agent-os" / "runtime" / "session.json").exists()
+
+
+def test_deny_command_rejects_detached_session(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    (repo_root / ".agent-os.yaml").write_text(
+        "\n".join(
+            [
+                "project_id: brain-playground",
+                "domain_type: trading-research",
+                "runtime_version: 0.1.x",
+                "memory_namespace: brain-playground",
+                "verification_profile: production",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RuntimeError, match="Cannot deny in a detached session"):
+        deny_command(repo_root=repo_root, action_hash="hash-1", reason="unsafe")
