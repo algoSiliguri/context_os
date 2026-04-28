@@ -749,3 +749,38 @@ def test_doctor_output_includes_next_steps_section(
     out = capsys.readouterr().out
     assert "What to do next:" in out
     assert "Run `context-os bind` in this repository" in out
+
+
+# ---------------------------------------------------------------------------
+# Task 10: bind exits non-zero on constitution hard-fail
+# ---------------------------------------------------------------------------
+
+
+def test_bind_command_exits_nonzero_on_constitution_hard_fail(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    path = repo_root / "AGENT_OS_CONSTITUTION.md"
+    path.write_text(path.read_text(encoding="utf-8") + "\n# tampered", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as exc_info:
+        bind_command(repo_root=repo_root)
+
+    assert exc_info.value.code == 1
+
+
+def test_bind_command_emits_not_active_event_on_hard_fail(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    path = repo_root / "AGENT_OS_CONSTITUTION.md"
+    path.write_text(path.read_text(encoding="utf-8") + "\n# tampered", encoding="utf-8")
+
+    with pytest.raises(SystemExit):
+        bind_command(repo_root=repo_root)
+
+    log_path = repo_root / ".agent-os" / "runtime" / "events.jsonl"
+    events = read_events(log_path)
+    binding_events = [e for e in events if e["event_type"] == "BINDING"]
+    assert binding_events
+    assert binding_events[-1]["payload"]["failed_condition"] == "C4"

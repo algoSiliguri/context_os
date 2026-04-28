@@ -13,7 +13,7 @@ from knowledge_brain.approval_store import ApprovalStore
 from knowledge_brain.store import Store
 
 from .approval import derive_action_status
-from .binding import bind_project, resolve_effective_critical_actions
+from .binding import BindingError, bind_project, resolve_effective_critical_actions
 from .doctor import render_doctor_report, run_doctor
 from .events import (
     append_event,
@@ -234,9 +234,36 @@ def _effective_execution_view(
 
 
 def bind_command(*, repo_root: Path) -> object:
-    record = bind_project(repo_root)
+    from uuid import uuid4
     log_path = _log_path(repo_root)
-    append_event(log_path, build_binding_event(session_id=record.session_id, project_id=record.project_id))
+    try:
+        record = bind_project(repo_root)
+    except BindingError as exc:
+        session_id = f"sess-{uuid4().hex[:12]}"
+        append_event(
+            log_path,
+            build_binding_event(
+                session_id=session_id,
+                project_id="unknown",
+                failed_condition=exc.condition,
+                detail=exc.detail,
+            ),
+        )
+        print(
+            f"ERROR  Binding failed: {exc.condition} — {exc.detail}\n"
+            "       Resolve the issue above before binding.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+    append_event(
+        log_path,
+        build_binding_event(
+            session_id=record.session_id,
+            project_id=record.project_id,
+            conditions_verified=record.verification_passed,
+            soft_failed=record.verification_soft_failed,
+        ),
+    )
     append_event(log_path, build_state_transition_event(session_id=record.session_id, to_state="IDLE"))
     _append_heartbeat(log_path, session_id=record.session_id, state="ACTIVE")
     write_session_snapshot(session_snapshot_path(repo_root), record)
