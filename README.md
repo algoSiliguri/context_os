@@ -80,6 +80,13 @@ python3 scripts/verify_agent_os_bundle.py
 
 Pass = ready. Fail = the exact line tells you what's missing or mismatched.
 
+## Runtime Binding
+
+Each consumer repo becomes Agent-Ready by adding a `.agent-os.yaml` manifest.
+The central `context_os` runtime binds that repo, resolves a runtime version,
+builds a session binding record, mounts memory namespaces, and enforces
+deterministic state transitions through append-only event logging.
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
