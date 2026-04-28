@@ -15,7 +15,15 @@ from knowledge_brain.store import Store
 from .approval import derive_action_status
 from .binding import bind_project, resolve_effective_critical_actions
 from .doctor import render_doctor_report, run_doctor
-from .events import append_event, read_events
+from .events import (
+    append_event,
+    build_binding_event,
+    build_heartbeat_event,
+    build_human_approval_denied_event,
+    build_human_approval_received_event,
+    build_state_transition_event,
+    read_events,
+)
 from .lock import LockRecord, read_lock, validate_lock, write_lock
 from .manifest import load_project_manifest
 from .memory_router import build_memory_route
@@ -34,10 +42,13 @@ class StatusSnapshot:
     verification_profile: str | None
     critical_actions: list[str]
     canonical_state: str
+    runtime_health_state: str
+    canonical_approval_state: str | None
     projection_state: str | None
     current_action_hash: str | None
     current_capability: str | None
     effective_execution_state: str
+    authority_reason: str | None
     recent_approvals: list[str]
     recent_memory: list[str]
 
@@ -67,6 +78,13 @@ def _append_session_event(log_path: Path, *, session_id: str, event_type: str, *
     return event
 
 
+def _event_value(event: dict[str, object], key: str) -> object | None:
+    payload = event.get("payload")
+    if isinstance(payload, dict) and key in payload:
+        return payload[key]
+    return event.get(key)
+
+
 def _load_active_lock(repo_root: Path) -> LockRecord:
     lock_path = repo_root / ".agent-os.lock"
     try:
@@ -92,7 +110,7 @@ def _session_events(log_path: Path, session_id: str) -> list[dict[str, object]]:
 
 def _latest_action_hash(events: list[dict[str, object]]) -> str | None:
     for event in reversed(events):
-        action_hash = event.get("action_hash")
+        action_hash = _event_value(event, "action_hash")
         if action_hash:
             return str(action_hash)
     return None
@@ -102,8 +120,8 @@ def _latest_capability(events: list[dict[str, object]], action_hash: str | None)
     if action_hash is None:
         return None
     for event in reversed(events):
-        if event.get("action_hash") == action_hash and event.get("capability"):
-            return str(event["capability"])
+        if _event_value(event, "action_hash") == action_hash and _event_value(event, "capability"):
+            return str(_event_value(event, "capability"))
     return None
 
 
@@ -113,7 +131,7 @@ def _canonical_state(log_path: Path, session_id: str, events: list[dict[str, obj
     action_hash = _latest_action_hash(events)
     if action_hash is not None:
         for event in reversed(events):
-            if event.get("action_hash") != action_hash:
+            if _event_value(event, "action_hash") != action_hash:
                 continue
             if event["event_type"] == "EXECUTION_STARTED":
                 return "EXECUTING", action_hash
@@ -126,9 +144,11 @@ def _canonical_state(log_path: Path, session_id: str, events: list[dict[str, obj
                 if status.final_status == "APPROVED":
                     return "AWAITING_APPROVAL", action_hash
     latest = events[-1]["event_type"]
+    if latest == "STATE_TRANSITION" and _event_value(events[-1], "to_state") == "IDLE":
+        return "IDLE", action_hash
     if latest == "SESSION_IDLE":
         return "IDLE", action_hash
-    if latest == "SESSION_BOUND":
+    if latest in {"BINDING", "SESSION_BOUND"}:
         return "BOUND", action_hash
     if latest in {"HUMAN_APPROVAL_DENIED", "SYSTEM_AUTO_REJECTED"}:
         return "IDLE", action_hash
@@ -159,11 +179,66 @@ def _load_recent_memory(db_path: Path) -> list[str]:
     return [item.content for item in items]
 
 
+def _heartbeat_payload(*, state: str) -> dict[str, object]:
+    return {
+        "state": state,
+        "queue_depth": 0,
+        "loaded_skills": [],
+        "hot_cache_size": 0,
+        "cold_cache_size": 0,
+        "last_error": None,
+    }
+
+
+def _append_heartbeat(log_path: Path, *, session_id: str, state: str) -> dict[str, object]:
+    event = build_heartbeat_event(session_id=session_id, state=state)
+    append_event(log_path, event)
+    return event
+
+
+def _runtime_health_state(*, active: bool, events: list[dict[str, object]]) -> str:
+    if not active:
+        return "DETACHED"
+    heartbeat_event = next((event for event in reversed(events) if event.get("event_type") == "HEARTBEAT"), None)
+    if heartbeat_event is None:
+        return "ACTIVE"
+    heartbeat_at = datetime.fromisoformat(str(heartbeat_event["timestamp"]))
+    age_seconds = (datetime.now(UTC) - heartbeat_at).total_seconds()
+    if age_seconds > 60:
+        return "DEGRADED"
+    if age_seconds > 30:
+        return "SUSPECT"
+    return "ACTIVE"
+
+
+def _effective_execution_view(
+    *,
+    active: bool,
+    canonical_state: str,
+    canonical_approval_state: str | None,
+    projection_state: str | None,
+) -> tuple[str, str | None]:
+    if canonical_approval_state == "APPROVED":
+        if active:
+            return "READY", None
+        return "BLOCKED", "Projection shows approval history, but detached status cannot authorize execution."
+    if canonical_approval_state == "PENDING":
+        return "BLOCKED", "Waiting for canonical approval for the current session."
+    if canonical_approval_state == "DENIED":
+        return "BLOCKED", "Canonical approval was denied for the current session."
+    if canonical_approval_state == "EXPIRED":
+        return "BLOCKED", "Canonical approval expired for the current session."
+    if projection_state == "APPROVED":
+        return "BLOCKED", "Projection shows approval history, but canonical authority is not approved for the current session."
+    return canonical_state, None
+
+
 def bind_command(*, repo_root: Path) -> object:
     record = bind_project(repo_root)
     log_path = _log_path(repo_root)
-    _append_session_event(log_path, session_id=record.session_id, event_type="SESSION_BOUND", project_id=record.project_id)
-    _append_session_event(log_path, session_id=record.session_id, event_type="SESSION_IDLE")
+    append_event(log_path, build_binding_event(session_id=record.session_id, project_id=record.project_id))
+    append_event(log_path, build_state_transition_event(session_id=record.session_id, to_state="IDLE"))
+    _append_heartbeat(log_path, session_id=record.session_id, state="ACTIVE")
     write_session_snapshot(session_snapshot_path(repo_root), record)
     write_lock(
         repo_root / ".agent-os.lock",
@@ -180,27 +255,28 @@ def bind_command(*, repo_root: Path) -> object:
 def approve_command(*, repo_root: Path, action_hash: str, approver_meta: dict[str, str]) -> None:
     lock = _load_active_lock(repo_root)
     manifest, route = _route_for_repo(repo_root)
-    event = _append_session_event(
-        Path(lock.log_path),
+    event = build_human_approval_received_event(
         session_id=lock.session_id,
-        event_type="HUMAN_APPROVAL_RECEIVED",
         action_hash=action_hash,
         approver_meta=approver_meta,
     )
+    append_event(Path(lock.log_path), event)
     mirror_approval_event(event, namespace=manifest.memory_namespace, db_path=route.project_db_path)
 
 
 def deny_command(*, repo_root: Path, action_hash: str, reason: str) -> None:
     lock = _load_active_lock(repo_root)
     manifest, route = _route_for_repo(repo_root)
-    event = _append_session_event(
-        Path(lock.log_path),
+    event = build_human_approval_denied_event(
         session_id=lock.session_id,
-        event_type="HUMAN_APPROVAL_DENIED",
         action_hash=action_hash,
         reason=reason,
     )
-    _append_session_event(Path(lock.log_path), session_id=lock.session_id, event_type="SESSION_IDLE")
+    append_event(Path(lock.log_path), event)
+    append_event(
+        Path(lock.log_path),
+        build_state_transition_event(session_id=lock.session_id, to_state="IDLE"),
+    )
     mirror_approval_event(event, namespace=manifest.memory_namespace, db_path=route.project_db_path)
 
 
@@ -234,26 +310,35 @@ def status_snapshot(*, repo_root: Path) -> StatusSnapshot:
                 manifest.critical_actions,
             ),
             canonical_state="NO SESSIONS FOUND",
+            runtime_health_state="DETACHED",
+            canonical_approval_state=None,
             projection_state=None,
             current_action_hash=None,
             current_capability=None,
             effective_execution_state="NO SESSIONS FOUND",
+            authority_reason=None,
             recent_approvals=[],
             recent_memory=_load_recent_memory(route.project_db_path),
         )
     events = _session_events(log_path, session_id)
     canonical_state, action_hash = _canonical_state(log_path, session_id, events)
+    runtime_health_state = _runtime_health_state(active=active, events=events)
+    canonical_approval_state = None if action_hash is None else derive_action_status(
+        log_path,
+        session_id=session_id,
+        action_hash=action_hash,
+    ).final_status
     projection_state, recent_approvals = _load_projection_state(
         route.project_db_path,
         session_id=session_id,
         action_hash=action_hash,
     )
-    if projection_state == "APPROVED" and canonical_state != "EXECUTING":
-        effective_execution_state = "BLOCKED"
-    elif canonical_state == "AWAITING_APPROVAL":
-        effective_execution_state = "BLOCKED"
-    else:
-        effective_execution_state = canonical_state
+    effective_execution_state, authority_reason = _effective_execution_view(
+        active=active,
+        canonical_state=canonical_state,
+        canonical_approval_state=canonical_approval_state,
+        projection_state=projection_state,
+    )
     return StatusSnapshot(
         mode=mode,
         active=active,
@@ -266,10 +351,13 @@ def status_snapshot(*, repo_root: Path) -> StatusSnapshot:
             manifest.critical_actions,
         ),
         canonical_state=canonical_state,
+        runtime_health_state=runtime_health_state,
+        canonical_approval_state=canonical_approval_state,
         projection_state=projection_state,
         current_action_hash=action_hash,
         current_capability=_latest_capability(events, action_hash),
         effective_execution_state=effective_execution_state,
+        authority_reason=authority_reason,
         recent_approvals=recent_approvals,
         recent_memory=_load_recent_memory(route.project_db_path),
     )
@@ -293,6 +381,8 @@ def render_status_view(snapshot: StatusSnapshot, *, use_color: bool) -> str:
         f"profile: {snapshot.verification_profile or 'unknown'}",
         f"critical_actions: {', '.join(snapshot.critical_actions) if snapshot.critical_actions else '(none)'}",
         f"canonical_state: {snapshot.canonical_state}",
+        f"runtime_health_state: {snapshot.runtime_health_state}",
+        f"canonical_approval_state: {snapshot.canonical_approval_state or 'NONE'}",
         f"effective_execution_state: {snapshot.effective_execution_state}",
         f"current_action_hash: {snapshot.current_action_hash or 'none'}",
         f"current_capability: {snapshot.current_capability or 'none'}",
@@ -301,6 +391,8 @@ def render_status_view(snapshot: StatusSnapshot, *, use_color: bool) -> str:
     if use_color and snapshot.projection_state is not None:
         projection_text = f"{state_color}{projection_text}{Style.RESET_ALL}"
     lines.append(f"projection_state: {projection_text}")
+    if snapshot.authority_reason is not None:
+        lines.append(f"authority_reason: {snapshot.authority_reason}")
     lines.append("recent_approvals:")
     lines.extend(f"  - {item}" for item in (snapshot.recent_approvals or ["(none)"]))
     lines.append("historical_memory:")
@@ -318,6 +410,12 @@ def watch_status(
     count = 0
     try:
         while iterations is None or count < iterations:
+            lock_path = repo_root / ".agent-os.lock"
+            if lock_path.exists():
+                lock = read_lock(lock_path)
+                is_valid, _reason = validate_lock(lock, repo_root=repo_root)
+                if is_valid:
+                    _append_heartbeat(Path(lock.log_path), session_id=lock.session_id, state="ACTIVE")
             snapshot = status_snapshot(repo_root=repo_root)
             stream.write("\033[2J\033[H")
             stream.write(render_status_view(snapshot, use_color=stream.isatty()))

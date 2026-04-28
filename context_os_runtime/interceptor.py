@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from .events import append_event
+from .events import append_event, build_action_requested_event, build_permission_denied_event
 from .manifest import load_project_manifest
 from .memory_router import build_memory_route
 from .projection import mirror_approval_event
@@ -34,21 +34,17 @@ def request_critical_action(
     )
     log_path = event_log_path(repo_root)
     requested_at = datetime.now(UTC)
+    expires_at = datetime.fromtimestamp(requested_at.timestamp() + ttl_seconds, tz=UTC)
     action_hash = compute_action_hash(capability, resolved_args)
-    event = {
-        "session_id": session_id,
-        "timestamp": requested_at.isoformat(),
-        "event_type": "ACTION_REQUESTED",
-        "action_hash": action_hash,
-        "capability": capability,
-        "params_digest_source": json.dumps(resolved_args, sort_keys=True),
-        "requested_at": requested_at.isoformat(),
-        "expires_at": (requested_at.timestamp() + ttl_seconds),
-    }
-    event["expires_at"] = datetime.fromtimestamp(
-        float(event["expires_at"]),
-        tz=UTC,
-    ).isoformat()
+    event = build_action_requested_event(
+        session_id=session_id,
+        action_hash=action_hash,
+        capability=capability,
+        params_digest_source=json.dumps(resolved_args, sort_keys=True),
+        requested_at=requested_at.isoformat(),
+        expires_at=expires_at.isoformat(),
+        timestamp=requested_at.isoformat(),
+    )
     append_event(log_path, event)
     mirror_approval_event(event, namespace=manifest.memory_namespace, db_path=route.project_db_path)
     return action_hash
@@ -68,13 +64,11 @@ def guard_memory_write(
     if requested_namespace == "global" and not global_writes_enabled:
         append_event(
             log_path,
-            {
-                "session_id": session_id,
-                "timestamp": datetime.now(UTC).isoformat(),
-                "event_type": "SECURITY_VIOLATION",
-                "action_hash": action_hash,
-                "reason": "global_memory_write_blocked",
-            },
+            build_permission_denied_event(
+                session_id=session_id,
+                action_hash=action_hash,
+                reason="global_memory_write_blocked",
+            ),
         )
         return False
     return False

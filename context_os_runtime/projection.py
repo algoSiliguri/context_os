@@ -18,18 +18,25 @@ def mirror_approval_event(event: dict[str, object], *, namespace: str, db_path: 
         store.upsert_projection(
             ApprovalProjection(
                 session_id=str(event["session_id"]),
-                action_hash=str(event["action_hash"]),
+                action_hash=str(_event_value(event, "action_hash")),
                 namespace=namespace,
-                capability=str(event.get("capability", "")),
-                requested_at=str(event.get("requested_at", event["timestamp"])),
-                expires_at=str(event.get("expires_at", event["timestamp"])),
+                capability=str(_event_value(event, "capability") or ""),
+                requested_at=str(_event_value(event, "requested_at") or event["timestamp"]),
+                expires_at=str(_event_value(event, "expires_at") or event["timestamp"]),
                 approved_at=str(event["timestamp"]) if final_status == "APPROVED" else None,
                 denied_at=str(event["timestamp"]) if final_status == "DENIED" else None,
                 invalidated_at=str(event["timestamp"]) if final_status == "EXPIRED" else None,
                 final_status=final_status,
-                reason=str(event.get("reason", "")),
+                reason=str(_event_value(event, "reason") or ""),
             )
         )
     except Exception:
         return True
     return True
+
+
+def _event_value(event: dict[str, object], key: str) -> object | None:
+    payload = event.get("payload")
+    if isinstance(payload, dict) and key in payload:
+        return payload[key]
+    return event.get(key)

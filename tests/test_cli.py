@@ -21,7 +21,7 @@ from context_os_runtime.cli import (
     status_snapshot,
     watch_status,
 )
-from context_os_runtime.events import append_event
+from context_os_runtime.events import append_event, build_heartbeat_event, build_state_transition_event, read_events
 from context_os_runtime.interceptor import request_critical_action
 from context_os_runtime.lock import read_lock
 
@@ -65,7 +65,21 @@ def test_bind_command_writes_lock_for_active_session(tmp_path: Path) -> None:
 
     assert lock.session_id == record.session_id
     assert lock.project_id == "brain-playground"
-    assert "SESSION_BOUND" in events
+    assert "BINDING" in events
+
+
+def test_bind_command_writes_canonical_binding_and_idle_transition(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+
+    bind_command(repo_root=repo_root)
+
+    events = read_events(repo_root / ".agent-os" / "runtime" / "events.jsonl")
+
+    assert [event["event_type"] for event in events[:2]] == ["BINDING", "STATE_TRANSITION"]
+    assert events[0]["payload"]["project_id"] == "brain-playground"
+    assert events[1]["payload"]["to_state"] == "IDLE"
 
 
 def test_bind_command_writes_canonical_runtime_artifacts(tmp_path: Path) -> None:
@@ -89,6 +103,34 @@ def test_bind_command_persists_session_snapshot(tmp_path: Path) -> None:
     snapshot = json.loads((repo_root / ".agent-os" / "runtime" / "session.json").read_text(encoding="utf-8"))
     assert snapshot["session_id"] == record.session_id
     assert snapshot["state"] == "BOUND"
+
+
+def test_bind_command_emits_initial_heartbeat(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+
+    bind_command(repo_root=repo_root)
+
+    events = read_events(repo_root / ".agent-os" / "runtime" / "events.jsonl")
+    heartbeat_events = [event for event in events if event["event_type"] == "HEARTBEAT"]
+
+    assert heartbeat_events
+    assert heartbeat_events[-1]["payload"]["state"] == "ACTIVE"
+
+
+def test_bind_command_emits_canonical_heartbeat_envelope(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+
+    bind_command(repo_root=repo_root)
+
+    events = read_events(repo_root / ".agent-os" / "runtime" / "events.jsonl")
+    heartbeat_events = [event for event in events if event["event_type"] == "HEARTBEAT"]
+
+    assert heartbeat_events[-1]["system_id"] == "agent-os"
+    assert heartbeat_events[-1]["payload"]["state"] == "ACTIVE"
 
 
 def test_active_lock_points_to_canonical_runtime_log(tmp_path: Path) -> None:
@@ -164,11 +206,35 @@ def test_status_snapshot_reports_active_pending_session(tmp_path: Path) -> None:
 
     assert snapshot.active is True
     assert snapshot.mode == "ACTIVE"
+    assert snapshot.runtime_health_state == "ACTIVE"
     assert snapshot.canonical_state == "AWAITING_APPROVAL"
     assert snapshot.current_action_hash == action_hash
     assert snapshot.projection_state == "PENDING"
     assert projection is not None
     assert projection.final_status == "PENDING"
+
+
+def test_request_critical_action_emits_canonical_payload_fields(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    binding = bind_command(repo_root=repo_root)
+
+    action_hash = request_critical_action(
+        repo_root=repo_root,
+        session_id=binding.session_id,
+        capability="trade_execute",
+        resolved_args={"ticker": "BTC", "size": 1.0},
+        ttl_seconds=30,
+    )
+
+    event = read_events(repo_root / ".agent-os" / "runtime" / "events.jsonl")[-1]
+
+    assert event["event_type"] == "ACTION_REQUESTED"
+    assert event["payload"]["action_hash"] == action_hash
+    assert event["payload"]["capability"] == "trade_execute"
+    assert "requested_at" in event["payload"]
+    assert "expires_at" in event["payload"]
 
 
 def test_status_snapshot_falls_back_to_detached_recent_session(tmp_path: Path) -> None:
@@ -213,6 +279,82 @@ def test_status_snapshot_reads_detached_session_from_runtime_log(tmp_path: Path)
     assert snapshot.session_id == binding.session_id
 
 
+def test_status_snapshot_reconstructs_idle_from_state_transition(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    binding = bind_command(repo_root=repo_root)
+    append_event(
+        repo_root / ".agent-os" / "runtime" / "events.jsonl",
+        build_state_transition_event(session_id=binding.session_id, to_state="IDLE"),
+    )
+
+    snapshot = status_snapshot(repo_root=repo_root)
+
+    assert snapshot.canonical_state == "IDLE"
+
+
+def test_status_snapshot_reports_suspect_when_heartbeat_is_stale(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    binding = bind_command(repo_root=repo_root)
+    append_event(
+        repo_root / ".agent-os" / "runtime" / "events.jsonl",
+        {
+            "session_id": binding.session_id,
+            "timestamp": (datetime.now(UTC) - timedelta(seconds=31)).isoformat(),
+            "event_type": "HEARTBEAT",
+            "payload": {"state": "ACTIVE", "queue_depth": 0, "loaded_skills": [], "hot_cache_size": 0, "cold_cache_size": 0, "last_error": None},
+        },
+    )
+
+    snapshot = status_snapshot(repo_root=repo_root)
+
+    assert snapshot.active is True
+    assert snapshot.runtime_health_state == "SUSPECT"
+
+
+def test_status_snapshot_reports_suspect_when_canonical_heartbeat_is_stale(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    binding = bind_command(repo_root=repo_root)
+    append_event(
+        repo_root / ".agent-os" / "runtime" / "events.jsonl",
+        build_heartbeat_event(
+            session_id=binding.session_id,
+            state="ACTIVE",
+            timestamp=(datetime.now(UTC) - timedelta(seconds=31)).isoformat(),
+        ),
+    )
+
+    snapshot = status_snapshot(repo_root=repo_root)
+
+    assert snapshot.runtime_health_state == "SUSPECT"
+
+
+def test_status_snapshot_reports_degraded_when_heartbeat_is_too_old(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    binding = bind_command(repo_root=repo_root)
+    append_event(
+        repo_root / ".agent-os" / "runtime" / "events.jsonl",
+        {
+            "session_id": binding.session_id,
+            "timestamp": (datetime.now(UTC) - timedelta(seconds=61)).isoformat(),
+            "event_type": "HEARTBEAT",
+            "payload": {"state": "ACTIVE", "queue_depth": 0, "loaded_skills": [], "hot_cache_size": 0, "cold_cache_size": 0, "last_error": None},
+        },
+    )
+
+    snapshot = status_snapshot(repo_root=repo_root)
+
+    assert snapshot.active is True
+    assert snapshot.runtime_health_state == "DEGRADED"
+
+
 def test_render_status_view_highlights_active_and_detached_states(tmp_path: Path) -> None:
     repo_root = tmp_path / "brain_playground"
     repo_root.mkdir()
@@ -228,6 +370,7 @@ def test_render_status_view_highlights_active_and_detached_states(tmp_path: Path
 
     active_view = render_status_view(status_snapshot(repo_root=repo_root), use_color=True)
     assert "ACTIVE SESSION" in active_view
+    assert "runtime_health_state: ACTIVE" in active_view
     assert Fore.YELLOW in active_view
     assert action_hash in active_view
 
@@ -261,6 +404,9 @@ def test_approve_command_mirrors_projection_and_unlocks_session(tmp_path: Path) 
     assert projection is not None
     assert projection.final_status == "APPROVED"
     assert snapshot.projection_state == "APPROVED"
+    assert snapshot.canonical_approval_state == "APPROVED"
+    assert snapshot.effective_execution_state == "READY"
+    assert snapshot.authority_reason is None
 
 
 def test_deny_command_marks_projection_denied(tmp_path: Path) -> None:
@@ -289,6 +435,53 @@ def test_deny_command_marks_projection_denied(tmp_path: Path) -> None:
     assert snapshot.canonical_state == "IDLE"
 
 
+def test_status_snapshot_blocks_detached_projection_only_approval(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    binding = bind_command(repo_root=repo_root)
+    action_hash = request_critical_action(
+        repo_root=repo_root,
+        session_id=binding.session_id,
+        capability="trade_execute",
+        resolved_args={"ticker": "BTC", "size": 1.0},
+        ttl_seconds=30,
+    )
+    approve_command(repo_root=repo_root, action_hash=action_hash, approver_meta={"actor": "human"})
+    (repo_root / ".agent-os.lock").unlink()
+
+    snapshot = status_snapshot(repo_root=repo_root)
+
+    assert snapshot.mode == "DETACHED"
+    assert snapshot.canonical_approval_state == "APPROVED"
+    assert snapshot.projection_state == "APPROVED"
+    assert snapshot.effective_execution_state == "BLOCKED"
+    assert snapshot.authority_reason == "Projection shows approval history, but detached status cannot authorize execution."
+
+
+def test_render_status_view_explains_projection_canonical_mismatch(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    binding = bind_command(repo_root=repo_root)
+    action_hash = request_critical_action(
+        repo_root=repo_root,
+        session_id=binding.session_id,
+        capability="trade_execute",
+        resolved_args={"ticker": "BTC", "size": 1.0},
+        ttl_seconds=30,
+    )
+    approve_command(repo_root=repo_root, action_hash=action_hash, approver_meta={"actor": "human"})
+    (repo_root / ".agent-os.lock").unlink()
+
+    view = render_status_view(status_snapshot(repo_root=repo_root), use_color=False)
+
+    assert "canonical_approval_state: APPROVED" in view
+    assert "projection_state: APPROVED" in view
+    assert "effective_execution_state: BLOCKED" in view
+    assert "authority_reason: Projection shows approval history, but detached status cannot authorize execution." in view
+
+
 def test_watch_status_clears_terminal_and_renders_snapshot(tmp_path: Path) -> None:
     repo_root = tmp_path / "brain_playground"
     repo_root.mkdir()
@@ -302,6 +495,22 @@ def test_watch_status_clears_terminal_and_renders_snapshot(tmp_path: Path) -> No
     output = stream.getvalue()
     assert "\033[2J\033[H" in output
     assert "ACTIVE SESSION" in output
+
+
+def test_watch_status_refreshes_heartbeat_for_active_session(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+    log_path = repo_root / ".agent-os" / "runtime" / "events.jsonl"
+    before = len([event for event in read_events(log_path) if event["event_type"] == "HEARTBEAT"])
+
+    stream = io.StringIO()
+    stream.isatty = lambda: False  # type: ignore[attr-defined]
+    watch_status(repo_root=repo_root, stream=stream, interval_seconds=0, iterations=1)
+
+    after = len([event for event in read_events(log_path) if event["event_type"] == "HEARTBEAT"])
+    assert after == before + 1
 
 
 def test_watch_status_handles_keyboard_interrupt_cleanly(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
