@@ -35,6 +35,7 @@ def test_write_and_read_lock(tmp_path: Path) -> None:
     assert loaded.session_id == "sess-abc123def456"
     assert loaded.project_id == "brain-playground"
     assert loaded.repo_root == str(tmp_path)
+    assert lock_path.read_text(encoding="utf-8").endswith("\n")
 
 
 def test_validate_lock_accepts_valid_session(tmp_path: Path) -> None:

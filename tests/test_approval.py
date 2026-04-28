@@ -110,3 +110,13 @@ def test_approved_action_survives_past_ttl(tmp_path: Path) -> None:
 
     assert status.final_status == "APPROVED"
     assert status.executable is True
+
+
+def test_missing_request_is_not_actionable(tmp_path: Path) -> None:
+    log_path = tmp_path / "events.jsonl"
+
+    status = derive_action_status(log_path, session_id="sess-123", action_hash="missing-hash")
+
+    assert status.final_status == "NOT_ACTIONABLE"
+    assert status.executable is False
+    assert status.blacklisted is False
