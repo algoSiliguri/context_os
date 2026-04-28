@@ -16,6 +16,8 @@ REQUIRED_FILES = [
     ".agent-os/schemas/constitution-binding.schema.json",
     ".agent-os/schemas/telemetry-event.schema.json",
     ".agent-os/schemas/permission-manifest.schema.json",
+    ".agent-os/schemas/project-binding.schema.json",
+    ".agent-os/schemas/session-binding-record.schema.json",
     ".agent-os/contracts/index.json",
     ".agent-os/contracts/signature.json",
     "execution/SKILL_REGISTRY.md",

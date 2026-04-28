@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-os.local/schemas/session-binding-record.schema.json",
+  "title": "Session Binding Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "project_id",
+    "runtime_version",
+    "repo_root",
+    "memory_namespace",
+    "state"
+  ],
+  "properties": {
+    "project_id": { "type": "string" },
+    "runtime_version": { "type": "string" },
+    "repo_root": { "type": "string" },
+    "memory_namespace": { "type": "string" },
+    "state": { "const": "BOUND" }
+  }
+}
