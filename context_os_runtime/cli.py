@@ -12,6 +12,7 @@ from .binding import bind_project
 from .events import append_event, read_events
 from .lock import LockRecord, read_lock, validate_lock, write_lock
 from .runtime_paths import event_log_path, lock_path, session_path
+from .session_store import write_json_atomic
 
 
 def approve_command(*, repo_root: Path, action_hash: str, approver_meta: dict[str, str]) -> None:
@@ -64,7 +65,7 @@ def bind_command(*, repo_root: Path) -> None:
             log_path=str(log_path),
         ),
     )
-    session_path(repo_root).write_text(record.model_dump_json(indent=2), encoding="utf-8")
+    write_json_atomic(session_path(repo_root), record.model_dump(mode="json"))
     print(render_status(active=True, canonical_state=record.state, projection_state=None))
 
 
