@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 import io
+import json
+import shutil
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 from colorama import Fore, Style
 from knowledge_brain.approval_store import ApprovalStore
+from knowledge_brain.store import Store
 
 from context_os_runtime.approval import derive_action_status
 from context_os_runtime.cli import (
     approve_command,
     bind_command,
     deny_command,
+    main,
     render_status_view,
     status_snapshot,
     watch_status,
@@ -42,6 +46,14 @@ def _write_manifest(repo_root: Path) -> None:
     )
 
 
+def _fake_verifier_ok(*, repo_root: Path):
+    return True, "Agent OS bundle verification passed"
+
+
+def _fake_verifier_fail(*, repo_root: Path):
+    return False, "Bundle verification failed. Repair the Agent OS bundle before relying on this repository."
+
+
 def test_bind_command_writes_lock_for_active_session(tmp_path: Path) -> None:
     repo_root = tmp_path / "brain_playground"
     repo_root.mkdir()
@@ -49,11 +61,45 @@ def test_bind_command_writes_lock_for_active_session(tmp_path: Path) -> None:
 
     record = bind_command(repo_root=repo_root)
     lock = read_lock(repo_root / ".agent-os.lock")
-    events = (repo_root / ".agent-os" / "events.jsonl").read_text(encoding="utf-8")
+    events = (repo_root / ".agent-os" / "runtime" / "events.jsonl").read_text(encoding="utf-8")
 
     assert lock.session_id == record.session_id
     assert lock.project_id == "brain-playground"
     assert "SESSION_BOUND" in events
+
+
+def test_bind_command_writes_canonical_runtime_artifacts(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+
+    bind_command(repo_root=repo_root)
+
+    assert (repo_root / ".agent-os" / "runtime" / "events.jsonl").exists()
+    assert (repo_root / ".agent-os" / "runtime" / "session.json").exists()
+
+
+def test_bind_command_persists_session_snapshot(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+
+    record = bind_command(repo_root=repo_root)
+
+    snapshot = json.loads((repo_root / ".agent-os" / "runtime" / "session.json").read_text(encoding="utf-8"))
+    assert snapshot["session_id"] == record.session_id
+    assert snapshot["state"] == "BOUND"
+
+
+def test_active_lock_points_to_canonical_runtime_log(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+
+    bind_command(repo_root=repo_root)
+
+    lock = read_lock(repo_root / ".agent-os.lock")
+    assert Path(lock.log_path) == repo_root / ".agent-os" / "runtime" / "events.jsonl"
 
 
 def test_approve_command_rejects_detached_session(tmp_path: Path) -> None:
@@ -144,6 +190,26 @@ def test_status_snapshot_falls_back_to_detached_recent_session(tmp_path: Path) -
     assert snapshot.active is False
     assert snapshot.mode == "DETACHED"
     assert snapshot.canonical_state == "AWAITING_APPROVAL"
+    assert snapshot.session_id == binding.session_id
+
+
+def test_status_snapshot_reads_detached_session_from_runtime_log(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    binding = bind_command(repo_root=repo_root)
+    request_critical_action(
+        repo_root=repo_root,
+        session_id=binding.session_id,
+        capability="trade_execute",
+        resolved_args={"ticker": "BTC", "size": 1.0},
+        ttl_seconds=30,
+    )
+    (repo_root / ".agent-os.lock").unlink()
+
+    snapshot = status_snapshot(repo_root=repo_root)
+
+    assert snapshot.mode == "DETACHED"
     assert snapshot.session_id == binding.session_id
 
 
@@ -253,3 +319,147 @@ def test_watch_status_handles_keyboard_interrupt_cleanly(tmp_path: Path, monkeyp
     monkeypatch.setattr("context_os_runtime.cli.time.sleep", _boom)
 
     watch_status(repo_root=repo_root, stream=stream, interval_seconds=2, iterations=None)
+
+
+def test_doctor_reports_healthy_repo(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+    store = Store(repo_root / "data_store" / "knowledge.db")
+    store.init_schema()
+    monkeypatch.setattr("context_os_runtime.doctor.run_bundle_verifier", _fake_verifier_ok)
+    monkeypatch.setattr(shutil, "which", lambda _name: "/usr/local/bin/brain")
+
+    with pytest.raises(SystemExit) as exc:
+        main(["doctor", "--repo", str(repo_root)])
+
+    out = capsys.readouterr().out
+    assert exc.value.code == 0
+    assert "Agent OS doctor: HEALTHY" in out
+    assert "OK    Project manifest loaded" in out
+
+
+def test_doctor_warns_when_repo_is_detached(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+    (repo_root / ".agent-os.lock").unlink()
+    monkeypatch.setattr("context_os_runtime.doctor.run_bundle_verifier", _fake_verifier_ok)
+    monkeypatch.setattr(shutil, "which", lambda _name: "/usr/local/bin/brain")
+
+    with pytest.raises(SystemExit) as exc:
+        main(["doctor", "--repo", str(repo_root)])
+
+    out = capsys.readouterr().out
+    assert exc.value.code == 0
+    assert "Agent OS doctor: ATTENTION NEEDED" in out
+    assert "No active lock found" in out
+
+
+def test_doctor_fails_when_manifest_is_missing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    monkeypatch.setattr("context_os_runtime.doctor.run_bundle_verifier", _fake_verifier_ok)
+    monkeypatch.setattr(shutil, "which", lambda _name: "/usr/local/bin/brain")
+
+    with pytest.raises(SystemExit) as exc:
+        main(["doctor", "--repo", str(repo_root)])
+
+    assert exc.value.code == 1
+    assert "valid .agent-os.yaml" in capsys.readouterr().out
+
+
+def test_doctor_fails_when_active_lock_has_no_canonical_log(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+    (repo_root / ".agent-os" / "runtime" / "events.jsonl").unlink()
+    monkeypatch.setattr("context_os_runtime.doctor.run_bundle_verifier", _fake_verifier_ok)
+    monkeypatch.setattr(shutil, "which", lambda _name: "/usr/local/bin/brain")
+
+    with pytest.raises(SystemExit) as exc:
+        main(["doctor", "--repo", str(repo_root)])
+
+    out = capsys.readouterr().out
+    assert exc.value.code == 1
+    assert "Canonical runtime log is missing" in out
+
+
+def test_doctor_warns_when_brain_cli_is_missing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+    monkeypatch.setattr("context_os_runtime.doctor.run_bundle_verifier", _fake_verifier_ok)
+    monkeypatch.setattr(shutil, "which", lambda _name: None)
+
+    with pytest.raises(SystemExit) as exc:
+        main(["doctor", "--repo", str(repo_root)])
+
+    out = capsys.readouterr().out
+    assert exc.value.code == 0
+    assert "brain CLI is not available" in out
+
+
+def test_doctor_fails_when_bundle_verifier_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+    monkeypatch.setattr("context_os_runtime.doctor.run_bundle_verifier", _fake_verifier_fail)
+    monkeypatch.setattr(shutil, "which", lambda _name: "/usr/local/bin/brain")
+
+    with pytest.raises(SystemExit) as exc:
+        main(["doctor", "--repo", str(repo_root)])
+
+    out = capsys.readouterr().out
+    assert exc.value.code == 1
+    assert "Bundle verification failed" in out
+
+
+def test_doctor_output_includes_next_steps_section(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+    (repo_root / ".agent-os.lock").unlink()
+    monkeypatch.setattr("context_os_runtime.doctor.run_bundle_verifier", _fake_verifier_ok)
+    monkeypatch.setattr(shutil, "which", lambda _name: None)
+
+    with pytest.raises(SystemExit):
+        main(["doctor", "--repo", str(repo_root)])
+
+    out = capsys.readouterr().out
+    assert "What to do next:" in out
+    assert "Run `context-os bind` in this repository" in out

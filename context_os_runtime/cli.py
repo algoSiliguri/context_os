@@ -14,11 +14,14 @@ from knowledge_brain.store import Store
 
 from .approval import derive_action_status
 from .binding import bind_project, resolve_effective_critical_actions
+from .doctor import render_doctor_report, run_doctor
 from .events import append_event, read_events
 from .lock import LockRecord, read_lock, validate_lock, write_lock
 from .manifest import load_project_manifest
 from .memory_router import build_memory_route
 from .projection import mirror_approval_event
+from .runtime_paths import event_log_path, session_snapshot_path
+from .session_store import write_session_snapshot
 
 
 @dataclass(slots=True)
@@ -40,7 +43,7 @@ class StatusSnapshot:
 
 
 def _log_path(repo_root: Path) -> Path:
-    return repo_root / ".agent-os" / "events.jsonl"
+    return event_log_path(repo_root)
 
 
 def _global_root(repo_root: Path) -> Path:
@@ -141,10 +144,9 @@ def _load_projection_state(db_path: Path, *, session_id: str | None, action_hash
         projection = store.get_projection(session_id, action_hash)
         if projection is not None:
             projection_state = projection.final_status
-    recent = [
-        f"{item.final_status} {item.capability or 'unknown'} {item.action_hash}"
-        for item in store.list_recent(session_id=session_id, limit=5)
-    ]
+    recent = []
+    if projection is not None:
+        recent.append(f"{projection.final_status} {projection.capability or 'unknown'} {projection.action_hash}")
     return projection_state, recent
 
 
@@ -162,6 +164,7 @@ def bind_command(*, repo_root: Path) -> object:
     log_path = _log_path(repo_root)
     _append_session_event(log_path, session_id=record.session_id, event_type="SESSION_BOUND", project_id=record.project_id)
     _append_session_event(log_path, session_id=record.session_id, event_type="SESSION_IDLE")
+    write_session_snapshot(session_snapshot_path(repo_root), record)
     write_lock(
         repo_root / ".agent-os.lock",
         LockRecord(
@@ -342,6 +345,8 @@ def main(argv: list[str] | None = None) -> None:
     deny = sub.add_parser("deny")
     deny.add_argument("action_hash")
     deny.add_argument("--reason", required=True)
+    doctor = sub.add_parser("doctor")
+    doctor.add_argument("--repo")
     status = sub.add_parser("status")
     status.add_argument("--watch", action="store_true")
     status.add_argument("--repo")
@@ -356,6 +361,11 @@ def main(argv: list[str] | None = None) -> None:
     if args.cmd == "deny":
         deny_command(repo_root=Path.cwd(), action_hash=args.action_hash, reason=args.reason)
         return
+    if args.cmd == "doctor":
+        repo_root = _resolve_repo_root(args.repo)
+        report = run_doctor(repo_root=repo_root)
+        print(render_doctor_report(report))
+        raise SystemExit(report.exit_code)
     if args.cmd == "status":
         repo_root = _resolve_repo_root(args.repo)
         if args.watch:

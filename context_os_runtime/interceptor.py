@@ -10,6 +10,7 @@ from .events import append_event
 from .manifest import load_project_manifest
 from .memory_router import build_memory_route
 from .projection import mirror_approval_event
+from .runtime_paths import event_log_path
 
 
 def compute_action_hash(capability: str, resolved_args: dict[str, Any]) -> str:
@@ -31,7 +32,7 @@ def request_critical_action(
         repo_root=repo_root,
         global_root=repo_root.parent / ".knowledge-brain",
     )
-    log_path = repo_root / ".agent-os" / "events.jsonl"
+    log_path = event_log_path(repo_root)
     requested_at = datetime.now(UTC)
     action_hash = compute_action_hash(capability, resolved_args)
     event = {
