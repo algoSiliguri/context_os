@@ -9,11 +9,11 @@ This dashboard estimates implementation completion against the approved Phase 1 
 
 | Area | Completion | Current State | Main Gap |
 |---|---:|---|---|
-| Binding | 45% | Manifest loading, runtime version resolution, in-memory session record creation exist | No end-to-end `bind`, no constitution verification at bind time, no session snapshot persistence |
-| CLI | 25% | `approve` is partially wired | No `bind`, `deny` is stubbed, `status` is placeholder-only |
+| Binding | 80% | `bind` verifies the runtime bundle, persists session state, writes the lock, and appends a canonical binding event | Detached reconstruction is still status-only; no richer lifecycle transitions yet |
+| CLI | 70% | `bind`, `approve`, `deny`, and disk-backed `status` exist for the Phase 1 kernel | No `doctor`, no `--watch`, and no richer operator views yet |
 | Skills | 15% | Registry and skill docs exist | Out of Phase 1 scope |
-| Enforcement | 20% | Approval derivation and event logging primitives exist | Phase 1 only needs approval truth, not execution interception |
-| Memory | 60% | Memory route model exists | Phase 1 only needs disk-truth compatibility, not new memory UX |
+| Enforcement | 35% | Approval truth, denial, expiry, and canonical event modeling exist | Execution interception and capability enforcement are still out of scope |
+| Memory | 60% | Memory route model exists | Phase 1 only established disk-truth compatibility, not new memory UX |
 
 ## 2. Prioritized Epics
 
