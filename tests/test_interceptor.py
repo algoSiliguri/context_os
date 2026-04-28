@@ -25,7 +25,7 @@ def test_guard_memory_write_allows_matching_namespace(tmp_path: Path) -> None:
     assert allowed is True
 
 
-def test_guard_memory_write_blocks_global_and_logs_violation(tmp_path: Path) -> None:
+def test_guard_memory_write_blocks_global_and_logs_permission_denied(tmp_path: Path) -> None:
     log_path = tmp_path / "events.jsonl"
     allowed = guard_memory_write(
         session_id="sess-1",
@@ -37,7 +37,8 @@ def test_guard_memory_write_blocks_global_and_logs_violation(tmp_path: Path) -> 
     )
     assert allowed is False
     contents = log_path.read_text(encoding="utf-8")
-    assert "SECURITY_VIOLATION" in contents
+    assert "PERMISSION_DENIED" in contents
+    assert "SECURITY_VIOLATION" not in contents
     assert "global_memory_write_blocked" in contents
 
 

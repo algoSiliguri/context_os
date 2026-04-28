@@ -2,7 +2,11 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from context_os_runtime.approval import derive_action_status
-from context_os_runtime.events import append_event
+from context_os_runtime.events import (
+    append_event,
+    build_action_requested_event,
+    build_human_approval_received_event,
+)
 
 
 def test_blacklisted_hash_is_not_executable_even_if_later_approved(tmp_path: Path) -> None:
@@ -105,6 +109,34 @@ def test_approved_action_survives_past_ttl(tmp_path: Path) -> None:
         "event_type": "HUMAN_APPROVAL_RECEIVED", "action_hash": "hash-4",
         "approver_meta": {"actor": "human"},
     })
+
+    status = derive_action_status(log_path, session_id="sess-123", action_hash="hash-4")
+
+    assert status.final_status == "APPROVED"
+    assert status.executable is True
+
+
+def test_approved_action_survives_past_ttl_from_payload_fields(tmp_path: Path) -> None:
+    log_path = tmp_path / "events.jsonl"
+    append_event(
+        log_path,
+        build_action_requested_event(
+            session_id="sess-123",
+            action_hash="hash-4",
+            capability="trade_execute",
+            params_digest_source="{}",
+            requested_at=datetime.now(UTC).isoformat(),
+            expires_at=(datetime.now(UTC) - timedelta(seconds=1)).isoformat(),
+        ),
+    )
+    append_event(
+        log_path,
+        build_human_approval_received_event(
+            session_id="sess-123",
+            action_hash="hash-4",
+            approver_meta={"actor": "human"},
+        ),
+    )
 
     status = derive_action_status(log_path, session_id="sess-123", action_hash="hash-4")
 

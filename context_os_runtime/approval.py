@@ -18,12 +18,13 @@ def derive_action_status(log_path: Path, *, session_id: str, action_hash: str) -
     now = datetime.now(UTC)
     requested_event: dict[str, object] | None = None
     approved = False
-    final_status = "PENDING"
+    final_status = "NOT_ACTIONABLE"
     for event in read_events(log_path):
-        if event.get("session_id") != session_id or event.get("action_hash") != action_hash:
+        if event.get("session_id") != session_id or _event_value(event, "action_hash") != action_hash:
             continue
         if event["event_type"] == "ACTION_REQUESTED":
             requested_event = event
+            final_status = "PENDING"
         elif event["event_type"] == "HUMAN_APPROVAL_DENIED":
             final_status = "DENIED"
         elif event["event_type"] == "SYSTEM_AUTO_REJECTED":
@@ -33,10 +34,17 @@ def derive_action_status(log_path: Path, *, session_id: str, action_hash: str) -
             final_status = "APPROVED"
 
     if requested_event is not None and final_status == "PENDING":
-        expires_at = datetime.fromisoformat(str(requested_event["expires_at"]))
+        expires_at = datetime.fromisoformat(str(_event_value(requested_event, "expires_at")))
         if now > expires_at:
             final_status = "EXPIRED"
 
     blacklisted = final_status in {"DENIED", "EXPIRED"}
     executable = approved and not blacklisted
     return ActionStatus(final_status=final_status, executable=executable, blacklisted=blacklisted)
+
+
+def _event_value(event: dict[str, object], key: str) -> object | None:
+    payload = event.get("payload")
+    if isinstance(payload, dict) and key in payload:
+        return payload[key]
+    return event.get(key)
