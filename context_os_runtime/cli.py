@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import argparse
 import io
+import json
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -32,7 +33,7 @@ from .runtime_paths import event_log_path, session_snapshot_path
 from .session_store import write_session_snapshot
 
 
-@dataclass(slots=True)
+@dataclass
 class StatusSnapshot:
     mode: str
     active: bool
@@ -51,10 +52,28 @@ class StatusSnapshot:
     authority_reason: str | None
     recent_approvals: list[str]
     recent_memory: list[str]
+    binding_degraded: bool = False
+    binding_degraded_detail: str | None = None
 
 
 def _log_path(repo_root: Path) -> Path:
     return event_log_path(repo_root)
+
+
+def _load_binding_degraded(repo_root: Path) -> tuple[bool, str | None]:
+    path = session_snapshot_path(repo_root)
+    if not path.exists():
+        return False, None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        degraded = bool(data.get("binding_degraded", False))
+        soft_failed = data.get("verification_soft_failed", [])
+        detail = (
+            f"soft-fail conditions: {', '.join(soft_failed)}" if soft_failed else None
+        )
+        return degraded, detail
+    except Exception:
+        return False, None
 
 
 def _global_root(repo_root: Path) -> Path:
@@ -325,6 +344,7 @@ def status_snapshot(*, repo_root: Path) -> StatusSnapshot:
     if session_id is None:
         session_id = _find_latest_session_id(log_path)
     if session_id is None:
+        _bd, _bd_detail = _load_binding_degraded(repo_root)
         return StatusSnapshot(
             mode="DETACHED",
             active=False,
@@ -346,6 +366,8 @@ def status_snapshot(*, repo_root: Path) -> StatusSnapshot:
             authority_reason=None,
             recent_approvals=[],
             recent_memory=_load_recent_memory(route.project_db_path),
+            binding_degraded=_bd,
+            binding_degraded_detail=_bd_detail,
         )
     events = _session_events(log_path, session_id)
     canonical_state, action_hash = _canonical_state(log_path, session_id, events)
@@ -366,6 +388,7 @@ def status_snapshot(*, repo_root: Path) -> StatusSnapshot:
         canonical_approval_state=canonical_approval_state,
         projection_state=projection_state,
     )
+    _bd, _bd_detail = _load_binding_degraded(repo_root)
     return StatusSnapshot(
         mode=mode,
         active=active,
@@ -387,6 +410,8 @@ def status_snapshot(*, repo_root: Path) -> StatusSnapshot:
         authority_reason=authority_reason,
         recent_approvals=recent_approvals,
         recent_memory=_load_recent_memory(route.project_db_path),
+        binding_degraded=_bd,
+        binding_degraded_detail=_bd_detail,
     )
 
 
@@ -424,6 +449,12 @@ def render_status_view(snapshot: StatusSnapshot, *, use_color: bool) -> str:
     lines.extend(f"  - {item}" for item in (snapshot.recent_approvals or ["(none)"]))
     lines.append("historical_memory:")
     lines.extend(f"  - {item}" for item in (snapshot.recent_memory or ["(none)"]))
+    if snapshot.binding_degraded:
+        lines.append("")
+        lines.append("DEGRADED_BINDING  C10 schema load failed — telemetry/permission schemas")
+        if snapshot.binding_degraded_detail:
+            lines.append(f"                  ({snapshot.binding_degraded_detail})")
+        lines.append("                  Run `context-os doctor` for details.")
     return "\n".join(lines)
 
 

@@ -784,3 +784,25 @@ def test_bind_command_emits_not_active_event_on_hard_fail(tmp_path: Path) -> Non
     binding_events = [e for e in events if e["event_type"] == "BINDING"]
     assert binding_events
     assert binding_events[-1]["payload"]["failed_condition"] == "C4"
+
+
+# ---------------------------------------------------------------------------
+# Task 11: status shows DEGRADED_BINDING when binding_degraded=True
+# ---------------------------------------------------------------------------
+
+
+def test_status_shows_degraded_binding_when_binding_degraded(tmp_path: Path) -> None:
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    (repo_root / ".agent-os" / "schemas" / "telemetry-event.schema.json").write_text(
+        "{ bad json }", encoding="utf-8"
+    )
+
+    bind_command(repo_root=repo_root)
+    snapshot = status_snapshot(repo_root=repo_root)
+    output = render_status_view(snapshot, use_color=False)
+
+    assert snapshot.binding_degraded is True
+    assert "DEGRADED_BINDING" in output
+    assert "C10" in output
