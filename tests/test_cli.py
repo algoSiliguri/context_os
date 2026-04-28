@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 import shutil
@@ -25,6 +26,81 @@ from context_os_runtime.events import append_event, build_heartbeat_event, build
 from context_os_runtime.interceptor import request_critical_action
 from context_os_runtime.lock import read_lock
 
+# ---------------------------------------------------------------------------
+# Constitution fixture helper (shared across tests that call bind_command)
+# ---------------------------------------------------------------------------
+
+_CONSTITUTION_TEMPLATE = """\
+## [B0] Binding Header
+
+```yaml
+system-id: agent-os
+version: v2
+canonical-path: AGENT_OS_CONSTITUTION.md
+content-hash: "{content_hash}"
+schema-version: "1.0.0"
+contract-index-hash: "{contract_index_hash}"
+clause-count: 1
+blocks: [B0]
+binding-mode: header-first
+signature-required: false
+```
+"""
+
+_BINDING_SCHEMA = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "system-id", "version", "canonical-path", "content-hash",
+        "schema-version", "contract-index-hash", "clause-count",
+        "blocks", "binding-mode", "signature-required",
+    ],
+    "properties": {
+        "system-id": {"const": "agent-os"},
+        "version": {"type": "string", "pattern": "^v[0-9]+$"},
+        "canonical-path": {"type": "string", "minLength": 1},
+        "content-hash": {"type": "string", "pattern": "^[a-f0-9]{64}$|^$"},
+        "schema-version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "contract-index-hash": {"type": "string", "pattern": "^[a-f0-9]{64}$|^$"},
+        "clause-count": {"type": "integer", "minimum": 1},
+        "blocks": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^B[0-9]+$"}},
+        "binding-mode": {"type": "string", "enum": ["header-first"]},
+        "signature-required": {"type": "boolean"},
+    },
+}
+
+
+def _write_constitution(repo_root: Path) -> None:
+    schemas = repo_root / ".agent-os" / "schemas"
+    schemas.mkdir(parents=True, exist_ok=True)
+    (schemas / "constitution-binding.schema.json").write_text(
+        json.dumps(_BINDING_SCHEMA, indent=2), encoding="utf-8"
+    )
+    (schemas / "telemetry-event.schema.json").write_text(
+        json.dumps({"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object"}),
+        encoding="utf-8",
+    )
+    (schemas / "permission-manifest.schema.json").write_text(
+        json.dumps({"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object"}),
+        encoding="utf-8",
+    )
+    contracts = repo_root / ".agent-os" / "contracts"
+    contracts.mkdir(parents=True, exist_ok=True)
+    index_text = json.dumps(
+        {"schema_version": "1.0.0", "system_id": "agent-os", "version": "v2", "artifacts": {}},
+        sort_keys=True,
+    )
+    contract_index_hash = hashlib.sha256(index_text.encode("utf-8")).hexdigest()
+    (contracts / "index.json").write_text(index_text, encoding="utf-8")
+    (repo_root / ".agent-os" / "runtime").mkdir(parents=True, exist_ok=True)
+    placeholder = _CONSTITUTION_TEMPLATE.format(content_hash="", contract_index_hash=contract_index_hash)
+    content_hash = hashlib.sha256(placeholder.encode("utf-8")).hexdigest()
+    constitution = _CONSTITUTION_TEMPLATE.format(
+        content_hash=content_hash, contract_index_hash=contract_index_hash
+    )
+    (repo_root / "AGENT_OS_CONSTITUTION.md").write_text(constitution, encoding="utf-8")
+
 
 def _write_manifest(repo_root: Path) -> None:
     (repo_root / ".agent-os.yaml").write_text(
@@ -44,6 +120,7 @@ def _write_manifest(repo_root: Path) -> None:
         ),
         encoding="utf-8",
     )
+    _write_constitution(repo_root)
 
 
 def _fake_verifier_ok(*, repo_root: Path):
