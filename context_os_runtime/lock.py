@@ -16,6 +16,7 @@ class LockRecord(BaseModel):
 
 
 def write_lock(path: Path, record: LockRecord) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(record.model_dump_json(indent=2), encoding="utf-8")
 
 

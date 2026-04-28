@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from context_os_runtime.approval import derive_action_status
-from context_os_runtime.cli import approve_command
+from context_os_runtime.cli import approve_command, main
 from context_os_runtime.events import append_event
 
 
@@ -48,3 +48,37 @@ def test_projection_history_does_not_unlock_new_session(tmp_path: Path) -> None:
 
     assert status.executable is False
     assert status.final_status == "PENDING"
+
+
+def test_bind_command_creates_lock_and_runtime_layout(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (repo_root / ".agent-os.yaml").write_text(
+        "\n".join(
+            [
+                "project_id: sample-project",
+                "domain_type: generic-software",
+                "runtime_version: 0.1.x",
+                "memory_namespace: sample-project",
+                "verification_profile: default",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    cwd = Path.cwd()
+    try:
+        import os
+
+        os.chdir(repo_root)
+        main(["bind"])
+    finally:
+        os.chdir(cwd)
+
+    out = capsys.readouterr().out
+    assert "ACTIVE canonical=BOUND" in out
+    assert (repo_root / ".agent-os.lock").exists()
+    assert (repo_root / ".agent-os" / "runtime" / "events.jsonl").exists()
+    assert (repo_root / ".agent-os" / "runtime" / "session.json").exists()

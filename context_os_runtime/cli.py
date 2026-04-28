@@ -8,8 +8,10 @@ from pathlib import Path
 from colorama import Style
 
 from .approval import derive_action_status
+from .binding import bind_project
 from .events import append_event, read_events
-from .lock import read_lock, validate_lock
+from .lock import LockRecord, read_lock, validate_lock, write_lock
+from .runtime_paths import event_log_path, lock_path, session_path
 
 
 def approve_command(*, repo_root: Path, action_hash: str, approver_meta: dict[str, str]) -> None:
@@ -39,9 +41,37 @@ def render_status(*, active: bool, canonical_state: str, projection_state: str |
     return f"{color}{prefix} canonical={canonical_state} projection={projection_state or 'NONE'}{Style.RESET_ALL}"
 
 
+def bind_command(*, repo_root: Path) -> None:
+    record = bind_project(repo_root)
+    log_path = event_log_path(repo_root)
+    append_event(
+        log_path,
+        {
+            "session_id": record.session_id,
+            "timestamp": datetime.now(UTC).isoformat(),
+            "event_type": "BINDING",
+            "project_id": record.project_id,
+            "state": record.state,
+            "runtime_version": record.runtime_version,
+        },
+    )
+    write_lock(
+        lock_path(repo_root),
+        LockRecord(
+            session_id=record.session_id,
+            project_id=record.project_id,
+            repo_root=str(repo_root),
+            log_path=str(log_path),
+        ),
+    )
+    session_path(repo_root).write_text(record.model_dump_json(indent=2), encoding="utf-8")
+    print(render_status(active=True, canonical_state=record.state, projection_state=None))
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="context-os")
     sub = parser.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("bind")
     approve = sub.add_parser("approve")
     approve.add_argument("action_hash")
     deny = sub.add_parser("deny")
@@ -50,6 +80,9 @@ def main(argv: list[str] | None = None) -> None:
     status = sub.add_parser("status")
     status.add_argument("--watch", action="store_true")
     args = parser.parse_args(argv)
+    if args.cmd == "bind":
+        bind_command(repo_root=Path.cwd())
+        return
     if args.cmd == "approve":
         approve_command(repo_root=Path.cwd(), action_hash=args.action_hash, approver_meta={"actor": "human"})
         return

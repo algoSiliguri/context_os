@@ -22,6 +22,7 @@ class SessionBindingRecord(BaseModel):
     project_id: str
     runtime_version: str
     repo_root: str
+    runtime_dir: str
     memory_namespace: str
     state: str
     effective_critical_actions: list[str]
