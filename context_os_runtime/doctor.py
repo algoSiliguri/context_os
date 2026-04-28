@@ -6,6 +6,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from .constitution_verifier import _check_c10, _check_c11, _check_c4, _check_c7, _check_c8, _parse_b0_header
 from .lock import read_lock, validate_lock
 from .manifest import load_project_manifest
 from .memory_router import build_memory_route
@@ -26,6 +27,82 @@ class DoctorReport:
     exit_code: int
     checks: list[DoctorCheck]
     next_steps: list[str]
+
+
+def _constitution_integrity_checks(repo_root: Path) -> list[DoctorCheck]:
+    checks: list[DoctorCheck] = []
+    constitution_path = repo_root / "AGENT_OS_CONSTITUTION.md"
+
+    r = _check_c11(repo_root)
+    checks.append(DoctorCheck(
+        name="Constitution C11 — runtime dirs writable",
+        severity="OK" if r.hard_failed is None else "FAIL",
+        detail=r.detail or "Runtime directories are readable and writable.",
+        remediation="Fix directory permissions or re-bind to recreate runtime directories." if r.hard_failed else None,
+    ))
+    if r.hard_failed:
+        for cid in ("C4", "C8", "C7", "C10"):
+            checks.append(DoctorCheck(
+                name=f"Constitution {cid} — skipped",
+                severity="WARN",
+                detail="Skipped because C11 failed.",
+            ))
+        return checks
+
+    if not constitution_path.exists():
+        for cid in ("C4", "C8", "C7", "C10"):
+            checks.append(DoctorCheck(
+                name=f"Constitution {cid} — constitution missing",
+                severity="FAIL",
+                detail="AGENT_OS_CONSTITUTION.md not found.",
+                remediation="Restore AGENT_OS_CONSTITUTION.md before binding.",
+            ))
+        return checks
+
+    b0 = _parse_b0_header(constitution_path.read_text(encoding="utf-8"))
+    if b0 is None:
+        for cid in ("C4", "C8", "C7", "C10"):
+            checks.append(DoctorCheck(
+                name=f"Constitution {cid} — B0 parse failed",
+                severity="FAIL",
+                detail="Could not parse B0 header block.",
+                remediation="Restore a valid AGENT_OS_CONSTITUTION.md before binding.",
+            ))
+        return checks
+
+    r = _check_c4(constitution_path, b0)
+    checks.append(DoctorCheck(
+        name="Constitution C4 — content-hash",
+        severity="OK" if r.hard_failed is None else "FAIL",
+        detail=r.detail or "C4 check passed.",
+        remediation="Restore and re-bind to resolve C4 failure." if r.hard_failed else None,
+    ))
+
+    r = _check_c8(repo_root, b0)
+    checks.append(DoctorCheck(
+        name="Constitution C8 — contract-index-hash",
+        severity="OK" if r.hard_failed is None else "FAIL",
+        detail=r.detail or "C8 check passed.",
+        remediation="Restore and re-bind to resolve C8 failure." if r.hard_failed else None,
+    ))
+
+    r = _check_c7(repo_root, b0)
+    checks.append(DoctorCheck(
+        name="Constitution C7 — B0 schema validation",
+        severity="OK" if r.hard_failed is None else "FAIL",
+        detail=r.detail or "C7 check passed.",
+        remediation="Restore and re-bind to resolve C7 failure." if r.hard_failed else None,
+    ))
+
+    r = _check_c10(repo_root)
+    checks.append(DoctorCheck(
+        name="Constitution C10 — schema parse",
+        severity="WARN" if r.soft_failed else "OK",
+        detail=r.detail or "Telemetry and permission schemas parse successfully.",
+        remediation="Restore schema files under .agent-os/schemas/ and re-bind." if r.soft_failed else None,
+    ))
+
+    return checks
 
 
 def run_bundle_verifier(*, repo_root: Path) -> tuple[bool, str]:
@@ -259,6 +336,7 @@ def run_doctor(*, repo_root: Path) -> DoctorReport:
     checks.append(_projection_check(repo_root, manifest))
     checks.append(_brain_cli_check())
     checks.append(_bundle_check(repo_root))
+    checks.extend(_constitution_integrity_checks(repo_root))
 
     if any(check.severity == "FAIL" for check in checks):
         summary = "BLOCKED"

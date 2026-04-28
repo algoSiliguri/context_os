@@ -806,3 +806,43 @@ def test_status_shows_degraded_binding_when_binding_degraded(tmp_path: Path) -> 
     assert snapshot.binding_degraded is True
     assert "DEGRADED_BINDING" in output
     assert "C10" in output
+
+
+# ---------------------------------------------------------------------------
+# Task 12: doctor shows constitution integrity check group
+# ---------------------------------------------------------------------------
+
+
+def test_doctor_reports_constitution_integrity_checks(tmp_path: Path) -> None:
+    from context_os_runtime.doctor import run_doctor
+
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+
+    report = run_doctor(repo_root=repo_root)
+    check_names = [c.name for c in report.checks]
+
+    assert any("C11" in name for name in check_names)
+    assert any("C4" in name for name in check_names)
+    assert any("C8" in name for name in check_names)
+    assert any("C7" in name for name in check_names)
+    assert any("C10" in name for name in check_names)
+
+
+def test_doctor_reports_constitution_c4_fail_when_tampered(tmp_path: Path) -> None:
+    from context_os_runtime.doctor import run_doctor
+
+    repo_root = tmp_path / "brain_playground"
+    repo_root.mkdir()
+    _write_manifest(repo_root)
+    bind_command(repo_root=repo_root)
+    path = repo_root / "AGENT_OS_CONSTITUTION.md"
+    path.write_text(path.read_text(encoding="utf-8") + "\n# tampered", encoding="utf-8")
+
+    report = run_doctor(repo_root=repo_root)
+    c4_checks = [c for c in report.checks if "C4" in c.name]
+
+    assert c4_checks
+    assert c4_checks[0].severity == "FAIL"
