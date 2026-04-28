@@ -26,4 +26,5 @@ def test_bad_actor_global_write_is_blocked_and_logged(tmp_path: Path) -> None:
 
     assert allowed is False
     contents = log_path.read_text(encoding="utf-8")
-    assert "SECURITY_VIOLATION" in contents
+    assert "PERMISSION_DENIED" in contents
+    assert "SECURITY_VIOLATION" not in contents

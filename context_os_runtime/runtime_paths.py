@@ -15,5 +15,9 @@ def event_log_path(repo_root: Path) -> Path:
     return runtime_dir(repo_root) / "events.jsonl"
 
 
-def session_path(repo_root: Path) -> Path:
+def session_snapshot_path(repo_root: Path) -> Path:
     return runtime_dir(repo_root) / "session.json"
+
+
+def session_path(repo_root: Path) -> Path:
+    return session_snapshot_path(repo_root)

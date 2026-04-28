@@ -34,3 +34,6 @@ class SessionBindingRecord(BaseModel):
     state: str
     effective_critical_actions: list[str]
     bound_at: datetime
+    verification_passed: list[str] = Field(default_factory=list)
+    verification_soft_failed: list[str] = Field(default_factory=list)
+    binding_degraded: bool = False

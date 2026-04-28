@@ -2,10 +2,13 @@ from pathlib import Path
 
 from context_os_runtime.events import (
     append_event,
-    build_action_requested_event,
     build_binding_event,
-    build_human_approval_event,
-    build_human_denial_event,
+    build_heartbeat_event,
+    build_permission_denied_event,
+    build_skill_load_event,
+    build_skill_unload_event,
+    build_state_transition_event,
+    build_violation_event,
     read_events,
 )
 
@@ -27,42 +30,70 @@ def test_read_events_returns_empty_for_missing_file(tmp_path: Path) -> None:
     assert result == []
 
 
-def test_event_builders_emit_canonical_shapes() -> None:
-    binding = build_binding_event(
+def test_append_event_persists_canonical_envelope(tmp_path: Path) -> None:
+    log_path = tmp_path / "events.jsonl"
+    event = build_binding_event(session_id="sess-1", project_id="brain-playground")
+    append_event(log_path, event)
+
+    events = read_events(log_path)
+
+    assert len(events) == 1
+    assert events[0]["event_type"] == "BINDING"
+    assert events[0]["session_id"] == "sess-1"
+    assert events[0]["system_id"] == "agent-os"
+    assert events[0]["constitution_version"] == "v2"
+    assert events[0]["harness_id"] == "context-os-runtime"
+    assert "event_id" in events[0]
+    assert "trace_id" in events[0]
+    assert "span_id" in events[0]
+    assert "parent_span_id" in events[0]
+    assert events[0]["payload"]["project_id"] == "brain-playground"
+
+
+def test_build_binding_event_includes_verification_fields() -> None:
+    event = build_binding_event(
         session_id="sess-1",
-        project_id="sample-project",
-        state="BOUND",
-        runtime_version="0.1.0",
+        project_id="test",
+        conditions_verified=["C11", "C4"],
+        failed_condition="C8",
+        soft_failed=[],
+        detail="contract-index-hash mismatch",
     )
-    requested = build_action_requested_event(
+
+    assert event["payload"]["conditions_verified"] == ["C11", "C4"]
+    assert event["payload"]["failed_condition"] == "C8"
+    assert event["payload"]["soft_failed"] == []
+    assert event["payload"]["detail"] == "contract-index-hash mismatch"
+
+
+def test_build_binding_event_defaults_verification_fields() -> None:
+    event = build_binding_event(session_id="sess-1", project_id="test")
+
+    assert event["payload"]["conditions_verified"] == []
+    assert event["payload"]["failed_condition"] is None
+    assert event["payload"]["soft_failed"] == []
+    assert event["payload"]["detail"] is None
+
+
+def test_builder_helpers_cover_visibility_and_completeness_families() -> None:
+    heartbeat = build_heartbeat_event(session_id="sess-1", state="ACTIVE")
+    transition = build_state_transition_event(session_id="sess-1", to_state="IDLE")
+    denied = build_permission_denied_event(
         session_id="sess-1",
         action_hash="hash-1",
-        capability="deploy",
-        params_digest_source="{}",
-        requested_at="2026-04-28T00:00:00+00:00",
-        expires_at="2026-04-28T00:01:00+00:00",
+        reason="global_memory_write_blocked",
     )
-    approved = build_human_approval_event(
-        session_id="sess-1",
-        action_hash="hash-1",
-        approver_meta={"actor": "human"},
-    )
-    denied = build_human_denial_event(
-        session_id="sess-1",
-        action_hash="hash-1",
-        reason="unsafe",
-    )
+    skill_load = build_skill_load_event(session_id="sess-1", skill_name="brain-capture")
+    skill_unload = build_skill_unload_event(session_id="sess-1", skill_name="brain-capture")
+    violation = build_violation_event(session_id="sess-1", reason="constitution_breach")
 
-    assert binding["event_type"] == "BINDING"
-    assert binding["project_id"] == "sample-project"
-    assert "timestamp" in binding
-
-    assert requested["event_type"] == "ACTION_REQUESTED"
-    assert requested["capability"] == "deploy"
-    assert requested["expires_at"] == "2026-04-28T00:01:00+00:00"
-
-    assert approved["event_type"] == "HUMAN_APPROVAL_RECEIVED"
-    assert approved["approver_meta"] == {"actor": "human"}
-
-    assert denied["event_type"] == "HUMAN_APPROVAL_DENIED"
-    assert denied["reason"] == "unsafe"
+    assert heartbeat["event_type"] == "HEARTBEAT"
+    assert heartbeat["payload"]["state"] == "ACTIVE"
+    assert transition["event_type"] == "STATE_TRANSITION"
+    assert transition["payload"]["to_state"] == "IDLE"
+    assert denied["event_type"] == "PERMISSION_DENIED"
+    assert denied["payload"]["reason"] == "global_memory_write_blocked"
+    assert skill_load["event_type"] == "SKILL_LOAD"
+    assert skill_load["payload"]["skill_name"] == "brain-capture"
+    assert skill_unload["event_type"] == "SKILL_UNLOAD"
+    assert violation["event_type"] == "VIOLATION"

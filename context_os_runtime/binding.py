@@ -5,24 +5,42 @@ from pathlib import Path
 from uuid import uuid4
 
 from .authority import verify_runtime_bundle
+from .constitution_verifier import verify_constitution
 from .manifest import load_project_manifest
 from .models import SessionBindingRecord
 from .runtime_paths import runtime_dir
 from .versioning import resolve_runtime_version
 
-_PROFILE_BASELINES = {
+_PROFILE_BASELINES: dict[str, list[str]] = {
     "default": [],
     "sandbox": [],
-    "research": ["external_api_call", "global_memory_write"],
-    "production": ["external_api_call", "global_memory_write", "trade_execute", "deploy"],
+    "research": [],
+    "production": [],
 }
+
+
+class BindingError(Exception):
+    def __init__(self, condition: str, detail: str) -> None:
+        super().__init__(detail)
+        self.condition = condition
+        self.detail = detail
+
+
+def resolve_effective_critical_actions(verification_profile: str, critical_actions: list[str]) -> list[str]:
+    baseline = _PROFILE_BASELINES.get(verification_profile, [])
+    return sorted(set([*baseline, *critical_actions]))
 
 
 def bind_project(repo_root: Path) -> SessionBindingRecord:
     verify_runtime_bundle()
     manifest = load_project_manifest(repo_root / ".agent-os.yaml")
-    baseline = _PROFILE_BASELINES.get(manifest.verification_profile, [])
-    effective = sorted(set([*baseline, *manifest.critical_actions]))
+    effective = resolve_effective_critical_actions(
+        manifest.verification_profile,
+        manifest.critical_actions,
+    )
+    result = verify_constitution(repo_root)
+    if result.hard_failed:
+        raise BindingError(result.hard_failed, result.detail or "Constitution verification failed.")
     return SessionBindingRecord(
         session_id=f"sess-{uuid4().hex[:12]}",
         project_id=manifest.project_id,
@@ -33,4 +51,7 @@ def bind_project(repo_root: Path) -> SessionBindingRecord:
         state="BOUND",
         effective_critical_actions=effective,
         bound_at=datetime.now(UTC),
+        verification_passed=result.passed,
+        verification_soft_failed=result.soft_failed,
+        binding_degraded=bool(result.soft_failed),
     )
