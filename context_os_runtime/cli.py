@@ -9,7 +9,7 @@ from colorama import Style
 
 from .approval import derive_action_status
 from .binding import bind_project
-from .events import append_event, read_events
+from .events import append_event, build_binding_event, build_human_approval_event, read_events
 from .lock import LockRecord, read_lock, validate_lock, write_lock
 from .runtime_paths import event_log_path, lock_path, session_path
 from .session_store import write_json_atomic
@@ -26,13 +26,11 @@ def approve_command(*, repo_root: Path, action_hash: str, approver_meta: dict[st
         raise RuntimeError("Cannot approve in a detached session. Please re-bind the project.")
     append_event(
         Path(lock.log_path),
-        {
-            "session_id": lock.session_id,
-            "timestamp": datetime.now(UTC).isoformat(),
-            "event_type": "HUMAN_APPROVAL_RECEIVED",
-            "action_hash": action_hash,
-            "approver_meta": approver_meta,
-        },
+        build_human_approval_event(
+            session_id=lock.session_id,
+            action_hash=action_hash,
+            approver_meta=approver_meta,
+        ),
     )
 
 
@@ -47,14 +45,12 @@ def bind_command(*, repo_root: Path) -> None:
     log_path = event_log_path(repo_root)
     append_event(
         log_path,
-        {
-            "session_id": record.session_id,
-            "timestamp": datetime.now(UTC).isoformat(),
-            "event_type": "BINDING",
-            "project_id": record.project_id,
-            "state": record.state,
-            "runtime_version": record.runtime_version,
-        },
+        build_binding_event(
+            session_id=record.session_id,
+            project_id=record.project_id,
+            state=record.state,
+            runtime_version=record.runtime_version,
+        ),
     )
     write_lock(
         lock_path(repo_root),
