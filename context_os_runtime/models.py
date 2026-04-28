@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ProjectManifest(BaseModel):
@@ -15,6 +15,13 @@ class ProjectManifest(BaseModel):
     global_memory_read: bool = True
     global_memory_write: bool = False
     critical_actions: list[str] = Field(default_factory=list)
+
+    @field_validator("critical_actions")
+    @classmethod
+    def validate_critical_actions(cls, value: list[str]) -> list[str]:
+        if any(not action.strip() for action in value):
+            raise ValueError("critical actions must not contain blanks")
+        return value
 
 
 class SessionBindingRecord(BaseModel):
