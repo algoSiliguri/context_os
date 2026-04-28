@@ -65,6 +65,14 @@ def render_status(*, active: bool, canonical_state: str, projection_state: str |
     return f"{color}{prefix} canonical={canonical_state} projection={projection_state or 'NONE'}{Style.RESET_ALL}"
 
 
+def _latest_session_state(log_path: Path) -> str:
+    state = "NO SESSIONS FOUND"
+    for event in read_events(log_path):
+        if event.get("event_type") == "BINDING":
+            state = str(event.get("state", "BOUND"))
+    return state
+
+
 def bind_command(*, repo_root: Path) -> None:
     record = bind_project(repo_root)
     log_path = event_log_path(repo_root)
@@ -90,6 +98,28 @@ def bind_command(*, repo_root: Path) -> None:
     print(render_status(active=True, canonical_state=record.state, projection_state=None))
 
 
+def status_command(*, repo_root: Path) -> None:
+    current_lock_path = lock_path(repo_root)
+    current_log_path = event_log_path(repo_root)
+    try:
+        lock = read_lock(current_lock_path)
+    except FileNotFoundError:
+        if current_log_path.exists():
+            print(render_status(active=False, canonical_state=_latest_session_state(current_log_path), projection_state=None))
+            return
+        print(render_status(active=False, canonical_state="NO SESSIONS FOUND", projection_state=None))
+        return
+
+    is_valid, _reason = validate_lock(lock, repo_root=repo_root)
+    if is_valid:
+        print(render_status(active=True, canonical_state=_latest_session_state(Path(lock.log_path)), projection_state=None))
+        return
+    if current_log_path.exists():
+        print(render_status(active=False, canonical_state=_latest_session_state(current_log_path), projection_state=None))
+        return
+    print(render_status(active=False, canonical_state="NO SESSIONS FOUND", projection_state=None))
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="context-os")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -112,6 +142,6 @@ def main(argv: list[str] | None = None) -> None:
         deny_command(repo_root=Path.cwd(), action_hash=args.action_hash, reason=args.reason)
         return
     if args.cmd == "status":
-        print(render_status(active=False, canonical_state="NO SESSIONS FOUND", projection_state=None))
+        status_command(repo_root=Path.cwd())
         return
     sys.exit(1)

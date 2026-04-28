@@ -102,3 +102,58 @@ def test_deny_command_rejects_detached_session(tmp_path: Path) -> None:
 
     with pytest.raises(RuntimeError, match="Cannot deny in a detached session"):
         deny_command(repo_root=repo_root, action_hash="hash-1", reason="unsafe")
+
+
+def test_status_reports_active_bound_session(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (repo_root / ".agent-os.yaml").write_text(
+        "\n".join(
+            [
+                "project_id: sample-project",
+                "domain_type: generic-software",
+                "runtime_version: 0.1.x",
+                "memory_namespace: sample-project",
+                "verification_profile: default",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    cwd = Path.cwd()
+    try:
+        import os
+
+        os.chdir(repo_root)
+        main(["bind"])
+        capsys.readouterr()
+        main(["status"])
+    finally:
+        os.chdir(cwd)
+
+    out = capsys.readouterr().out
+    assert "ACTIVE canonical=BOUND" in out
+
+
+def test_status_reconstructs_detached_session_from_event_log(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo_root = tmp_path / "repo"
+    runtime_dir = repo_root / ".agent-os" / "runtime"
+    runtime_dir.mkdir(parents=True)
+    (runtime_dir / "events.jsonl").write_text(
+        '{"event_type": "BINDING", "project_id": "sample-project", "runtime_version": "0.1.0", "session_id": "sess-1", "state": "BOUND", "timestamp": "2026-04-28T00:00:00+00:00"}\n',
+        encoding="utf-8",
+    )
+
+    cwd = Path.cwd()
+    try:
+        import os
+
+        os.chdir(repo_root)
+        main(["status"])
+    finally:
+        os.chdir(cwd)
+
+    out = capsys.readouterr().out
+    assert "DETACHED canonical=BOUND" in out
