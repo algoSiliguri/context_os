@@ -1,19 +1,19 @@
-import { describe, expect, it, beforeAll } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, copyFileSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { deriveActionStatus } from '../../src/core/approval';
 import { bindProject } from '../../src/core/binding';
-import { computeConstitutionHash, computeJsonFileHash } from '../../src/core/hash';
+import { readEvents } from '../../src/core/event-log';
 import {
   buildBindingEvent,
-  buildToolRequestedEvent,
   buildToolApprovedEvent,
+  buildToolRequestedEvent,
 } from '../../src/core/events';
-import { appendJsonlEventAtomic } from '../../src/core/session-store';
+import { computeConstitutionHash, computeJsonFileHash } from '../../src/core/hash';
 import { eventLogPath } from '../../src/core/runtime-paths';
-import { readEvents } from '../../src/core/event-log';
-import { deriveActionStatus } from '../../src/core/approval';
+import { appendJsonlEventAtomic } from '../../src/core/session-store';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -63,26 +63,35 @@ workspace:
     expect(record.session_id).toMatch(/^sess-/);
 
     const log = eventLogPath(repoRoot);
-    appendJsonlEventAtomic(log, buildBindingEvent({
-      sessionId: record.session_id,
-      projectId: 'smoke',
-      state: 'BOUND',
-      conditionsVerified: record.verification_passed,
-      runtimeVersion: record.runtime_version,
-    }));
-    appendJsonlEventAtomic(log, buildToolRequestedEvent({
-      sessionId: record.session_id,
-      actionHash: 'h-smoke',
-      capability: 'memory_write_global',
-      paramsDigestSource: '{}',
-      requestedAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 30000).toISOString(),
-    }));
-    appendJsonlEventAtomic(log, buildToolApprovedEvent({
-      sessionId: record.session_id,
-      actionHash: 'h-smoke',
-      approverMeta: { user: 'test' },
-    }));
+    appendJsonlEventAtomic(
+      log,
+      buildBindingEvent({
+        sessionId: record.session_id,
+        projectId: 'smoke',
+        state: 'BOUND',
+        conditionsVerified: record.verification_passed,
+        runtimeVersion: record.runtime_version,
+      }),
+    );
+    appendJsonlEventAtomic(
+      log,
+      buildToolRequestedEvent({
+        sessionId: record.session_id,
+        actionHash: 'h-smoke',
+        capability: 'memory_write_global',
+        paramsDigestSource: '{}',
+        requestedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30000).toISOString(),
+      }),
+    );
+    appendJsonlEventAtomic(
+      log,
+      buildToolApprovedEvent({
+        sessionId: record.session_id,
+        actionHash: 'h-smoke',
+        approverMeta: { user: 'test' },
+      }),
+    );
 
     const events = readEvents(log);
     expect(events).toHaveLength(3);

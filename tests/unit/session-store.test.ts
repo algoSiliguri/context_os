@@ -1,10 +1,10 @@
-import { describe, expect, it } from 'vitest';
-import { mkdtempSync, readFileSync, existsSync, appendFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import {
-  writeJsonAtomic,
   appendJsonlEventAtomic,
+  writeJsonAtomic,
   writeSessionSnapshot,
 } from '../../src/core/session-store';
 

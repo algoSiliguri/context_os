@@ -1,9 +1,13 @@
-import { describe, expect, it } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { computeActionHash, requestCriticalAction, guardMemoryWrite } from '../../src/core/interceptor';
+import { describe, expect, it } from 'vitest';
 import { readEvents } from '../../src/core/event-log';
+import {
+  computeActionHash,
+  guardMemoryWrite,
+  requestCriticalAction,
+} from '../../src/core/interceptor';
 
 describe('interceptor', () => {
   function setupRepo(): string {

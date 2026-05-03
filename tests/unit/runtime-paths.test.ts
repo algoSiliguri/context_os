@@ -19,14 +19,10 @@ describe('runtime-paths', () => {
   });
 
   it('eventLogPath returns runtime/events.jsonl', () => {
-    expect(eventLogPath(root)).toBe(
-      join(root, '.agent-os', 'runtime', 'events.jsonl'),
-    );
+    expect(eventLogPath(root)).toBe(join(root, '.agent-os', 'runtime', 'events.jsonl'));
   });
 
   it('sessionSnapshotPath returns runtime/session.json', () => {
-    expect(sessionSnapshotPath(root)).toBe(
-      join(root, '.agent-os', 'runtime', 'session.json'),
-    );
+    expect(sessionSnapshotPath(root)).toBe(join(root, '.agent-os', 'runtime', 'session.json'));
   });
 });

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import { buildMemoryRoute, scopeToDbPath } from '../../src/core/memory-router';
 
 describe('memory-router', () => {

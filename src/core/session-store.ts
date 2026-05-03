@@ -1,4 +1,4 @@
-import { mkdirSync, renameSync, writeFileSync, appendFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { SessionBindingRecord } from './models';
 
@@ -9,14 +9,14 @@ function ensureDir(filePath: string): void {
 export function writeJsonAtomic(path: string, payload: unknown): void {
   ensureDir(path);
   const tempPath = `${path}.tmp`;
-  const text = JSON.stringify(sortKeys(payload), null, 2) + '\n';
+  const text = `${JSON.stringify(sortKeys(payload), null, 2)}\n`;
   writeFileSync(tempPath, text, 'utf-8');
   renameSync(tempPath, path);
 }
 
 export function appendJsonlEventAtomic(path: string, payload: unknown): void {
   ensureDir(path);
-  const line = JSON.stringify(sortKeys(payload)) + '\n';
+  const line = `${JSON.stringify(sortKeys(payload))}\n`;
   appendFileSync(path, line, 'utf-8');
 }
 

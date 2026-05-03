@@ -1,9 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { mkdtempSync, appendFileSync } from 'node:fs';
+import { appendFileSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { appendJsonlEventAtomic } from '../../src/core/session-store';
+import { describe, expect, it } from 'vitest';
 import { readEvents } from '../../src/core/event-log';
+import { appendJsonlEventAtomic } from '../../src/core/session-store';
 
 describe('event-log', () => {
   it('readEvents on missing file returns []', () => {

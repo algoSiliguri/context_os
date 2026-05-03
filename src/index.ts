@@ -2,7 +2,11 @@
 export { bindProject, BindingError } from './core/binding';
 export { verifyConstitution } from './core/constitution';
 export { runDoctor } from './core/doctor';
-export { computeConstitutionHash, computeJsonFileHash, normalizeConstitutionForHash } from './core/hash';
+export {
+  computeConstitutionHash,
+  computeJsonFileHash,
+  normalizeConstitutionForHash,
+} from './core/hash';
 export { loadProjectConfig, ProjectConfig } from './core/manifest';
 export { runtimeDir, eventLogPath, sessionSnapshotPath, lockPath } from './core/runtime-paths';
 export { resolveRuntimeVersion } from './core/versioning';
@@ -21,10 +25,19 @@ export {
   buildToolDeniedEvent,
 } from './core/events';
 export { readEvents } from './core/event-log';
-export { appendJsonlEventAtomic, writeJsonAtomic, writeSessionSnapshot } from './core/session-store';
+export {
+  appendJsonlEventAtomic,
+  writeJsonAtomic,
+  writeSessionSnapshot,
+} from './core/session-store';
 export { computeActionHash, requestCriticalAction, guardMemoryWrite } from './core/interceptor';
 export { deriveActionStatus, type ActionStatus } from './core/approval';
 export { mirrorApprovalEvent, initProjectionSchema } from './core/projection';
-export { buildMemoryRoute, scopeToDbPath, type Scope, type MemoryRoute } from './core/memory-router';
+export {
+  buildMemoryRoute,
+  scopeToDbPath,
+  type Scope,
+  type MemoryRoute,
+} from './core/memory-router';
 export { LockRecord } from './core/lock';
 export { ProjectManifest, SessionBindingRecord, validateProjectManifest } from './core/models';

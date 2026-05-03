@@ -1,8 +1,8 @@
-import { describe, expect, it, beforeAll } from 'vitest';
-import { mkdtempSync, mkdirSync, writeFileSync, copyFileSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { bindProject } from '../../src/core/binding';
 import { computeConstitutionHash, computeJsonFileHash } from '../../src/core/hash';
 

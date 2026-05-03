@@ -1,12 +1,15 @@
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import { appendJsonlEventAtomic } from './session-store';
-import { buildToolRequestedEvent, buildPermissionDeniedEvent } from './events';
-import { eventLogPath } from './runtime-paths';
+import { buildPermissionDeniedEvent, buildToolRequestedEvent } from './events';
 import { loadProjectConfig } from './manifest';
 import { buildMemoryRoute } from './memory-router';
+import { eventLogPath } from './runtime-paths';
+import { appendJsonlEventAtomic } from './session-store';
 
-export function computeActionHash(capability: string, resolvedArgs: Record<string, unknown>): string {
+export function computeActionHash(
+  capability: string,
+  resolvedArgs: Record<string, unknown>,
+): string {
   const sorted = JSON.stringify({ capability, args: sortKeysDeep(resolvedArgs) });
   return createHash('sha256').update(sorted, 'utf-8').digest('hex').slice(0, 16);
 }

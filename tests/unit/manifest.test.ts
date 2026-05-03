@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadProjectConfig, ProjectConfig } from '../../src/core/manifest';
 import { Value } from '@sinclair/typebox/value';
+import { describe, expect, it } from 'vitest';
+import { ProjectConfig, loadProjectConfig } from '../../src/core/manifest';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURE = join(__dirname, '..', 'fixtures', 'project.yaml');

@@ -1,14 +1,14 @@
-import { describe, expect, it } from 'vitest';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { appendJsonlEventAtomic } from '../../src/core/session-store';
+import { describe, expect, it } from 'vitest';
+import { deriveActionStatus } from '../../src/core/approval';
 import {
-  buildToolRequestedEvent,
   buildToolApprovedEvent,
   buildToolDeniedEvent,
+  buildToolRequestedEvent,
 } from '../../src/core/events';
-import { deriveActionStatus } from '../../src/core/approval';
+import { appendJsonlEventAtomic } from '../../src/core/session-store';
 
 describe('approval', () => {
   function makeLog(): string {
@@ -24,27 +24,43 @@ describe('approval', () => {
 
   it('returns PENDING after TOOL_REQUESTED', () => {
     const log = makeLog();
-    appendJsonlEventAtomic(log, buildToolRequestedEvent({
-      sessionId: 's1',
-      actionHash: 'h-1',
-      capability: 'memory_write_global',
-      paramsDigestSource: '{}',
-      requestedAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 30000).toISOString(),
-    }));
-    expect(deriveActionStatus(log, { sessionId: 's1', actionHash: 'h-1' }).final_status).toBe('PENDING');
+    appendJsonlEventAtomic(
+      log,
+      buildToolRequestedEvent({
+        sessionId: 's1',
+        actionHash: 'h-1',
+        capability: 'memory_write_global',
+        paramsDigestSource: '{}',
+        requestedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30000).toISOString(),
+      }),
+    );
+    expect(deriveActionStatus(log, { sessionId: 's1', actionHash: 'h-1' }).final_status).toBe(
+      'PENDING',
+    );
   });
 
   it('transitions PENDING -> APPROVED on TOOL_APPROVED', () => {
     const log = makeLog();
-    appendJsonlEventAtomic(log, buildToolRequestedEvent({
-      sessionId: 's1', actionHash: 'h-1', capability: 'cap', paramsDigestSource: '{}',
-      requestedAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 30000).toISOString(),
-    }));
-    appendJsonlEventAtomic(log, buildToolApprovedEvent({
-      sessionId: 's1', actionHash: 'h-1', approverMeta: { user: 'agniva' },
-    }));
+    appendJsonlEventAtomic(
+      log,
+      buildToolRequestedEvent({
+        sessionId: 's1',
+        actionHash: 'h-1',
+        capability: 'cap',
+        paramsDigestSource: '{}',
+        requestedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30000).toISOString(),
+      }),
+    );
+    appendJsonlEventAtomic(
+      log,
+      buildToolApprovedEvent({
+        sessionId: 's1',
+        actionHash: 'h-1',
+        approverMeta: { user: 'agniva' },
+      }),
+    );
     const r = deriveActionStatus(log, { sessionId: 's1', actionHash: 'h-1' });
     expect(r.final_status).toBe('APPROVED');
     expect(r.executable).toBe(true);
@@ -52,11 +68,17 @@ describe('approval', () => {
 
   it('detects TTL expiry on TOOL_REQUESTED with past expires_at', () => {
     const log = makeLog();
-    appendJsonlEventAtomic(log, buildToolRequestedEvent({
-      sessionId: 's1', actionHash: 'h-1', capability: 'cap', paramsDigestSource: '{}',
-      requestedAt: new Date(Date.now() - 60000).toISOString(),
-      expiresAt: new Date(Date.now() - 30000).toISOString(),
-    }));
+    appendJsonlEventAtomic(
+      log,
+      buildToolRequestedEvent({
+        sessionId: 's1',
+        actionHash: 'h-1',
+        capability: 'cap',
+        paramsDigestSource: '{}',
+        requestedAt: new Date(Date.now() - 60000).toISOString(),
+        expiresAt: new Date(Date.now() - 30000).toISOString(),
+      }),
+    );
     const r = deriveActionStatus(log, { sessionId: 's1', actionHash: 'h-1' });
     expect(r.final_status).toBe('EXPIRED');
     expect(r.blacklisted).toBe(true);
@@ -64,28 +86,50 @@ describe('approval', () => {
 
   it('TOOL_DENIED with auto_rejected_ttl_expired reason maps to EXPIRED', () => {
     const log = makeLog();
-    appendJsonlEventAtomic(log, buildToolRequestedEvent({
-      sessionId: 's1', actionHash: 'h-1', capability: 'cap', paramsDigestSource: '{}',
-      requestedAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 30000).toISOString(),
-    }));
-    appendJsonlEventAtomic(log, buildToolDeniedEvent({
-      sessionId: 's1', actionHash: 'h-1', reason: 'auto_rejected_ttl_expired',
-    }));
+    appendJsonlEventAtomic(
+      log,
+      buildToolRequestedEvent({
+        sessionId: 's1',
+        actionHash: 'h-1',
+        capability: 'cap',
+        paramsDigestSource: '{}',
+        requestedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30000).toISOString(),
+      }),
+    );
+    appendJsonlEventAtomic(
+      log,
+      buildToolDeniedEvent({
+        sessionId: 's1',
+        actionHash: 'h-1',
+        reason: 'auto_rejected_ttl_expired',
+      }),
+    );
     const r = deriveActionStatus(log, { sessionId: 's1', actionHash: 'h-1' });
     expect(r.final_status).toBe('EXPIRED');
   });
 
   it('TOOL_DENIED with other reason maps to DENIED', () => {
     const log = makeLog();
-    appendJsonlEventAtomic(log, buildToolRequestedEvent({
-      sessionId: 's1', actionHash: 'h-1', capability: 'cap', paramsDigestSource: '{}',
-      requestedAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 30000).toISOString(),
-    }));
-    appendJsonlEventAtomic(log, buildToolDeniedEvent({
-      sessionId: 's1', actionHash: 'h-1', reason: 'user_denied',
-    }));
+    appendJsonlEventAtomic(
+      log,
+      buildToolRequestedEvent({
+        sessionId: 's1',
+        actionHash: 'h-1',
+        capability: 'cap',
+        paramsDigestSource: '{}',
+        requestedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30000).toISOString(),
+      }),
+    );
+    appendJsonlEventAtomic(
+      log,
+      buildToolDeniedEvent({
+        sessionId: 's1',
+        actionHash: 'h-1',
+        reason: 'user_denied',
+      }),
+    );
     const r = deriveActionStatus(log, { sessionId: 's1', actionHash: 'h-1' });
     expect(r.final_status).toBe('DENIED');
   });

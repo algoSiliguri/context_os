@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
-import { mkdtempSync, mkdirSync } from 'node:fs';
+import { mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
 import { runDoctor } from '../../src/core/doctor';
 
 describe('doctor', () => {

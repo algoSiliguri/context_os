@@ -1,5 +1,5 @@
-import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { join } from 'node:path';
 import { verifyRuntimeBundle } from './authority';
 import { verifyConstitution } from './constitution';
 import { loadProjectConfig } from './manifest';
@@ -15,7 +15,10 @@ const PROFILE_BASELINES: Record<string, string[]> = {
 };
 
 export class BindingError extends Error {
-  constructor(public condition: string, public detail: string) {
+  constructor(
+    public condition: string,
+    public detail: string,
+  ) {
     super(detail);
     this.name = 'BindingError';
   }

@@ -1,8 +1,8 @@
 // src/bootstrap.ts — invoked by `npm run bootstrap`
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { runDoctor } from './core/doctor';
 import { runtimeRepoRoot } from './core/authority';
+import { runDoctor } from './core/doctor';
 
 async function main(): Promise<void> {
   const repoRoot = runtimeRepoRoot();

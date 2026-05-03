@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildBindingEvent,
-  buildStateTransitionEvent,
   buildHeartbeatEvent,
   buildPermissionDeniedEvent,
   buildSkillLoadEvent,
   buildSkillUnloadEvent,
-  buildViolationEvent,
-  buildToolRequestedEvent,
+  buildStateTransitionEvent,
   buildToolApprovedEvent,
   buildToolDeniedEvent,
+  buildToolRequestedEvent,
+  buildViolationEvent,
 } from '../../src/core/events';
 
 describe('event builders', () => {

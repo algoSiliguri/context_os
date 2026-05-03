@@ -1,7 +1,7 @@
 import { execFile } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
-import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
 

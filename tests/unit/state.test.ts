@@ -7,7 +7,9 @@ describe('state', () => {
   });
 
   it('BOUND → EXECUTING is rejected', () => {
-    expect(() => transition(SessionState.BOUND, SessionState.EXECUTING)).toThrow(/invalid transition/);
+    expect(() => transition(SessionState.BOUND, SessionState.EXECUTING)).toThrow(
+      /invalid transition/,
+    );
   });
 
   it('COMPLETE has no outgoing transitions', () => {
