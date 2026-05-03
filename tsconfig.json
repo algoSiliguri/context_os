@@ -15,5 +15,5 @@
     "noEmit": true
   },
   "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["node_modules", "dist", "context_os_runtime"]
+  "exclude": ["node_modules", "dist"]
 }
