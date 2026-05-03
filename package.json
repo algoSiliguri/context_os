@@ -1,0 +1,33 @@
+{
+  "name": "@agnivadc/agent-os",
+  "version": "0.1.0",
+  "description": "Machine-local governance runtime for Agent OS",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "lint": "biome check src tests",
+    "format": "biome format --write src tests",
+    "typecheck": "tsc --noEmit",
+    "bootstrap": "node --import jiti/register src/bootstrap.ts"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.0",
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.0",
+    "better-sqlite3": "^11.5.0",
+    "jiti": "^2.4.0",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

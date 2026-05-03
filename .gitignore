@@ -24,3 +24,8 @@ data_store/*.db-shm
 # Generated per-machine by scripts/bootstrap.* — has absolute paths
 .mcp.json
 .worktrees/
+
+node_modules/
+dist/
+.vscode/
+*.log
