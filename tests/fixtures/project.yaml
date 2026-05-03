@@ -1,0 +1,32 @@
+project_id: demo
+domain_type: trading
+runtime_version: 0.1.0
+memory_namespace: demo-project
+verification_profile: default
+global_memory_read: true
+global_memory_write: false
+critical_actions:
+  - memory_write_global
+
+# CCP policy fields (Q3 merge)
+workspace:
+  root: .
+
+allowlist:
+  network:
+    - https://registry.npmjs.org/
+  commands:
+    - "npm test"
+
+overrides:
+  - tool: write_file
+    when: "path within workspace.root"
+    tier: 1
+
+break_glass:
+  enabled: false
+
+trust_registry:
+  pi_packages:
+    - package: "@agnivadc/agent-os"
+      trust: trusted
