@@ -21,3 +21,19 @@ capability-tier: 2
 l3-transport: mcp
 brain-db-path: $BRAIN_DB_PATH
 ```
+
+## Agent skills
+
+Non-authoritative pointers to engineering-skill configuration. Per `[A1]` and `[B6]` of the constitution, these are L2 metadata only — they describe where docs live, they do not grant authority.
+
+### Issue tracker
+
+GitHub Issues at `algoSiliguri/context_os`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context. See `docs/agents/domain.md`.
