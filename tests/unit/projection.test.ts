@@ -3,8 +3,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import Database from 'better-sqlite3';
 import { describe, expect, it } from 'vitest';
+import { buildTaskCreatedEvent, buildTaskStateTransitionEvent } from '../../src/ccp/ccp-events';
 import { buildToolApprovedEvent, buildToolRequestedEvent } from '../../src/core/events';
-import { initProjectionSchema, mirrorApprovalEvent } from '../../src/core/projection';
+import {
+  initProjectionSchema,
+  mirrorApprovalEvent,
+  mirrorTaskEvent,
+} from '../../src/core/projection';
 
 describe('projection', () => {
   function setup(): { dbPath: string; db: Database.Database } {
@@ -69,5 +74,60 @@ describe('projection', () => {
       final_status: string;
     };
     expect(row.final_status).toBe('APPROVED');
+  });
+});
+
+describe('projection — task tables', () => {
+  function setup(): { db: Database.Database } {
+    const dir = mkdtempSync(join(tmpdir(), 'aos-pj-'));
+    const dbPath = join(dir, 'projection.db');
+    const db = new Database(dbPath);
+    initProjectionSchema(db);
+    return { db };
+  }
+
+  it('initProjectionSchema creates the tasks table', () => {
+    const { db } = setup();
+    const row = db
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='tasks'")
+      .get();
+    expect(row).toBeTruthy();
+  });
+
+  it('mirrorTaskEvent inserts on TASK_CREATED', () => {
+    const { db } = setup();
+    const e = buildTaskCreatedEvent({
+      sessionId: 's1',
+      taskId: 'T-001',
+      goal: 'g',
+      userType: 'developer',
+    });
+    mirrorTaskEvent(db, e);
+    const row = db.prepare('SELECT * FROM tasks WHERE task_id = ?').get('T-001') as {
+      current_state: string;
+    };
+    expect(row.current_state).toBe('NEW_IDEA');
+  });
+
+  it('TASK_STATE_TRANSITION updates current_state', () => {
+    const { db } = setup();
+    mirrorTaskEvent(
+      db,
+      buildTaskCreatedEvent({ sessionId: 's1', taskId: 'T-001', goal: 'g', userType: 'developer' }),
+    );
+    mirrorTaskEvent(
+      db,
+      buildTaskStateTransitionEvent({
+        sessionId: 's1',
+        taskId: 'T-001',
+        from: 'NEW_IDEA',
+        to: 'GRILLING',
+        triggeredBy: '/grill',
+      }),
+    );
+    const row = db.prepare('SELECT * FROM tasks WHERE task_id = ?').get('T-001') as {
+      current_state: string;
+    };
+    expect(row.current_state).toBe('GRILLING');
   });
 });
