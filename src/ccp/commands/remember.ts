@@ -60,6 +60,8 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
     text: string;
     evidence: string;
     approval: 'pending' | 'approved' | 'rejected';
+    brain_status?: 'written' | 'deferred';
+    brain_node_id?: string;
   }> = [];
 
   for (let i = 0; i < proposals.length; i++) {
@@ -103,6 +105,8 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
         text: p.text,
         evidence: p.evidence,
         approval: 'approved',
+        brain_status: result.deferred ? 'deferred' : 'written',
+        ...(result.id ? { brain_node_id: result.id } : {}),
       });
       kept++;
     } else {

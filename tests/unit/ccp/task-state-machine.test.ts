@@ -75,4 +75,16 @@ describe('task-state-machine', () => {
     expect(isTerminal(TaskState.ABORTED)).toBe(true);
     expect(() => transitionTask(TaskState.ABORTED, TaskState.NEW_IDEA)).toThrow();
   });
+
+  it('AWAITING_HUMAN_REVIEW → VERIFYING is allowed (standalone /verify re-entry)', () => {
+    expect(transitionTask(TaskState.AWAITING_HUMAN_REVIEW, TaskState.VERIFYING)).toBe(
+      TaskState.VERIFYING,
+    );
+  });
+
+  it('FAILED_RECOVERABLE → VERIFYING is allowed (standalone /verify re-entry)', () => {
+    expect(transitionTask(TaskState.FAILED_RECOVERABLE, TaskState.VERIFYING)).toBe(
+      TaskState.VERIFYING,
+    );
+  });
 });

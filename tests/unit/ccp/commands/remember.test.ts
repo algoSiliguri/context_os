@@ -86,6 +86,40 @@ describe('runRemember', () => {
     const record = YAML.parse(readFileSync(taskArtifactPath(dir, taskId, 'knowledge'), 'utf-8'));
     expect(record.items.length).toBeGreaterThan(0);
     expect(writeCalls.length).toBe(result.kept);
+    expect(
+      record.items.find((i: { approval: string }) => i.approval === 'approved')?.brain_status,
+    ).toBe('written');
+  });
+
+  it('records brain_status=deferred when brain is unavailable', async () => {
+    const { dir, taskId } = fixtureReady();
+    // spawn always throws (simulates brain CLI not on PATH)
+    const spawn: BrainSpawnFn = async () => {
+      throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+    };
+    const brain = new BrainClient({ dbPath: '/brain.db', spawn, repoRoot: dir });
+    // approve the first proposal
+    let prompts = 0;
+    const ui = {
+      confirm: async () => {
+        prompts++;
+        return prompts === 1;
+      },
+      input: async () => '',
+      select: async (_m: string, choices: string[]) => choices[0]!,
+    };
+    const result = await runRemember({
+      repoRoot: dir,
+      sessionId: 's1',
+      taskId,
+      brain,
+      ui,
+      projectName: 'demo',
+    });
+    expect(result.kept).toBeGreaterThanOrEqual(1);
+    const record = YAML.parse(readFileSync(taskArtifactPath(dir, taskId, 'knowledge'), 'utf-8'));
+    const approvedItem = record.items.find((i: { approval: string }) => i.approval === 'approved');
+    expect(approvedItem?.brain_status).toBe('deferred');
   });
 
   it('skips brain writes when there are no proposals', async () => {

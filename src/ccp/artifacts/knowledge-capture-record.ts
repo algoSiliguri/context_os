@@ -24,6 +24,8 @@ const Approval = Type.Union([
   Type.Literal('rejected'),
 ]);
 
+const BrainStatus = Type.Union([Type.Literal('written'), Type.Literal('deferred')]);
+
 const CaptureItem = Type.Object({
   id: Type.String(),
   scope: Scope,
@@ -31,6 +33,8 @@ const CaptureItem = Type.Object({
   text: Type.String(),
   evidence: Type.String(),
   approval: Approval,
+  brain_status: Type.Optional(BrainStatus),
+  brain_node_id: Type.Optional(Type.String()),
 });
 
 export const KnowledgeCaptureRecord = Type.Composite([

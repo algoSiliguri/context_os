@@ -34,10 +34,18 @@ const HAPPY: Record<TaskState, ReadonlySet<TaskState>> = {
   ]),
   AWAITING_TOOL_APPROVAL: new Set([TaskState.EXECUTING, TaskState.FAILED_BLOCKED]),
   VERIFYING: new Set([TaskState.AWAITING_HUMAN_REVIEW, TaskState.FAILED_RECOVERABLE]),
-  AWAITING_HUMAN_REVIEW: new Set([TaskState.PERSISTING_KNOWLEDGE, TaskState.COMPLETED]),
+  AWAITING_HUMAN_REVIEW: new Set([
+    TaskState.PERSISTING_KNOWLEDGE,
+    TaskState.COMPLETED,
+    TaskState.VERIFYING, // standalone /verify re-entry
+  ]),
   PERSISTING_KNOWLEDGE: new Set([TaskState.COMPLETED]),
   COMPLETED: new Set(),
-  FAILED_RECOVERABLE: new Set([TaskState.EXECUTING, TaskState.PLANNING]),
+  FAILED_RECOVERABLE: new Set([
+    TaskState.EXECUTING,
+    TaskState.PLANNING,
+    TaskState.VERIFYING, // standalone /verify re-entry
+  ]),
   FAILED_BLOCKED: new Set([TaskState.PLANNING]),
   ABORTED: new Set(),
 };
