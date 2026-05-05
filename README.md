@@ -14,7 +14,7 @@ Inside `pi`, six new slash commands:
 | `/plan` | Drafts a bounded plan from the grill output. Asks for approval. |
 | `/run [<task>] [--resume]` | Executes the approved plan with policy-gated tool calls. |
 | `/verify` | Runs the plan's verification commands; auto-chains from `/run`. |
-| `/remember [--replay]` | Reviews and persists captured knowledge to your brain. |
+| `/remember` | Reviews and persists captured knowledge to your brain. |
 | `/status [<task>]` | Compact read-only view of current state. |
 
 Plus `/doctor` to debug your setup.

@@ -1,6 +1,6 @@
 {
   "name": "@agnivadc/agent-os",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Machine-local governance runtime for Agent OS",
   "type": "module",
   "main": "src/index.ts",

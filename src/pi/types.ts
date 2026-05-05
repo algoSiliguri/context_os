@@ -1,4 +1,7 @@
 // src/pi/types.ts
+// Coverage note: this file is pure TypeScript interfaces (no runtime
+// statements). v8 coverage reports 0% because there's nothing to execute.
+// The types are the contract — they're "covered" via every consuming module.
 import type { UiAdapter } from './ui';
 
 export type { UiAdapter };

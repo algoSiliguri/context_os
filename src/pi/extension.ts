@@ -1,5 +1,10 @@
 import { spawn as nodeSpawn } from 'node:child_process';
 // src/pi/extension.ts
+// Coverage note: this file is the Pi extension wiring layer. End-to-end
+// branches (slash command handler bodies, runAgentTurn probe) are exercised
+// only against a real Pi runtime, so file-level coverage stays around 40%
+// per Plan 2c phase 4. Unit tests live with each delegated module
+// (commands/*, ccp/tools/pi-agent-executor.ts).
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { SessionStatus } from '../ccp/artifacts/session-status';
@@ -51,7 +56,7 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
   // Plan 2a treats replay failure as non-fatal: the extension still loads, but
   // the projection/snapshot files may be stale or absent. events.jsonl remains
   // the source of truth; downstream commands (Plan 2b) read live state from it.
-  // Plan 2c is expected to add snapshot optimization and stricter recovery semantics.
+  // Deferred to v1.x: snapshot optimization and stricter recovery semantics.
   try {
     replayFromEventLog(repoRoot);
   } catch (e) {
@@ -89,21 +94,29 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
   const piAgent: PiAgentLike = {
     async runAgent(prompt) {
       if (typeof api.runAgentTurn === 'function') {
-        const result = await api.runAgentTurn(prompt);
-        const exitCode = result.exitCode ?? 1;
-        const errorSummary =
-          result.errorSummary ??
-          (result.exitCode === undefined
-            ? 'agent returned malformed result (no exitCode)'
-            : undefined);
-        return {
-          filesChanged: result.filesChanged ?? [],
-          commandsRun: result.commandsRun ?? [],
-          exitCode,
-          ...(errorSummary ? { errorSummary } : {}),
-        };
+        try {
+          const result = await api.runAgentTurn(prompt);
+          const exitCode = result.exitCode ?? 1;
+          const errorSummary =
+            result.errorSummary ??
+            (result.exitCode === undefined
+              ? 'agent returned malformed result (no exitCode)'
+              : undefined);
+          return {
+            filesChanged: result.filesChanged ?? [],
+            commandsRun: result.commandsRun ?? [],
+            exitCode,
+            ...(errorSummary ? { errorSummary } : {}),
+          };
+        } catch (e) {
+          return {
+            filesChanged: [],
+            commandsRun: [],
+            exitCode: 1,
+            errorSummary: `Pi agent threw: ${(e as Error).message}`,
+          };
+        }
       }
-      // Fallback when Pi's runAgentTurn isn't on the API surface (development, tests).
       api.log(`[pi-agent stub — no runAgentTurn available]\n${prompt}`);
       return {
         filesChanged: [],

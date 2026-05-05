@@ -61,7 +61,7 @@ const SEQUENCE: NextQuestion[] = [
  * "done", so a literal "done" answer there is ambiguous. An LLM-backed
  * `QuestionGenerator` should detect "user is finished" semantically.
  *
- * Replace via `QuestionGenerator` interface in Plan 2c (LLM-backed grill).
+ * Replace via `QuestionGenerator` interface in v1.x (LLM-backed grill).
  */
 export function defaultQuestionGenerator(): QuestionGenerator {
   return {
