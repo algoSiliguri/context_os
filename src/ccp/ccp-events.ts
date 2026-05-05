@@ -156,9 +156,14 @@ export function buildCommandCompletedEvent(args: {
   sessionId: string;
   taskId: string;
   stepId: string;
+  command: string;
   exitCode: number;
 }): Event {
-  return ccpBase('COMMAND_COMPLETED', args, { exit_code: args.exitCode, step_id: args.stepId });
+  return ccpBase('COMMAND_COMPLETED', args, {
+    step_id: args.stepId,
+    command: args.command,
+    exit_code: args.exitCode,
+  });
 }
 
 export function buildCommandFailedEvent(args: {

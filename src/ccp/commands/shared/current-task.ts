@@ -11,7 +11,11 @@ interface SessionSnapshot {
 function readSnapshot(repoRoot: string): SessionSnapshot {
   const path = sessionSnapshotPath(repoRoot);
   if (!existsSync(path)) return {};
-  return JSON.parse(readFileSync(path, 'utf-8')) as SessionSnapshot;
+  try {
+    return JSON.parse(readFileSync(path, 'utf-8')) as SessionSnapshot;
+  } catch {
+    return {};
+  }
 }
 
 export function getCurrentTaskId(repoRoot: string): string | null {

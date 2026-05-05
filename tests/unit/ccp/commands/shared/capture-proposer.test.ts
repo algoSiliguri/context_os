@@ -10,7 +10,13 @@ describe('defaultCaptureProposer', () => {
   it('proposes a "command" capture for each successful command run', async () => {
     const proposer = defaultCaptureProposer();
     const events = [
-      buildCommandCompletedEvent({ sessionId: 's1', taskId: 'T-001', stepId: 'S-1', exitCode: 0 }),
+      buildCommandCompletedEvent({
+        sessionId: 's1',
+        taskId: 'T-001',
+        stepId: 'S-1',
+        command: 'npm test',
+        exitCode: 0,
+      }),
     ];
     const proposals = await proposer.propose({ taskId: 'T-001', events });
     expect(proposals.some((p) => p.type === 'command')).toBe(true);

@@ -88,7 +88,13 @@ describe('ccp-events', () => {
       buildPlanApprovedEvent({ sessionId, taskId, planId: 'plan-1' }),
       buildPlanRejectedEvent({ sessionId, taskId, planId: 'plan-1', reason: 'reject' }),
       buildCommandStartedEvent({ sessionId, taskId, stepId: 'S-1', command: 'npm test' }),
-      buildCommandCompletedEvent({ sessionId, taskId, stepId: 'S-1', exitCode: 0 }),
+      buildCommandCompletedEvent({
+        sessionId,
+        taskId,
+        stepId: 'S-1',
+        command: 'npm test',
+        exitCode: 0,
+      }),
       buildCommandFailedEvent({ sessionId, taskId, stepId: 'S-1', exitCode: 1, summary: 'failed' }),
       buildFileChangedEvent({
         sessionId,

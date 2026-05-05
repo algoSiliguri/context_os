@@ -53,6 +53,16 @@ const SEQUENCE: NextQuestion[] = [
   },
 ];
 
+/**
+ * Template-driven default for v1 — emits a fixed sequence and terminates
+ * when the user types the literal string "done" as their answer.
+ *
+ * Known limitation: the success_criterion question itself contains the word
+ * "done", so a literal "done" answer there is ambiguous. An LLM-backed
+ * `QuestionGenerator` should detect "user is finished" semantically.
+ *
+ * Replace via `QuestionGenerator` interface in Plan 2c (LLM-backed grill).
+ */
 export function defaultQuestionGenerator(): QuestionGenerator {
   return {
     async next(ctx) {

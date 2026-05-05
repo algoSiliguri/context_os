@@ -30,8 +30,10 @@ export function compressOutput(args: {
 
   const lines = args.stdout.split('\n').filter((l) => l.length > 0);
   let summary: string;
-  if (combined.length <= SUMMARY_THRESHOLD || lines.length <= 2) {
-    summary = args.stdout.trim() || args.stderr.trim();
+  if (combined.length <= SUMMARY_THRESHOLD) {
+    summary = combined.trim();
+  } else if (lines.length <= 1) {
+    summary = (lines[0] ?? args.stderr.trim().split('\n')[0] ?? '').slice(0, SUMMARY_THRESHOLD);
   } else {
     summary = `${lines[0]} … ${lines[lines.length - 1]}`;
   }

@@ -47,4 +47,16 @@ describe('compressOutput', () => {
     });
     expect(r.summary).toContain('OK');
   });
+
+  it('includes stderr in summary when stdout is short and combined is short', () => {
+    const r = compressOutput({
+      repoRoot: repo(),
+      taskId: 'T-001',
+      stdout: 'OK',
+      stderr: 'warning: deprecated flag X',
+    });
+    // combined < 200 chars → full combined.trim() returned
+    expect(r.summary).toContain('OK');
+    expect(r.summary).toContain('warning: deprecated flag X');
+  });
 });

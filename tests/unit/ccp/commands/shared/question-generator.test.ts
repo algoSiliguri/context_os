@@ -19,7 +19,7 @@ describe('defaultQuestionGenerator', () => {
     expect(seen).toContain('success_criterion');
     expect(seen).toContain('evidence');
     expect(seen.length).toBeGreaterThanOrEqual(5);
-    expect(seen.length).toBeLessThanOrEqual(15);
+    expect(seen.length).toBeLessThanOrEqual(7);
   });
 
   it('terminates when priorAnswers includes "done" sentinel', async () => {

@@ -51,4 +51,10 @@ describe('current-task', () => {
     clearCurrentTaskId(dir);
     expect(getCurrentTaskId(dir)).toBe(null);
   });
+
+  it('returns null when session.json is malformed', () => {
+    const dir = fixture();
+    writeFileSync(join(dir, '.agent-os', 'runtime', 'session.json'), '{not json', 'utf-8');
+    expect(getCurrentTaskId(dir)).toBe(null);
+  });
 });
