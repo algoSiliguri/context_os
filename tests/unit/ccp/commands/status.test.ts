@@ -55,3 +55,34 @@ describe('runStatus', () => {
     expect(status!.current_state).toBe('COMPLETED');
   });
 });
+
+describe('runStatus next_action coverage', () => {
+  const states: Array<{ state: string; needle: string }> = [
+    { state: 'NEW_IDEA', needle: '/grill' },
+    { state: 'GRILLING', needle: 'questions' },
+    { state: 'SHARED_UNDERSTANDING', needle: '/plan' },
+    { state: 'AWAITING_PLAN_APPROVAL', needle: 'approve' },
+    { state: 'AWAITING_TOOL_APPROVAL', needle: 'approve' },
+    { state: 'VERIFYING', needle: 'wait' },
+    { state: 'AWAITING_HUMAN_REVIEW', needle: '/remember' },
+    { state: 'PERSISTING_KNOWLEDGE', needle: 'capture' },
+    { state: 'FAILED_RECOVERABLE', needle: '/run --resume' },
+    { state: 'FAILED_BLOCKED', needle: 'replan' },
+    { state: 'ABORTED', needle: 'aborted' },
+  ];
+
+  for (const { state, needle } of states) {
+    it(`renders the right next_action for ${state}`, async () => {
+      const dir = mkdtempSync(join(tmpdir(), `aos-st-${state.toLowerCase()}-`));
+      mkdirSync(join(dir, '.agent-os', 'tasks', 'T-001'), { recursive: true });
+      mkdirSync(join(dir, '.agent-os', 'runtime'), { recursive: true });
+      writeFileSync(
+        taskStatePath(dir, 'T-001'),
+        JSON.stringify({ task_id: 'T-001', state }),
+        'utf-8',
+      );
+      const status = await runStatus({ repoRoot: dir, taskId: 'T-001' });
+      expect(status?.next_action.toLowerCase()).toContain(needle.toLowerCase());
+    });
+  }
+});
