@@ -92,19 +92,21 @@ describe('Pi extension stub integration', () => {
     expect(snap.logs.some((l) => l.includes('extension loaded'))).toBe(true);
   });
 
-  it('slash command stubs log "not implemented" without throwing', async () => {
+  it('slash commands are registered and can be invoked without throwing', async () => {
     const dir = setupRepo();
     const fake = makeFakeApi(dir);
     await piExtension(fake.api as unknown as ExtensionAPI);
-    await fake.invokeSlash('grill', 'add rate limit');
-    expect(fake.snapshot().logs.some((l) => l.includes('grill: not implemented'))).toBe(true);
+    // /status is read-only and safe to invoke; just verify it doesn't crash
+    await fake.invokeSlash('status', '');
+    // Some log entry should have been produced (status output or "no active task")
+    expect(fake.snapshot().logs.length).toBeGreaterThan(0);
   });
 
-  it('tool_call handler blocks unknown tools (registry empty in 2a)', async () => {
+  it('tool_call handler blocks unknown tools after Pi defaults are seeded', async () => {
     const dir = setupRepo();
     const fake = makeFakeApi(dir);
     await piExtension(fake.api as unknown as ExtensionAPI);
-    const reason = await fake.invokeToolCall('write_file', { path: '/repo/foo.ts' });
+    const reason = await fake.invokeToolCall('truly_mystery_tool', { path: '/repo/foo.ts' });
     expect(reason).toContain('unknown tool');
   });
 

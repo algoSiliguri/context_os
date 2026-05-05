@@ -1,10 +1,23 @@
+import { spawn as nodeSpawn } from 'node:child_process';
 // src/pi/extension.ts
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import type { SessionStatus } from '../ccp/artifacts/session-status';
+import { BrainClient } from '../ccp/brain/client';
+import { runGrill } from '../ccp/commands/grill';
+import { runPlan } from '../ccp/commands/plan';
+import { runRemember } from '../ccp/commands/remember';
+import { runRun } from '../ccp/commands/run';
+import { getCurrentTaskId } from '../ccp/commands/shared/current-task';
+import { makeMockStepExecutor } from '../ccp/commands/shared/step-executor';
+import { runStatus } from '../ccp/commands/status';
+import { runVerify } from '../ccp/commands/verify';
 import type { SessionApprovalCache } from '../ccp/policy/decision-flow';
 import { ToolRegistry } from '../ccp/policy/tool-registry';
 import { replayFromEventLog } from '../ccp/recovery';
+import { seedPiTools } from '../ccp/tools/pi-tool-defaults';
 import { type ProjectConfig, loadProjectConfig } from '../core/manifest';
-import { ALL_COMMANDS, makeAllStubs } from './slash-commands';
+import { sessionSnapshotPath } from '../core/runtime-paths';
 import { handleToolCall } from './tool-call-handler';
 import type { ExtensionAPI, ExtensionEntry } from './types';
 import { wrapUi } from './ui';
@@ -51,7 +64,7 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
     repoRoot,
   };
 
-  // tool_call handler (passthrough — registry empty until Plan 2b registers tools)
+  // tool_call handler
   api.onToolCall(async (callCtx) => {
     if (!_state) return;
     await handleToolCall(callCtx, {
@@ -62,13 +75,121 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
     });
   });
 
-  // Register six slash command stubs
-  const stubs = makeAllStubs({ log: api.log.bind(api) });
-  for (const name of ALL_COMMANDS) {
-    api.registerSlashCommand(name, stubs[name]);
-  }
+  seedPiTools(_state.registry);
 
-  api.log('agent-os v1 extension loaded (Plan 2a foundation; commands are stubs).');
+  const sessionId = readSessionId(_state.repoRoot);
+  const ui = wrapUi(api.ui);
+  const brain = new BrainClient({
+    dbPath: process.env.BRAIN_DB_PATH ?? '',
+    repoRoot: _state.repoRoot,
+  });
+  const projectName = _state.config.project_id;
+
+  api.registerSlashCommand('grill', async (rest: string) => {
+    await runGrill({
+      repoRoot: _state!.repoRoot,
+      sessionId,
+      goal: rest.trim(),
+      userType: 'developer',
+      ui,
+    });
+  });
+
+  api.registerSlashCommand('plan', async () => {
+    const taskId = getCurrentTaskId(_state!.repoRoot);
+    if (!taskId) {
+      api.log('no active task');
+      return;
+    }
+    await runPlan({ repoRoot: _state!.repoRoot, sessionId, taskId, ui });
+  });
+
+  api.registerSlashCommand('run', async (rest: string) => {
+    const args = rest.split(/\s+/).filter(Boolean);
+    const resume = args.includes('--resume');
+    const taskIdArg = args.find((a) => /^T-\d{3}$/.test(a));
+    const taskId = taskIdArg ?? getCurrentTaskId(_state!.repoRoot);
+    if (!taskId) {
+      api.log('no active task');
+      return;
+    }
+    // Plan 2c will replace makeMockStepExecutor with a Pi-agent-backed executor.
+    const result = await runRun({
+      repoRoot: _state!.repoRoot,
+      sessionId,
+      taskId,
+      executor: makeMockStepExecutor({}),
+      resume,
+    });
+    if (result.outcome === 'verifying') {
+      await runVerify({
+        repoRoot: _state!.repoRoot,
+        sessionId,
+        taskId,
+        runner: nodeCommandRunner(),
+      });
+    }
+  });
+
+  api.registerSlashCommand('verify', async () => {
+    const taskId = getCurrentTaskId(_state!.repoRoot);
+    if (!taskId) {
+      api.log('no active task');
+      return;
+    }
+    await runVerify({ repoRoot: _state!.repoRoot, sessionId, taskId, runner: nodeCommandRunner() });
+  });
+
+  api.registerSlashCommand('remember', async () => {
+    const taskId = getCurrentTaskId(_state!.repoRoot);
+    if (!taskId) {
+      api.log('no active task');
+      return;
+    }
+    await runRemember({ repoRoot: _state!.repoRoot, sessionId, taskId, brain, ui, projectName });
+  });
+
+  api.registerSlashCommand('status', async (rest: string) => {
+    const taskIdArg = rest.match(/T-\d{3}/)?.[0];
+    const status = await runStatus({ repoRoot: _state!.repoRoot, taskId: taskIdArg ?? undefined });
+    api.log(status ? renderStatus(status) : 'no active task');
+  });
+
+  api.log('agent-os v1 extension loaded (Plan 2b commands wired; Pi tools seeded).');
 };
+
+function readSessionId(repoRoot: string): string {
+  const path = sessionSnapshotPath(repoRoot);
+  if (!existsSync(path)) return 'sess-unset';
+  try {
+    const obj = JSON.parse(readFileSync(path, 'utf-8'));
+    return typeof obj.session_id === 'string' ? obj.session_id : 'sess-unset';
+  } catch {
+    return 'sess-unset';
+  }
+}
+
+function nodeCommandRunner() {
+  return {
+    runCommand: async (cmd: string) => {
+      return new Promise<{ exitCode: number; stdout: string; stderr: string }>((resolve) => {
+        const proc = nodeSpawn(cmd, { shell: true });
+        let stdout = '';
+        let stderr = '';
+        proc.stdout?.on('data', (d) => {
+          stdout += String(d);
+        });
+        proc.stderr?.on('data', (d) => {
+          stderr += String(d);
+        });
+        proc.on('close', (code) => resolve({ exitCode: code ?? 0, stdout, stderr }));
+      });
+    },
+  };
+}
+
+function renderStatus(s: SessionStatus): string {
+  return `${s.task_id} · ${s.current_state}\nnext: ${s.next_action}`;
+}
 
 export default entry;
