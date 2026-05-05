@@ -88,24 +88,29 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
 
   const piAgent: PiAgentLike = {
     async runAgent(prompt) {
-      const apiAny = api as unknown as { runAgentTurn?: (p: string) => Promise<unknown> };
-      if (typeof apiAny.runAgentTurn === 'function') {
-        const result = (await apiAny.runAgentTurn(prompt)) as {
-          filesChanged?: string[];
-          commandsRun?: string[];
-          exitCode?: number;
-          errorSummary?: string;
-        };
+      if (typeof api.runAgentTurn === 'function') {
+        const result = await api.runAgentTurn(prompt);
+        const exitCode = result.exitCode ?? 1;
+        const errorSummary =
+          result.errorSummary ??
+          (result.exitCode === undefined
+            ? 'agent returned malformed result (no exitCode)'
+            : undefined);
         return {
           filesChanged: result.filesChanged ?? [],
           commandsRun: result.commandsRun ?? [],
-          exitCode: result.exitCode ?? 0,
-          ...(result.errorSummary ? { errorSummary: result.errorSummary } : {}),
+          exitCode,
+          ...(errorSummary ? { errorSummary } : {}),
         };
       }
       // Fallback when Pi's runAgentTurn isn't on the API surface (development, tests).
       api.log(`[pi-agent stub — no runAgentTurn available]\n${prompt}`);
-      return { filesChanged: [], commandsRun: [], exitCode: 0 };
+      return {
+        filesChanged: [],
+        commandsRun: [],
+        exitCode: 1,
+        errorSummary: 'Pi host has no runAgentTurn; /run cannot drive steps',
+      };
     },
   };
 

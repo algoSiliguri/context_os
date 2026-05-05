@@ -34,7 +34,7 @@ describe('makePiAgentExecutor', () => {
     expect(r.failure?.summary).toContain('tests failed');
   });
 
-  it('passes the step purpose into the prompt', async () => {
+  it('passes commands and expected files into the prompt', async () => {
     const captured: string[] = [];
     const probeAgent: PiAgentLike = {
       async runAgent(prompt) {

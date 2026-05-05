@@ -17,6 +17,12 @@ export interface ExtensionAPI {
   appendEntry(entry: unknown): void;
   log(message: string): void;
   repoRoot(): string;
+  runAgentTurn?: (prompt: string) => Promise<{
+    filesChanged?: string[];
+    commandsRun?: string[];
+    exitCode?: number;
+    errorSummary?: string;
+  }>;
 }
 
 export type ExtensionEntry = (api: ExtensionAPI) => Promise<void> | void;
