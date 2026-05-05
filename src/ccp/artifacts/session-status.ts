@@ -1,4 +1,16 @@
 import { type Static, Type } from '@sinclair/typebox';
+import { ALL_STATES, type TaskState } from '../task-state-machine';
+
+type RiskTier = 'low' | 'medium' | 'high' | 'critical';
+
+const RiskTierSchema = Type.Union([
+  Type.Literal('low'),
+  Type.Literal('medium'),
+  Type.Literal('high'),
+  Type.Literal('critical'),
+]);
+
+const TaskStateSchema = Type.Union(ALL_STATES.map((s) => Type.Literal(s)));
 
 const PendingApproval = Type.Object({
   tool: Type.String(),
@@ -15,9 +27,9 @@ const LastEvent = Type.Union([
 
 export const SessionStatus = Type.Object({
   task_id: Type.String(),
-  current_state: Type.String(),
+  current_state: TaskStateSchema,
   current_step: Type.String(),
-  risk_tier: Type.String(),
+  risk_tier: RiskTierSchema,
   pending_approvals: Type.Array(PendingApproval),
   last_meaningful_event: LastEvent,
   next_action: Type.String(),
@@ -26,9 +38,9 @@ export type SessionStatus = Static<typeof SessionStatus>;
 
 export function makeSessionStatus(args: {
   taskId: string;
-  currentState: string;
+  currentState: TaskState;
   currentStep: string;
-  riskTier: string;
+  riskTier: RiskTier;
   pendingApprovals: Array<{ tool: string; path?: string }>;
   lastMeaningfulEvent: { event_type: string; age_seconds: number } | null;
   nextAction: string;

@@ -1,4 +1,5 @@
 import { type Static, Type } from '@sinclair/typebox';
+import { ALL_STATES } from '../task-state-machine';
 import { ArtifactEnvelope } from './envelope';
 
 const StepStatus = Type.Union([
@@ -43,7 +44,7 @@ export const ExecutionRecord = Type.Composite([
     started_at: Type.String(),
     ended_at: Type.Optional(Type.String()),
     steps: Type.Array(ExecutedStep),
-    final_state: Type.String(),
+    final_state: Type.Union(ALL_STATES.map((s) => Type.Literal(s))),
   }),
 ]);
 export type ExecutionRecord = Static<typeof ExecutionRecord>;

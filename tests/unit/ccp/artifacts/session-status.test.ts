@@ -16,6 +16,32 @@ describe('SessionStatus', () => {
     expect(Value.Check(SessionStatus, s)).toBe(true);
   });
 
+  it('rejects invalid current_state', () => {
+    const bad = {
+      task_id: 'T-001',
+      current_state: 'BOGUS',
+      current_step: '1/3',
+      risk_tier: 'low',
+      pending_approvals: [],
+      last_meaningful_event: null,
+      next_action: 'continue',
+    };
+    expect(Value.Check(SessionStatus, bad)).toBe(false);
+  });
+
+  it('rejects invalid risk_tier', () => {
+    const bad = {
+      task_id: 'T-001',
+      current_state: 'EXECUTING',
+      current_step: '1/3',
+      risk_tier: 'wizard',
+      pending_approvals: [],
+      last_meaningful_event: null,
+      next_action: 'continue',
+    };
+    expect(Value.Check(SessionStatus, bad)).toBe(false);
+  });
+
   it('makeSessionStatus assembles fields', () => {
     const s = makeSessionStatus({
       taskId: 'T-001',

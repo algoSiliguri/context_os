@@ -34,9 +34,7 @@ describe('artifact io', () => {
     const dir = mkdtempSync(join(tmpdir(), 'aos-aio-'));
     mkdirSync(join(dir, '.agent-os', 'tasks', 'T-001'), { recursive: true });
     const bad = { task_id: 'T-001', artifact_type: 'GrillRecord' };
-    expect(() => writeArtifact(dir, 'T-001', 'grill', bad as unknown as never)).toThrow(
-      /invalid GrillRecord/,
-    );
+    expect(() => writeArtifact(dir, 'T-001', 'grill', bad)).toThrow(/invalid GrillRecord/);
   });
 
   it('readArtifact throws when file missing', () => {

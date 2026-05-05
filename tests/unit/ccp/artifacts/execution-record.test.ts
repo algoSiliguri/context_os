@@ -37,6 +37,19 @@ describe('ExecutionRecord', () => {
     expect(Value.Check(ExecutionRecord, record)).toBe(true);
   });
 
+  it('rejects final_state: BOGUS', () => {
+    const bad = {
+      ...env,
+      plan_id: 'p',
+      harness: 'pi',
+      started_at: 't',
+      ended_at: 't',
+      steps: [],
+      final_state: 'BOGUS',
+    };
+    expect(Value.Check(ExecutionRecord, bad)).toBe(false);
+  });
+
   it('rejects step.status outside enum', () => {
     const bad = {
       ...env,
