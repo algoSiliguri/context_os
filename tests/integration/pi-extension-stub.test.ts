@@ -82,12 +82,20 @@ workspace:
 }
 
 describe('Pi extension stub integration', () => {
-  it('registers six slash commands and a tool_call handler on load', async () => {
+  it('registers seven slash commands and a tool_call handler on load', async () => {
     const dir = setupRepo();
     const fake = makeFakeApi(dir);
     await piExtension(fake.api as unknown as ExtensionAPI);
     const snap = fake.snapshot();
-    expect(snap.slashCommands).toEqual(['grill', 'plan', 'remember', 'run', 'status', 'verify']);
+    expect(snap.slashCommands).toEqual([
+      'doctor',
+      'grill',
+      'plan',
+      'remember',
+      'run',
+      'status',
+      'verify',
+    ]);
     expect(snap.hasToolCallHandler).toBe(true);
     expect(snap.logs.some((l) => l.includes('extension loaded'))).toBe(true);
   });

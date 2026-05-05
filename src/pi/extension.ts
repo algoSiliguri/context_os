@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { SessionStatus } from '../ccp/artifacts/session-status';
 import { BrainClient } from '../ccp/brain/client';
+import { renderDoctorReport, runDoctorCommand } from '../ccp/commands/doctor';
 import { runGrill } from '../ccp/commands/grill';
 import { runPlan } from '../ccp/commands/plan';
 import { runRemember } from '../ccp/commands/remember';
@@ -84,6 +85,11 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
     repoRoot: _state.repoRoot,
   });
   const projectName = _state.config.project_id;
+
+  api.registerSlashCommand('doctor', async () => {
+    const report = await runDoctorCommand({ repoRoot: _state!.repoRoot });
+    api.log(renderDoctorReport(report));
+  });
 
   api.registerSlashCommand('grill', async (rest: string) => {
     await runGrill({
