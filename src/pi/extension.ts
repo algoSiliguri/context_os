@@ -33,7 +33,11 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
     return;
   }
 
-  // Run recovery first — replay events.jsonl into projection + state snapshots
+  // Recovery: replay events.jsonl → projection.db + session.json + per-task state.json.
+  // Plan 2a treats replay failure as non-fatal: the extension still loads, but
+  // the projection/snapshot files may be stale or absent. events.jsonl remains
+  // the source of truth; downstream commands (Plan 2b) read live state from it.
+  // Plan 2c is expected to add snapshot optimization and stricter recovery semantics.
   try {
     replayFromEventLog(repoRoot);
   } catch (e) {

@@ -1,14 +1,12 @@
 // src/pi/types.ts
+import type { UiAdapter } from './ui';
+
+export type { UiAdapter };
+
 export interface ToolCallContext {
   toolName: string;
   input: Record<string, unknown>;
   block(reason: string): void;
-}
-
-export interface UiAdapter {
-  confirm(message: string): Promise<boolean>;
-  input(message: string): Promise<string>;
-  select(message: string, choices: string[]): Promise<string>;
 }
 
 export interface ExtensionAPI {
