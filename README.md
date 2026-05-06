@@ -19,43 +19,89 @@ Inside `pi`, six new slash commands:
 
 Plus `/doctor` to debug your setup.
 
+## Prerequisites
+
+- Node.js ≥ 20 (the Pi extension requires Node 20+; Node 22 LTS is current).
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) — used to install the brain CLI.
+- The Pi coding agent: `npm install -g @mariozechner/pi-coding-agent`.
+
 ## Install
 
 ```bash
-pi install npm:@agnivadc/agent-os
+pi install git:github.com/algoSiliguri/Agent_OS@v1.1.0
 ```
 
-## Bind a project
+That's the entire install. The extension auto-loads when you run `pi`.
 
-Create `.agent-os/project.yaml`:
+## Pick a model in Pi
 
-```yaml
-project_id: my-project
-domain_type: general
-runtime_version: 0.1.0
-memory_namespace: my-project
-verification_profile: default
-critical_actions: []
-workspace:
-  root: .
+Pi handles model selection independently of Agent OS. Pick whichever fits your account — Agent OS's slash commands work the same regardless.
 
-# Optional CCP policy fields:
-overrides:
-  - tool: write_file
-    when: "path within workspace.root"
-    tier: 1
-trust_registry:
-  pi_packages:
-    - package: "@agnivadc/agent-os"
-      trust: trusted
+**Anthropic (default; what v1.0.0 was tested against):**
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+pi
 ```
 
-Run `pi`, then `/doctor` to confirm everything's wired.
+**OpenAI:**
+```bash
+export OPENAI_API_KEY=sk-...
+pi --model gpt-5      # or pick interactively after launch
+```
 
-## Walkthrough
+**Interactive provider picker (no env var needed):**
+```bash
+pi /login
+```
 
-See `docs/demo/section-16-walkthrough.md` for a step-by-step demo of the
-v1 loop on a real codebase.
+**Custom or local models (Ollama, vLLM, LM Studio):**
+See [Pi's custom-provider docs](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/custom-provider.md). Configure once at `~/.pi/agent/models.json`.
+
+Switch models any time inside Pi with `/model` or `Ctrl-L`.
+
+## Initialize a project
+
+```bash
+cd /path/to/your/repo
+pi
+> /init my-project
+```
+
+`/init` will:
+
+1. Install the brain CLI if it isn't already (via `uv tool install`).
+2. Copy the bundled constitution + schemas + contract index into `.agent-os/`.
+3. Render `.agent-os/project.yaml` with your project_id, domain, and policy defaults.
+4. Create runtime dirs (`runtime/`, `tasks/`).
+
+Optional flags:
+- `/init my-project --domain trading-research --critical-actions trade_execute,global_memory_write` — fully scripted (skip prompts).
+- `/init --upgrade` — re-copy governance files at the current extension version (preserves your `project.yaml`).
+- `/init --force` — overwrite an existing init.
+
+After `/init`, set `BRAIN_DB_PATH` and run `/doctor` to verify:
+
+```bash
+export BRAIN_DB_PATH="$HOME/.knowledge-brain/knowledge.db"
+```
+
+```
+> /doctor
+status: ok
+```
+
+## Walk the loop
+
+```
+> /grill add rate limiting to /api/v1/auth
+> /plan
+> /run
+> /verify
+> /remember
+> /status
+```
+
+For a per-step transcript with expected events, see [docs/demo/section-16-walkthrough.md](docs/demo/section-16-walkthrough.md).
 
 ## Architecture
 
