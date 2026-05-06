@@ -35,18 +35,48 @@ That's the entire install. The extension auto-loads when you run `pi`.
 
 ## Pick a model in Pi
 
-Pi handles model selection independently of Agent OS. Pick whichever fits your account — Agent OS's slash commands work the same regardless.
+Pi handles model selection independently of Agent OS. Pick whichever fits your account — Agent OS's slash commands work the same regardless of which LLM Pi is talking to (Claude, GPT, Gemini, Llama-via-Ollama, anything OpenAI-compatible).
 
-**Anthropic (default; what v1.0.0 was tested against):**
+**Anthropic (Claude):**
+
+macOS / Linux:
 ```bash
 export ANTHROPIC_API_KEY=sk-ant-...
 pi
 ```
 
-**OpenAI:**
+Windows (PowerShell):
+```powershell
+$env:ANTHROPIC_API_KEY = "sk-ant-..."
+pi
+```
+
+**OpenAI (GPT):**
+
+macOS / Linux:
 ```bash
 export OPENAI_API_KEY=sk-...
 pi --model gpt-5      # or pick interactively after launch
+```
+
+Windows (PowerShell):
+```powershell
+$env:OPENAI_API_KEY = "sk-..."
+pi --model gpt-5
+```
+
+**Google (Gemini):**
+
+macOS / Linux:
+```bash
+export GOOGLE_API_KEY=AIza...
+pi --model gemini-2.5-pro
+```
+
+Windows (PowerShell):
+```powershell
+$env:GOOGLE_API_KEY = "AIza..."
+pi --model gemini-2.5-pro
 ```
 
 **Interactive provider picker (no env var needed):**
@@ -54,10 +84,17 @@ pi --model gpt-5      # or pick interactively after launch
 pi /login
 ```
 
-**Custom or local models (Ollama, vLLM, LM Studio):**
+**Custom or local models** (Ollama, vLLM, LM Studio, OpenRouter, Groq, anything OpenAI-compatible):
 See [Pi's custom-provider docs](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/custom-provider.md). Configure once at `~/.pi/agent/models.json`.
 
 Switch models any time inside Pi with `/model` or `Ctrl-L`.
+
+### Persisting env vars across shells
+
+| Platform | One-line guide |
+|---|---|
+| macOS / Linux | Add the `export` lines to `~/.zshrc` (zsh) or `~/.bashrc` (bash). Reload with `source ~/.zshrc`. |
+| Windows | `[System.Environment]::SetEnvironmentVariable('VAR_NAME', 'value', 'User')` persists for new shells. Current shell still needs `$env:VAR_NAME = ...`. |
 
 ## Initialize a project
 
@@ -81,8 +118,14 @@ Optional flags:
 
 After `/init`, set `BRAIN_DB_PATH` and run `/doctor` to verify:
 
+**macOS / Linux:**
 ```bash
 export BRAIN_DB_PATH="$HOME/.knowledge-brain/knowledge.db"
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:BRAIN_DB_PATH = "$HOME\.knowledge-brain\knowledge.db"
 ```
 
 ```
