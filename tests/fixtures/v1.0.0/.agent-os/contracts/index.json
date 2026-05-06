@@ -1,0 +1,10 @@
+{
+  "artifacts": {
+    ".agent-os/schemas/constitution-binding.schema.json": "e57ef42581a50cfeceda4cfa37114e42f86427e77858779e9ce0cc83dd6c56ef",
+    ".agent-os/schemas/permission-manifest.schema.json": "9c21e87c0263fcaa96a8dbcbcf766cfa56b40889246317ffa42d0a11ba25fff5",
+    ".agent-os/schemas/telemetry-event.schema.json": "41124ed6f361dc95e6bc958879378fab688408a06874dea954a04065b547b583"
+  },
+  "schema_version": "1.0.0",
+  "system_id": "agent-os",
+  "version": "v2"
+}
