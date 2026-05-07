@@ -6,7 +6,7 @@ export interface EnsureBrainCliOptions {
   exec?: (cmd: string) => string;
 }
 
-const BRAIN_GIT = 'git+https://github.com/agnivadc/knowledge-brain.git';
+const BRAIN_GIT = 'git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0';
 
 function defaultExec(cmd: string): string {
   return execSync(cmd, { stdio: 'pipe', encoding: 'utf8' });

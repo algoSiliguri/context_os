@@ -9,14 +9,15 @@ export interface VerificationResult {
   hardFailed: string | null;
   softFailed: string[];
   detail: string | null;
+  constitutionHash: string | null;
 }
 
-function ok(passed: string[]): VerificationResult {
-  return { passed, hardFailed: null, softFailed: [], detail: null };
+function ok(passed: string[], constitutionHash: string | null = null): VerificationResult {
+  return { passed, hardFailed: null, softFailed: [], detail: null, constitutionHash };
 }
 
 function fail(condition: string, detail: string, passed: string[] = []): VerificationResult {
-  return { passed, hardFailed: condition, softFailed: [], detail };
+  return { passed, hardFailed: condition, softFailed: [], detail, constitutionHash: null };
 }
 
 function checkC11(repoRoot: string): VerificationResult {
@@ -113,6 +114,7 @@ export function verifyConstitution(repoRoot: string): VerificationResult {
     return { ...fail('C4', 'AGENT_OS_CONSTITUTION.md not found.'), passed };
   }
   const text = readFileSync(constitutionPath, 'utf-8');
+  const constitutionHash = computeConstitutionHash(text);
   const b0 = parseB0Header(text);
   if (!b0) return { ...fail('C4', 'Could not parse B0 header block.'), passed };
 
@@ -136,5 +138,6 @@ export function verifyConstitution(repoRoot: string): VerificationResult {
     hardFailed: null,
     softFailed: r.softFailed,
     detail: r.detail,
+    constitutionHash,
   };
 }

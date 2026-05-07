@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 // tests/unit/ccp/brain/client.test.ts
 import { describe, expect, it } from 'vitest';
+import { BindingError } from '../../../../src/core/binding';
 import { BrainClient, type BrainSpawnFn } from '../../../../src/ccp/brain/client';
 
 describe('BrainClient', () => {
@@ -53,11 +54,21 @@ describe('BrainClient', () => {
     expect(BrainClient.confidenceFor('pattern')).toBe(0.7);
   });
 
-  it('write queues to pending-captures.yaml when brain CLI is unavailable', async () => {
+  it('write throws BindingError when brain CLI is missing (ENOENT)', async () => {
+    const spawn: BrainSpawnFn = async () => {
+      throw Object.assign(new Error('ENOENT: brain not found'), { code: 'ENOENT' });
+    };
+    const client = new BrainClient({ dbPath: '/some/path', spawn });
+    await expect(
+      client.write({ content: 'note', type: 'convention', scope: 'project', taskId: 'T-001', project: 'demo' }),
+    ).rejects.toMatchObject({ name: 'BindingError', condition: 'brain_cli_missing' });
+  });
+
+  it('write queues to pending-captures.yaml on transient (non-ENOENT) failure', async () => {
     const repoRoot = mkdtempSync(join(tmpdir(), 'aos-bc-'));
     mkdirSync(join(repoRoot, '.agent-os', 'tasks', 'T-001'), { recursive: true });
     const spawn: BrainSpawnFn = async () => {
-      throw Object.assign(new Error('ENOENT: brain not found'), { code: 'ENOENT' });
+      throw Object.assign(new Error('spawn ETIMEDOUT'), { code: 'ETIMEDOUT' });
     };
     const client = new BrainClient({ dbPath: '/some/path', spawn, repoRoot });
     const result = await client.write({
@@ -69,13 +80,8 @@ describe('BrainClient', () => {
     });
     expect(result.id).toBe(null);
     expect(result.deferred).toBe(true);
-    expect(existsSync(join(repoRoot, '.agent-os', 'tasks', 'T-001', 'pending-captures.yaml'))).toBe(
-      true,
-    );
-    const yaml = readFileSync(
-      join(repoRoot, '.agent-os', 'tasks', 'T-001', 'pending-captures.yaml'),
-      'utf-8',
-    );
+    expect(existsSync(join(repoRoot, '.agent-os', 'tasks', 'T-001', 'pending-captures.yaml'))).toBe(true);
+    const yaml = readFileSync(join(repoRoot, '.agent-os', 'tasks', 'T-001', 'pending-captures.yaml'), 'utf-8');
     expect(yaml).toContain('content: note');
   });
 
@@ -103,5 +109,40 @@ describe('BrainClient', () => {
     const r = await client.query({ query: 'anything' });
     expect(r.items).toEqual([]);
     expect(r.total_matches).toBe(0);
+  });
+
+  it('probe() resolves when CLI returns compatible protocol version', async () => {
+    const spawn: BrainSpawnFn = async () => ({ stdout: '1.0.0\n', stderr: '', exitCode: 0 });
+    const client = new BrainClient({ spawn });
+    await expect(client.probe()).resolves.toBeUndefined();
+  });
+
+  it('probe() throws BindingError when CLI is missing', async () => {
+    const spawn: BrainSpawnFn = async () => {
+      throw Object.assign(new Error('ENOENT: no such file'), { code: 'ENOENT' });
+    };
+    const client = new BrainClient({ spawn });
+    await expect(client.probe()).rejects.toMatchObject({
+      name: 'BindingError',
+      condition: 'brain_cli_missing',
+    });
+  });
+
+  it('probe() throws BindingError when CLI returns no protocol version (old CLI)', async () => {
+    const spawn: BrainSpawnFn = async () => ({ stdout: '', stderr: '', exitCode: 0 });
+    const client = new BrainClient({ spawn });
+    await expect(client.probe()).rejects.toMatchObject({
+      name: 'BindingError',
+      condition: 'brain_protocol_incompatible',
+    });
+  });
+
+  it('probe() throws BindingError when protocol version is below minimum', async () => {
+    const spawn: BrainSpawnFn = async () => ({ stdout: '0.9.0\n', stderr: '', exitCode: 0 });
+    const client = new BrainClient({ spawn });
+    await expect(client.probe()).rejects.toMatchObject({
+      name: 'BindingError',
+      condition: 'brain_protocol_incompatible',
+    });
   });
 });

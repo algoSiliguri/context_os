@@ -53,4 +53,11 @@ workspace:
     expect(record.state).toBe('BOUND');
     expect(record.session_id).toMatch(/^sess-/);
   });
+
+  it('bindProject sets constitution_hash matching a re-computed hash of the file', async () => {
+    const record = await bindProject(repoRoot, { skipBundleVerification: true });
+    const constitutionText = readFileSync(join(repoRoot, 'AGENT_OS_CONSTITUTION.md'), 'utf-8');
+    const expected = computeConstitutionHash(constitutionText);
+    expect(record.constitution_hash).toBe(expected);
+  });
 });

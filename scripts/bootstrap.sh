@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot setup for the trading-playground.
+# One-shot setup for a brain playground project.
 #
 # What this does:
 #   1. Verifies `uv` is on PATH (fails fast with install instructions if not)
@@ -20,7 +20,7 @@ TEMPLATE="$PLAYGROUND/.mcp.json.template"
 MCP_CONFIG="$PLAYGROUND/.mcp.json"
 DB_PATH="$PLAYGROUND/data_store/knowledge.db"
 JSONL_PATH="$PLAYGROUND/data_store/knowledge.jsonl"
-BRAIN_GIT_URL="git+https://github.com/agnivadc/knowledge-brain.git"
+BRAIN_GIT_URL="git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0"
 
 # 1. Check uv is installed
 if ! command -v uv >/dev/null 2>&1; then

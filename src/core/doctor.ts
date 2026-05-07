@@ -78,6 +78,16 @@ export function runDoctor(repoRoot: string): DoctorReport {
     return { status: 'hard_fail', checks };
   }
 
+  const brainDbPath = process.env.BRAIN_DB_PATH;
+  checks.push({
+    id: 'brain_db_path',
+    description: 'BRAIN_DB_PATH env var is set',
+    status: brainDbPath ? 'pass' : 'soft_fail',
+    detail: brainDbPath
+      ? undefined
+      : 'BRAIN_DB_PATH is unset — /remember is disabled. Set it to enable knowledge capture.',
+  });
+
   const hasSoft = checks.some((c) => c.status === 'soft_fail');
   return { status: hasSoft ? 'soft_fail' : 'ok', checks };
 }

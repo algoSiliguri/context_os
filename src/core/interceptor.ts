@@ -3,7 +3,6 @@ import { join } from 'node:path';
 import Database from 'better-sqlite3';
 import { buildPermissionDeniedEvent, buildToolRequestedEvent } from './events';
 import { loadProjectConfig } from './manifest';
-import { buildMemoryRoute } from './memory-router';
 import { initProjectionSchema, mirrorApprovalEvent } from './projection';
 import { eventLogPath } from './runtime-paths';
 import { appendJsonlEventAtomic } from './session-store';
@@ -37,11 +36,6 @@ export async function requestCriticalAction(args: {
 }): Promise<string> {
   const ttl = args.ttlSeconds ?? 30;
   const config = loadProjectConfig(join(args.repoRoot, '.agent-os', 'project.yaml'));
-  buildMemoryRoute({
-    manifest: config,
-    repoRoot: args.repoRoot,
-    globalRoot: join(args.repoRoot, '..', '.knowledge-brain'),
-  });
   const logPath = eventLogPath(args.repoRoot);
   const requestedAt = new Date();
   const expiresAt = new Date(requestedAt.getTime() + ttl * 1000);

@@ -27,6 +27,7 @@ export const SessionBindingRecord = Type.Object({
   verification_passed: Type.Optional(Type.Array(Type.String())),
   verification_soft_failed: Type.Optional(Type.Array(Type.String())),
   binding_degraded: Type.Optional(Type.Boolean()),
+  constitution_hash: Type.Optional(Type.String()),
 });
 export type SessionBindingRecord = Static<typeof SessionBindingRecord>;
 

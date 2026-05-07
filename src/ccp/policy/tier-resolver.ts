@@ -40,11 +40,11 @@ export function resolveEffectiveTier(
   if (command && TIER_4_PATTERNS.some((re) => re.test(command))) return 4;
   if (path && ENV_PATH_PATTERN.test(path)) return 4;
 
-  // 2) Project overrides
+  // 2) Project overrides — floor at compiled baseline so overrides can only tighten
   for (const ov of config.overrides ?? []) {
     if (ov.tool !== tool.tool_id) continue;
     if (matchesWhen(ov.when, { path, command }, config.workspace.root)) {
-      return ov.tier;
+      return Math.max(ov.tier, tool.approval_tier) as Tier;
     }
   }
 

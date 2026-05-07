@@ -4,6 +4,7 @@ import { appendFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { promisify } from 'node:util';
 import YAML from 'yaml';
+import { BindingError } from '../../core/binding';
 import type { CaptureType } from '../artifacts/knowledge-capture-record';
 import { taskPendingCapturesPath } from '../task-paths';
 
@@ -16,6 +17,9 @@ export interface BrainSpawnResult {
 }
 
 export type BrainSpawnFn = (cmd: string, args: string[]) => Promise<BrainSpawnResult>;
+
+/** Minimum knowledge-brain protocol version Agent_OS requires. */
+export const MIN_PROTOCOL_VERSION = '1.0.0';
 
 const defaultSpawn: BrainSpawnFn = async (cmd, args) => {
   const { stdout, stderr } = await execFileAsync(cmd, args);
@@ -44,7 +48,8 @@ export interface WriteResult {
 }
 
 export interface BrainClientOptions {
-  dbPath: string;
+  /** Explicit DB path. When absent, the brain CLI resolves via BRAIN_DB_PATH env or its own default. */
+  dbPath?: string;
   spawn?: BrainSpawnFn;
   repoRoot?: string; // required for queueing on failure
 }
@@ -60,7 +65,7 @@ const CONFIDENCE: Record<CaptureType, number> = {
 };
 
 export class BrainClient {
-  private readonly dbPath: string;
+  private readonly dbPath: string | undefined;
   private readonly spawn: BrainSpawnFn;
   private readonly repoRoot: string | undefined;
 
@@ -68,6 +73,10 @@ export class BrainClient {
     this.dbPath = opts.dbPath;
     this.spawn = opts.spawn ?? defaultSpawn;
     this.repoRoot = opts.repoRoot;
+  }
+
+  private dbPathArgs(): string[] {
+    return this.dbPath ? ['--db-path', this.dbPath] : [];
   }
 
   static confidenceFor(type: CaptureType): number {
@@ -89,8 +98,7 @@ export class BrainClient {
       `project:${args.project}`,
     ];
     const cliArgs = [
-      '--db-path',
-      this.dbPath,
+      ...this.dbPathArgs(),
       'write',
       '--content',
       args.content,
@@ -105,7 +113,34 @@ export class BrainClient {
       const node = JSON.parse(result.stdout) as BrainNode;
       return { id: node.id, deferred: false };
     } catch (e) {
-      return this.queueDeferred(args, (e as Error).message);
+      const err = e as NodeJS.ErrnoException;
+      if (err.code === 'ENOENT') {
+        throw new BindingError('brain_cli_missing', `brain CLI not found on PATH: ${err.message}`);
+      }
+      return this.queueDeferred(args, err.message ?? String(e));
+    }
+  }
+
+  async probe(): Promise<void> {
+    let result: BrainSpawnResult;
+    try {
+      result = await this.spawn('brain', ['--protocol-version']);
+    } catch (e) {
+      const err = e as NodeJS.ErrnoException;
+      throw new BindingError('brain_cli_missing', `brain CLI not reachable: ${err.message}`);
+    }
+    const version = result.stdout.trim();
+    if (!version) {
+      throw new BindingError(
+        'brain_protocol_incompatible',
+        `brain CLI returned no protocol version (required >= ${MIN_PROTOCOL_VERSION}). Update knowledge-brain.`,
+      );
+    }
+    if (!meetsMinVersion(version, MIN_PROTOCOL_VERSION)) {
+      throw new BindingError(
+        'brain_protocol_incompatible',
+        `brain protocol ${version} < required ${MIN_PROTOCOL_VERSION}. Update knowledge-brain.`,
+      );
     }
   }
 
@@ -115,8 +150,7 @@ export class BrainClient {
     max?: number;
   }): Promise<BrainQueryResult> {
     const cliArgs = [
-      '--db-path',
-      this.dbPath,
+      ...this.dbPathArgs(),
       'query',
       args.query,
       ...(args.tags ? ['--tags', args.tags.join(',')] : []),
@@ -162,4 +196,14 @@ export class BrainClient {
     appendFileSync(path, entry, 'utf-8');
     return { id: null, deferred: true, reason };
   }
+}
+
+/** Returns true if `actual` semver tuple >= `required` semver tuple. */
+function meetsMinVersion(actual: string, required: string): boolean {
+  const parse = (v: string) => v.split('.').map((n) => parseInt(n, 10) || 0);
+  const [aMaj, aMin, aPat] = parse(actual);
+  const [rMaj, rMin, rPat] = parse(required);
+  if (aMaj !== rMaj) return aMaj! > rMaj!;
+  if (aMin !== rMin) return aMin! > rMin!;
+  return aPat! >= rPat!;
 }

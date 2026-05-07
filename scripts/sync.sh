@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Sync between the local SQLite DB and the committed JSONL.
+# NOTE: kept intentionally identical to brain_playground/scripts/sync.sh — update both together.
 #
 # Usage:
 #   bash scripts/sync.sh export   # DB  → data_store/knowledge.jsonl  (run before commit)
@@ -19,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLAYGROUND="$(cd "$SCRIPT_DIR/.." && pwd)"
 DB_PATH="$PLAYGROUND/data_store/knowledge.db"
 JSONL_PATH="$PLAYGROUND/data_store/knowledge.jsonl"
-BRAIN_GIT_URL="git+https://github.com/agnivadc/knowledge-brain.git"
+BRAIN_GIT_URL="git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0"
 
 if [[ "$MODE" == "export" ]]; then
     if [[ ! -f "$DB_PATH" ]]; then

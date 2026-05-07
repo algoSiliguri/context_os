@@ -1,4 +1,5 @@
 // tests/integration/init.test.ts
+import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -6,7 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { parse as parseYaml } from 'yaml';
 import { runInit } from '../../src/ccp/commands/init';
+import { GOVERNANCE_FILES } from '../../src/ccp/commands/init/governance';
 import type { UiAdapter } from '../../src/pi/ui';
+
+function hashFile(path: string): string {
+  return createHash('sha256').update(readFileSync(path)).digest('hex');
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..', '..');
@@ -122,6 +128,16 @@ describe('/init integration', () => {
     const yamlAfter = readFileSync(join(tgt, '.agent-os', 'project.yaml'), 'utf8');
     expect(yamlAfter).toBe(yamlBefore);
     expect(existsSync(join(tgt, 'AGENT_OS_CONSTITUTION.md'))).toBe(true);
+  });
+
+  it('--upgrade is idempotent: governance artifact hashes identical on re-run', async () => {
+    const tgt = mkdtempSync(join(tmpdir(), 'aos-i-'));
+    const opts = { rest: 'my-project --no-prompt', targetRoot: tgt, ui: noopUi(), log: () => {}, exec, sourceRoot: REPO_ROOT };
+    await runInit(opts);
+    const hashesFirst = GOVERNANCE_FILES.map((f) => hashFile(join(tgt, f)));
+    await runInit({ ...opts, rest: '--upgrade' });
+    const hashesSecond = GOVERNANCE_FILES.map((f) => hashFile(join(tgt, f)));
+    expect(hashesSecond).toEqual(hashesFirst);
   });
 
   it('--upgrade refuses when project.yaml is missing', async () => {

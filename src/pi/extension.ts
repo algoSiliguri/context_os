@@ -98,9 +98,17 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
 
   const sessionId = readSessionId(_state.repoRoot);
   const ui = wrapUi(api.ui);
+  if (!process.env.BRAIN_DB_PATH) {
+    api.log(
+      'agent-os: BRAIN_DB_PATH is not set — /remember is disabled. Set BRAIN_DB_PATH to enable knowledge capture.',
+    );
+  }
   const brain = new BrainClient({
-    dbPath: process.env.BRAIN_DB_PATH ?? '',
+    dbPath: process.env.BRAIN_DB_PATH,
     repoRoot: _state.repoRoot,
+  });
+  brain.probe().catch((e: Error) => {
+    api.log(`agent-os: brain CLI not reachable — /remember will fail (${e.message})`);
   });
   const projectName = _state.config.project_id;
 
@@ -140,7 +148,13 @@ const entry: ExtensionEntry = async (api: ExtensionAPI) => {
     },
   };
 
-  const executor = makePiAgentExecutor({ agent: piAgent });
+  const executor = makePiAgentExecutor({
+    agent: piAgent,
+    policy: {
+      decisionCtx: { registry: _state.registry, cache: _state.cache, config: _state.config },
+      askForApproval: (command, reason) => ui.confirm(`Allow: ${command}\n(${reason})`),
+    },
+  });
 
   api.registerSlashCommand('doctor', async () => {
     const report = await runDoctorCommand({ repoRoot: _state!.repoRoot });

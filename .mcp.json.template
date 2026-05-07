@@ -4,7 +4,7 @@
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/agnivadc/knowledge-brain.git",
+        "git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0",
         "brain-mcp"
       ],
       "env": {

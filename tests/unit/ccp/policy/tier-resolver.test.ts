@@ -55,12 +55,30 @@ describe('tier-resolver', () => {
     expect(resolveEffectiveTier(baseTool, { path: '/elsewhere/file.txt' }, baseConfig)).toBe(3);
   });
 
-  it('uses workspace allowlist override to drop to 1', () => {
+  it('floors override at compiled baseline — override tier 1 on tier-2 tool returns 2', () => {
     const config: ProjectConfig = {
       ...baseConfig,
       overrides: [{ tool: 'write_file', when: 'path within workspace.root', tier: 1 }],
     };
-    expect(resolveEffectiveTier(baseTool, { path: '/repo/src/foo.ts' }, config)).toBe(1);
+    expect(resolveEffectiveTier(baseTool, { path: '/repo/src/foo.ts' }, config)).toBe(2);
+  });
+
+  it('floors override at compiled baseline — override tier 1 on tier-3 tool returns 3', () => {
+    const tier3Tool: ToolMetadata = { ...baseTool, tool_id: 'exec', approval_tier: 3 };
+    const config: ProjectConfig = {
+      ...baseConfig,
+      overrides: [{ tool: 'exec', when: 'path within workspace.root', tier: 1 }],
+    };
+    expect(resolveEffectiveTier(tier3Tool, { path: '/repo/src/foo.ts' }, config)).toBe(3);
+  });
+
+  it('allows override to raise tier above baseline — override tier 4 on tier-1 tool returns 4', () => {
+    const tier1Tool: ToolMetadata = { ...baseTool, tool_id: 'read_file', approval_tier: 1 };
+    const config: ProjectConfig = {
+      ...baseConfig,
+      overrides: [{ tool: 'read_file', when: 'matches "^/secrets"', tier: 4 }],
+    };
+    expect(resolveEffectiveTier(tier1Tool, { command: '/secrets/key' }, config)).toBe(4);
   });
 
   it('uses regex override to bump to 3', () => {

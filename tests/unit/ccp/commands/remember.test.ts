@@ -91,11 +91,11 @@ describe('runRemember', () => {
     ).toBe('written');
   });
 
-  it('records brain_status=deferred when brain is unavailable', async () => {
+  it('records brain_status=deferred on transient brain failure', async () => {
     const { dir, taskId } = fixtureReady();
-    // spawn always throws (simulates brain CLI not on PATH)
+    // spawn throws a transient error (not ENOENT) — ENOENT is a hard BindingError
     const spawn: BrainSpawnFn = async () => {
-      throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
+      throw Object.assign(new Error('spawn ETIMEDOUT'), { code: 'ETIMEDOUT' });
     };
     const brain = new BrainClient({ dbPath: '/brain.db', spawn, repoRoot: dir });
     // approve the first proposal

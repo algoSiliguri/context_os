@@ -1,5 +1,6 @@
 // src/ccp/tools/pi-agent-executor.ts
-import type { StepExecutor } from '../commands/shared/step-executor';
+import { decideToolCall, type DecisionContext } from '../policy/decision-flow';
+import type { StepExecutor, StepExecutionResult } from '../commands/shared/step-executor';
 
 export interface PiAgentLike {
   runAgent(prompt: string): Promise<{
@@ -10,9 +11,53 @@ export interface PiAgentLike {
   }>;
 }
 
-export function makePiAgentExecutor(opts: { agent: PiAgentLike }): StepExecutor {
+export interface PolicyContext {
+  decisionCtx: DecisionContext;
+  /** Called when a command needs per-invocation approval (tier 2/3). If absent, ask → block. */
+  askForApproval?: (command: string, reason: string) => Promise<boolean>;
+}
+
+const POLICY_BLOCKED: StepExecutionResult = {
+  status: 'failed',
+  files_changed: [],
+  commands_run: [],
+  approvals: [],
+  events: [],
+  failure: { reason: 'policy_blocked', summary: '', recoverable: false },
+};
+
+function blockedResult(summary: string): StepExecutionResult {
+  return { ...POLICY_BLOCKED, failure: { reason: 'policy_blocked', summary, recoverable: false } };
+}
+
+export function makePiAgentExecutor(opts: {
+  agent: PiAgentLike;
+  policy?: PolicyContext;
+}): StepExecutor {
   return {
     async executeStep({ stepId, step }) {
+      if (opts.policy) {
+        for (const cmd of step.commands) {
+          const decision = decideToolCall(
+            { toolName: 'run_command', input: { command: cmd.command } },
+            opts.policy.decisionCtx,
+          );
+          if (decision.outcome === 'block') {
+            return blockedResult(`command "${cmd.command}" blocked by policy: ${decision.reason}`);
+          }
+          if (decision.outcome === 'ask') {
+            const approved = opts.policy.askForApproval
+              ? await opts.policy.askForApproval(cmd.command, decision.reason)
+              : false;
+            if (!approved) {
+              return blockedResult(
+                `command "${cmd.command}" requires approval: ${decision.reason}`,
+              );
+            }
+          }
+        }
+      }
+
       const prompt = renderStepPrompt(stepId, step);
       const result = await opts.agent.runAgent(prompt);
       if (result.exitCode === 0) {

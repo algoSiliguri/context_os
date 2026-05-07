@@ -65,5 +65,6 @@ export async function bindProject(
     verification_passed: result.passed,
     verification_soft_failed: result.softFailed,
     binding_degraded: result.softFailed.length > 0,
+    ...(result.constitutionHash ? { constitution_hash: result.constitutionHash } : {}),
   };
 }

@@ -96,6 +96,20 @@ Switch models any time inside Pi with `/model` or `Ctrl-L`.
 | macOS / Linux | Add the `export` lines to `~/.zshrc` (zsh) or `~/.bashrc` (bash). Reload with `source ~/.zshrc`. |
 | Windows | `[System.Environment]::SetEnvironmentVariable('VAR_NAME', 'value', 'User')` persists for new shells. Current shell still needs `$env:VAR_NAME = ...`. |
 
+## Bootstrap sequence
+
+The canonical onboarding path for a project that uses a local brain playground:
+
+```
+1. bash scripts/bootstrap.sh      # generate .mcp.json, seed knowledge.db
+2. /init <project-id>             # install brain CLI, materialize governance
+3. export BRAIN_DB_PATH=...       # point Agent OS at the database
+4. /doctor                        # verify everything is wired up
+```
+
+**Requires knowledge-brain >= v1.0.0** (protocol version 1.0.0). Agent OS checks
+`brain --protocol-version` at startup and refuses to bind to older CLIs.
+
 ## Initialize a project
 
 ```bash
@@ -113,10 +127,11 @@ pi
 
 Optional flags:
 - `/init my-project --domain trading-research --critical-actions trade_execute,global_memory_write` — fully scripted (skip prompts).
-- `/init --upgrade` — re-copy governance files at the current extension version (preserves your `project.yaml`).
+- `/init --upgrade` — re-copy governance files at the current extension version (preserves your `project.yaml`). Safe to re-run; produces identical governance artifact hashes.
 - `/init --force` — overwrite an existing init.
 
-After `/init`, set `BRAIN_DB_PATH` and run `/doctor` to verify:
+After `/init`, set `BRAIN_DB_PATH` and run `/doctor` to verify.
+`BRAIN_DB_PATH` is required for `/remember` — Agent OS logs a warning and disables knowledge capture if it is unset.
 
 **macOS / Linux:**
 ```bash
