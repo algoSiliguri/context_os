@@ -2,33 +2,33 @@
 
 A Pi-first, local-first **AI Coding Control Plane**: idea → grill → plan →
 approve → execute → verify → remember. Adds governance, state, and a calm
-operator surface on top of [Pi](https://github.com/badlogic/pi-mono).
+operator surface on top of [Pi](https://github.com/earendil-works/pi).
 
 ## What this gives you
 
-Inside `pi`, six new slash commands:
+Inside `pi`, eight slash commands:
 
 | Command | What it does |
 |---|---|
-| `/grill <idea>` | Pressure-tests the idea with structured questions. Writes a `GrillRecord`. |
-| `/plan` | Drafts a bounded plan from the grill output. Asks for approval. |
-| `/run [<task>] [--resume]` | Executes the approved plan with policy-gated tool calls. |
-| `/verify` | Runs the plan's verification commands; auto-chains from `/run`. |
-| `/remember` | Reviews and persists captured knowledge to your brain. |
-| `/status [<task>]` | Compact read-only view of current state. |
-
-Plus `/doctor` to debug your setup.
+| `/init` | Set up Agent OS in your project (run once per project). |
+| `/doctor` | Check everything is working. |
+| `/grill <idea>` | Answer a few questions to pressure-test your idea. |
+| `/plan` | See a plan for the idea and approve or reject it. |
+| `/run` | Record that the plan was executed. |
+| `/verify` | Check the plan's success criteria pass. |
+| `/remember` | Review and save what was learned to your brain. |
+| `/status` | See what task is active and what comes next. |
 
 ## Prerequisites
 
-- Node.js ≥ 20 (the Pi extension requires Node 20+; Node 22 LTS is current).
-- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) — used to install the brain CLI.
-- The Pi coding agent: `npm install -g @mariozechner/pi-coding-agent`.
+- Node.js ≥ 20
+- Pi coding agent v0.74.0+: `npm install -g @earendil-works/pi-coding-agent`
+- [`uv`](https://docs.astral.sh/uv/getting-started/installation/) — used to install the brain CLI (needed for `/remember`)
 
 ## Install
 
 ```bash
-pi install git:github.com/algoSiliguri/Agent_OS@v1.1.0
+pi install git:github.com/algoSiliguri/Agent_OS@v1.2.0
 ```
 
 That's the entire install. The extension auto-loads when you run `pi`.
@@ -96,57 +96,28 @@ Switch models any time inside Pi with `/model` or `Ctrl-L`.
 | macOS / Linux | Add the `export` lines to `~/.zshrc` (zsh) or `~/.bashrc` (bash). Reload with `source ~/.zshrc`. |
 | Windows | `[System.Environment]::SetEnvironmentVariable('VAR_NAME', 'value', 'User')` persists for new shells. Current shell still needs `$env:VAR_NAME = ...`. |
 
-## Bootstrap sequence
-
-The canonical onboarding path for a project that uses a local brain playground:
-
-```
-1. bash scripts/bootstrap.sh      # generate .mcp.json, seed knowledge.db
-2. /init <project-id>             # install brain CLI, materialize governance
-3. export BRAIN_DB_PATH=...       # point Agent OS at the database
-4. /doctor                        # verify everything is wired up
-```
-
-**Requires knowledge-brain >= v1.0.0** (protocol version 1.0.0). Agent OS checks
-`brain --protocol-version` at startup and refuses to bind to older CLIs.
-
-## Initialize a project
+## Set up a project (one time)
 
 ```bash
-cd /path/to/your/repo
+cd /path/to/your/project
 pi
-> /init my-project
 ```
 
-`/init` will:
-
-1. Install the brain CLI if it isn't already (via `uv tool install`).
-2. Copy the bundled constitution + schemas + contract index into `.agent-os/`.
-3. Render `.agent-os/project.yaml` with your project_id, domain, and policy defaults.
-4. Create runtime dirs (`runtime/`, `tasks/`).
-
-Optional flags:
-- `/init my-project --domain trading-research --critical-actions trade_execute,global_memory_write` — fully scripted (skip prompts).
-- `/init --upgrade` — re-copy governance files at the current extension version (preserves your `project.yaml`). Safe to re-run; produces identical governance artifact hashes.
-- `/init --force` — overwrite an existing init.
-
-After `/init`, set `BRAIN_DB_PATH` and run `/doctor` to verify.
-`BRAIN_DB_PATH` is required for `/remember` — Agent OS logs a warning and disables knowledge capture if it is unset.
-
-**macOS / Linux:**
-```bash
-export BRAIN_DB_PATH="$HOME/.knowledge-brain/knowledge.db"
+Inside pi:
+```
+/init
+/doctor
 ```
 
-**Windows (PowerShell):**
-```powershell
-$env:BRAIN_DB_PATH = "$HOME\.knowledge-brain\knowledge.db"
-```
+`/init` with no arguments automatically uses your folder name as the project ID. It:
+1. Installs the brain CLI (via `uv tool install`).
+2. Creates `.agent-os/` with governance files and your `project.yaml`.
+3. Creates `data_store/knowledge.db` for storing learnings.
+4. Creates `runtime/` and `tasks/` directories.
 
-```
-> /doctor
-status: ok
-```
+`/doctor` confirms everything is wired up. You should see `status: ok`.
+
+Re-running `/init` on an already-initialized project is safe — it upgrades governance files and leaves your `project.yaml` unchanged.
 
 ## Walk the loop
 

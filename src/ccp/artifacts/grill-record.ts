@@ -41,7 +41,7 @@ const Constraint = Type.Object({ id: Type.String(), text: Type.String() });
 const SuccessCriterion = Type.Object({ id: Type.String(), text: Type.String() });
 const Blocker = Type.Object({ id: Type.String(), blocker: Type.String() });
 
-export const GrillRecord = Type.Composite([
+export const GrillRecord = Type.Intersect([
   ArtifactEnvelope,
   Type.Object({
     artifact_type: Type.Literal('GrillRecord'),

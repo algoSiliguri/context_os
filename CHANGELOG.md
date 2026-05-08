@@ -1,5 +1,27 @@
 # Changelog
 
+## v1.2.0 — 2026-05-08
+
+### Fixed
+- Extension now works with Pi v0.74.0 (`@earendil-works/pi-coding-agent`). Previous versions were written against an older, incompatible Pi API and would silently fail to load.
+- `Type.Composite` → `Type.Intersect` in all schema files (Pi bundles typebox v1.1.38 which removed `Type.Composite`).
+
+### Added
+- Tier-based tool approval policy on every Pi tool call:
+  - Tier 1 (`read`, `grep`, `find`, `ls`) — silent pass.
+  - Tier 2 (`edit`, `write`) — confirm once per session, then cached.
+  - Tier 3 (`bash`) — confirm on every call.
+  - Tier 4 (`sudo`, `.env`, `.ssh` patterns) — hard block.
+  - Unknown tools (MCP) — ask once.
+- `/grill`, `/plan`, `/run`, `/verify`, `/remember` commands wired to Pi v0.74.0 API.
+- `/init` auto-detects project ID from folder name when no argument given.
+- `/init` on an already-initialized project auto-upgrades governance files without overwriting `project.yaml`.
+- Brain DB stored at `data_store/knowledge.db` inside the project — no `BRAIN_DB_PATH` env var needed.
+
+### Changed
+- Pi package name corrected to `@earendil-works/pi-coding-agent` (was `@mariozechner/pi-coding-agent`).
+- README simplified for non-developers.
+
 ## v1.1.0 — 2026-05-07
 
 ### Added

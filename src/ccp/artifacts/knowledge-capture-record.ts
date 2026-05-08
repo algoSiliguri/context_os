@@ -37,7 +37,7 @@ const CaptureItem = Type.Object({
   brain_node_id: Type.Optional(Type.String()),
 });
 
-export const KnowledgeCaptureRecord = Type.Composite([
+export const KnowledgeCaptureRecord = Type.Intersect([
   ArtifactEnvelope,
   Type.Object({
     artifact_type: Type.Literal('KnowledgeCaptureRecord'),

@@ -1,6 +1,6 @@
 {
   "name": "@agnivadc/agent-os",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Machine-local governance runtime for Agent OS",
   "type": "module",
   "main": "src/index.ts",
@@ -36,5 +36,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "pi": {
+    "extensions": ["src/pi/extension.ts"]
   }
 }

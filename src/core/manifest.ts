@@ -18,7 +18,10 @@ const PolicyOverride = Type.Object({
   tier: Type.Union([Type.Literal(1), Type.Literal(2), Type.Literal(3), Type.Literal(4)]),
 });
 
-export const ProjectConfig = Type.Composite([
+// Type.Composite was removed in typebox v1.x (Pi bundles v1.1.38).
+// Type.Intersect exists in both v0.34 and v1.x and produces equivalent
+// runtime validation behaviour for a flat YAML config object.
+export const ProjectConfig = Type.Intersect([
   ProjectManifest,
   Type.Object({
     workspace: Type.Object({

@@ -11,7 +11,7 @@ const RunCommand = Type.Object({
 
 const Result = Type.Union([Type.Literal('pass'), Type.Literal('fail'), Type.Literal('blocked')]);
 
-export const VerificationRecord = Type.Composite([
+export const VerificationRecord = Type.Intersect([
   ArtifactEnvelope,
   Type.Object({
     artifact_type: Type.Literal('VerificationRecord'),

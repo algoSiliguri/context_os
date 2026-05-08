@@ -52,7 +52,7 @@ const ApprovalNote = Type.Object({
   reason: Type.String(),
 });
 
-export const PlanArtifact = Type.Composite([
+export const PlanArtifact = Type.Intersect([
   ArtifactEnvelope,
   Type.Object({
     artifact_type: Type.Literal('PlanArtifact'),

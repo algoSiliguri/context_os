@@ -35,7 +35,7 @@ const ExecutedStep = Type.Object({
   failure: StepFailure,
 });
 
-export const ExecutionRecord = Type.Composite([
+export const ExecutionRecord = Type.Intersect([
   ArtifactEnvelope,
   Type.Object({
     artifact_type: Type.Literal('ExecutionRecord'),
