@@ -14,6 +14,9 @@ import {
   buildPlanRejectedEvent,
   buildQuestionAskedEvent,
   buildSharedUnderstandingCreatedEvent,
+  buildStepCompletedEvent,
+  buildStepFailedEvent,
+  buildStepStartedEvent,
   buildTaskAbortedEvent,
   buildTaskCompletedEvent,
   buildTaskCreatedEvent,
@@ -119,13 +122,28 @@ describe('ccp-events', () => {
         brainNodeId: 'kn-1',
       }),
       buildKnowledgeCaptureRejectedEvent({ sessionId, taskId, captureId: 'K-1' }),
+      buildStepStartedEvent({ sessionId, taskId, stepId: 'S-1', stepTitle: 'run tests', commandCount: 2 }),
+      buildStepCompletedEvent({ sessionId, taskId, stepId: 'S-1' }),
+      buildStepFailedEvent({ sessionId, taskId, stepId: 'S-2', reason: 'exit 1', recoverable: true }),
     ];
-    expect(builders).toHaveLength(22);
+    expect(builders).toHaveLength(25);
     for (const e of builders) {
       expect(e.session_id).toBe(sessionId);
       expect(e.payload).toHaveProperty('task_id', taskId);
       expect(e.system_id).toBe('agent-os');
       expect(e.event_id).toMatch(/^[a-f0-9-]+$/);
     }
+  });
+
+  it('STEP_STARTED carries step metadata', () => {
+    const e = buildStepStartedEvent({ sessionId, taskId, stepId: 'S-3', stepTitle: 'install deps', commandCount: 1 });
+    expect(e.event_type).toBe('STEP_STARTED');
+    expect(e.payload).toMatchObject({ step_id: 'S-3', step_title: 'install deps', command_count: 1 });
+  });
+
+  it('STEP_FAILED carries reason and recoverable flag', () => {
+    const e = buildStepFailedEvent({ sessionId, taskId, stepId: 'S-4', reason: 'lint error', recoverable: false });
+    expect(e.event_type).toBe('STEP_FAILED');
+    expect(e.payload).toMatchObject({ step_id: 'S-4', reason: 'lint error', recoverable: false });
   });
 });

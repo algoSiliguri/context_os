@@ -36,7 +36,9 @@ describe('BrainClient', () => {
     expect(args).toContain('--db-path');
     expect(args).toContain('/path/to/brain.db');
     expect(args).toContain('write');
-    expect(args).toContain('--content');
+    const writeIdx = args.indexOf('write');
+    expect(writeIdx).toBeGreaterThanOrEqual(0);
+    expect(args[writeIdx + 1]).toBe('rate-limit middleware lives at src/middleware/');
     expect(args.join(' ')).toContain('ccp:T-001');
     expect(args.join(' ')).toContain('type:convention');
     expect(args.join(' ')).toContain('scope:project');

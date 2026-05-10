@@ -2,12 +2,23 @@ import { existsSync, readFileSync } from 'node:fs';
 import { type SessionStatus, makeSessionStatus } from '../artifacts/session-status';
 import { taskStatePath } from '../task-paths';
 import type { TaskState } from '../task-state-machine';
+import { ageLabel, classifyHealth } from '../../core/health';
+import {
+  findMostRecentSession,
+  loadSessionDashboard,
+  renderStatusToString,
+  writeReportMd,
+} from '../../core/renderer';
 import { getCurrentTaskId } from './shared/current-task';
 
-export async function runStatus(args: {
+export interface RunStatusArgs {
   repoRoot: string;
   taskId?: string;
-}): Promise<SessionStatus | null> {
+  sessionId?: string;
+  render?: boolean;
+}
+
+export async function runStatus(args: RunStatusArgs): Promise<SessionStatus | null> {
   const taskId = args.taskId ?? getCurrentTaskId(args.repoRoot);
   if (!taskId) return null;
 
@@ -15,20 +26,35 @@ export async function runStatus(args: {
   if (!existsSync(statePath)) return null;
 
   const stateRecord = JSON.parse(readFileSync(statePath, 'utf-8')) as { state?: string };
-  // Cast to TaskState: state.json is written by the state machine, so the value
-  // will always be a valid TaskState. If somehow it isn't, we fall back to
-  // 'COMPLETED' as a safe placeholder (read-only path, no mutation risk).
   const currentState = (stateRecord.state ?? 'COMPLETED') as TaskState;
+
+  // Read dashboard.json if a session is available
+  const sessionId = args.sessionId ?? findMostRecentSession(args.repoRoot);
+  const dashboard = sessionId ? loadSessionDashboard(args.repoRoot, sessionId) : null;
+
+  const lastEvent = dashboard?.signals.last_event_timestamp
+    ? {
+        event_type: dashboard.timeline.at(-1)?.event_type ?? 'unknown',
+        age_seconds: Math.round(
+          (Date.now() - new Date(dashboard.signals.last_event_timestamp).getTime()) / 1000,
+        ),
+      }
+    : null;
+
+  if (args.render && dashboard && sessionId) {
+    const text = renderStatusToString(sessionId, dashboard);
+    process.stdout.write(text + '\n');
+    const reportPath = writeReportMd(args.repoRoot, sessionId, dashboard);
+    process.stdout.write('\n' + `  report → ${reportPath}\n`);
+  }
 
   return makeSessionStatus({
     taskId,
     currentState,
     currentStep: '—',
-    // v1 placeholder: riskTier is not yet persisted in state.json; cast is safe
-    // because this is a read-only display path and 'low' is the safest default.
     riskTier: 'low',
     pendingApprovals: [],
-    lastMeaningfulEvent: null,
+    lastMeaningfulEvent: lastEvent,
     nextAction: deriveNextAction(currentState),
   });
 }

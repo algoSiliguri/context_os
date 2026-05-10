@@ -8,7 +8,7 @@ import { buildCommandCompletedEvent, buildPlanApprovedEvent } from '../../../../
 import { runRemember } from '../../../../src/ccp/commands/remember';
 import { writeTaskState } from '../../../../src/ccp/commands/shared/task-loader';
 import { taskArtifactPath, taskStatePath } from '../../../../src/ccp/task-paths';
-import { eventLogPath } from '../../../../src/core/runtime-paths';
+import { sessionEventsPath } from '../../../../src/core/runtime-paths';
 import { appendJsonlEventAtomic } from '../../../../src/core/session-store';
 
 function fixtureReady(): { dir: string; taskId: string } {
@@ -23,11 +23,11 @@ function fixtureReady(): { dir: string; taskId: string } {
   );
   writeTaskState(dir, taskId, 'AWAITING_HUMAN_REVIEW');
   appendJsonlEventAtomic(
-    eventLogPath(dir),
+    sessionEventsPath(dir, 's1'),
     buildPlanApprovedEvent({ sessionId: 's1', taskId, planId: 'p-1' }),
   );
   appendJsonlEventAtomic(
-    eventLogPath(dir),
+    sessionEventsPath(dir, 's1'),
     buildCommandCompletedEvent({
       sessionId: 's1',
       taskId,
@@ -85,7 +85,7 @@ describe('runRemember', () => {
 
     const record = YAML.parse(readFileSync(taskArtifactPath(dir, taskId, 'knowledge'), 'utf-8'));
     expect(record.items.length).toBeGreaterThan(0);
-    expect(writeCalls.length).toBe(result.kept);
+    expect(writeCalls.filter(c => c.args.includes('write')).length).toBe(result.kept);
     expect(
       record.items.find((i: { approval: string }) => i.approval === 'approved')?.brain_status,
     ).toBe('written');

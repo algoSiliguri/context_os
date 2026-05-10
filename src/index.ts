@@ -8,7 +8,35 @@ export {
   normalizeConstitutionForHash,
 } from './core/hash';
 export { loadProjectConfig, ProjectConfig } from './core/manifest';
-export { runtimeDir, eventLogPath, sessionSnapshotPath, lockPath } from './core/runtime-paths';
+export {
+  runtimeDir,
+  eventLogPath,
+  sessionSnapshotPath,
+  lockPath,
+  sessionDir,
+  sessionEventsPath,
+  sessionDashboardPath,
+} from './core/runtime-paths';
+export {
+  projectEvent,
+  emitAndProject,
+  type SessionDashboard,
+  type TimelineEntry,
+} from './core/projector';
+export {
+  classifyHealth,
+  ageLabel,
+  timeLabel,
+  type HealthStatus,
+} from './core/health';
+export {
+  renderStatusToString,
+  renderTraceToString,
+  writeReportMd,
+  findMostRecentSession,
+  loadSessionDashboard,
+} from './core/renderer';
+export { runTrace } from './ccp/commands/trace';
 export { resolveRuntimeVersion } from './core/versioning';
 export { SessionState, transition } from './core/state';
 export type { Event } from './core/events';

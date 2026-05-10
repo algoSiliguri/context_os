@@ -9,7 +9,7 @@ import { writeTaskState } from '../../../../src/ccp/commands/shared/task-loader'
 import { type VerificationRunner, runVerify } from '../../../../src/ccp/commands/verify';
 import { taskArtifactPath, taskStatePath } from '../../../../src/ccp/task-paths';
 import { readEvents } from '../../../../src/core/event-log';
-import { eventLogPath } from '../../../../src/core/runtime-paths';
+import { sessionEventsPath } from '../../../../src/core/runtime-paths';
 
 function fixtureWithPlanSteps(verificationCommands: string[]): { dir: string; taskId: string } {
   const dir = mkdtempSync(join(tmpdir(), 'aos-vfy-'));
@@ -57,7 +57,7 @@ describe('runVerify', () => {
     const record = YAML.parse(readFileSync(taskArtifactPath(dir, taskId, 'verification'), 'utf-8'));
     expect(record.commands).toHaveLength(2);
     expect(record.result).toBe('pass');
-    const events = readEvents(eventLogPath(dir));
+    const events = readEvents(sessionEventsPath(dir, 's1'));
     expect(events.find((e) => e.event_type === 'VERIFICATION_PASSED')).toBeTruthy();
   });
 

@@ -6,7 +6,7 @@ import YAML from 'yaml';
 import { runGrill } from '../../../../src/ccp/commands/grill';
 import { taskArtifactPath, taskStatePath } from '../../../../src/ccp/task-paths';
 import { readEvents } from '../../../../src/core/event-log';
-import { eventLogPath } from '../../../../src/core/runtime-paths';
+import { sessionEventsPath } from '../../../../src/core/runtime-paths';
 
 function fixture(): string {
   const dir = mkdtempSync(join(tmpdir(), 'aos-grl-'));
@@ -57,7 +57,7 @@ describe('runGrill', () => {
     expect(yaml.decision.proceed).toBe(true);
     const stateRecord = JSON.parse(readFileSync(taskStatePath(dir, result.taskId), 'utf-8'));
     expect(stateRecord.state).toBe('SHARED_UNDERSTANDING');
-    const events = readEvents(eventLogPath(dir));
+    const events = readEvents(sessionEventsPath(dir, 's1'));
     expect(events.find((e) => e.event_type === 'TASK_CREATED')).toBeTruthy();
     expect(events.find((e) => e.event_type === 'GRILL_STARTED')).toBeTruthy();
     expect(events.find((e) => e.event_type === 'SHARED_UNDERSTANDING_CREATED')).toBeTruthy();

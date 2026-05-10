@@ -1,12 +1,14 @@
-import { eventLogPath } from '../../core/runtime-paths';
 // src/ccp/commands/run.ts
-import { appendJsonlEventAtomic } from '../../core/session-store';
+import { emitAndProject } from '../../core/projector';
 import { makeEnvelope } from '../artifacts/envelope';
 import { readArtifact, writeArtifact } from '../artifacts/io';
 import {
   buildCommandCompletedEvent,
   buildCommandFailedEvent,
   buildCommandStartedEvent,
+  buildStepCompletedEvent,
+  buildStepFailedEvent,
+  buildStepStartedEvent,
   buildTaskStateTransitionEvent,
 } from '../ccp-events';
 import type { StepExecutionResult, StepExecutor } from './shared/step-executor';
@@ -25,7 +27,6 @@ export type RunOutcome = 'verifying' | 'failed_recoverable' | 'failed_blocked';
 export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
   const allowedPre = args.resume ? ['FAILED_RECOVERABLE'] : ['AWAITING_PLAN_APPROVAL'];
   requireTaskState(args.repoRoot, args.taskId, allowedPre);
-  const log = eventLogPath(args.repoRoot);
 
   const plan = readArtifact(args.repoRoot, args.taskId, 'plan') as unknown as {
     steps: Array<{
@@ -47,8 +48,9 @@ export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
     startedAt = existing.started_at;
   }
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskStateTransitionEvent({
       sessionId: args.sessionId,
       taskId: args.taskId,
@@ -66,8 +68,20 @@ export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
   for (const step of plan.steps) {
     if (completed.has(step.id)) continue;
 
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
+      buildStepStartedEvent({
+        sessionId: args.sessionId,
+        taskId: args.taskId,
+        stepId: step.id,
+        stepTitle: step.commands[0]?.command ?? '(no command)',
+        commandCount: step.commands.length,
+      }),
+    );
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildCommandStartedEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -80,8 +94,9 @@ export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
     collectedSteps.push({ ...result, step_id: step.id });
 
     if (result.status === 'completed') {
-      appendJsonlEventAtomic(
-        log,
+      emitAndProject(
+        args.repoRoot,
+        args.sessionId,
         buildCommandCompletedEvent({
           sessionId: args.sessionId,
           taskId: args.taskId,
@@ -90,17 +105,38 @@ export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
           exitCode: 0,
         }),
       );
+      emitAndProject(
+        args.repoRoot,
+        args.sessionId,
+        buildStepCompletedEvent({
+          sessionId: args.sessionId,
+          taskId: args.taskId,
+          stepId: step.id,
+        }),
+      );
       continue;
     }
 
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildCommandFailedEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
         stepId: step.id,
         exitCode: 1,
         summary: result.failure?.summary ?? 'step failed',
+      }),
+    );
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
+      buildStepFailedEvent({
+        sessionId: args.sessionId,
+        taskId: args.taskId,
+        stepId: step.id,
+        reason: result.failure?.reason ?? 'step failed',
+        recoverable: result.failure?.recoverable !== false,
       }),
     );
     outcome = result.failure?.recoverable === false ? 'failed_blocked' : 'failed_recoverable';
@@ -125,8 +161,9 @@ export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
   });
 
   if (outcome === 'verifying') {
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildTaskStateTransitionEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -137,8 +174,9 @@ export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
     );
     writeTaskState(args.repoRoot, args.taskId, 'VERIFYING');
   } else if (outcome === 'failed_recoverable') {
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildTaskStateTransitionEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -149,8 +187,9 @@ export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
     );
     writeTaskState(args.repoRoot, args.taskId, 'FAILED_RECOVERABLE');
   } else {
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildTaskStateTransitionEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,

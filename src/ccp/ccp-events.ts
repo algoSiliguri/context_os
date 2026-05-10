@@ -194,6 +194,44 @@ export function buildFileChangedEvent(args: {
   });
 }
 
+// ----- Steps (Black Box: executor boundary) -----
+
+export function buildStepStartedEvent(args: {
+  sessionId: string;
+  taskId: string;
+  stepId: string;
+  stepTitle: string;
+  commandCount: number;
+}): Event {
+  return ccpBase('STEP_STARTED', args, {
+    step_id: args.stepId,
+    step_title: args.stepTitle,
+    command_count: args.commandCount,
+  });
+}
+
+export function buildStepCompletedEvent(args: {
+  sessionId: string;
+  taskId: string;
+  stepId: string;
+}): Event {
+  return ccpBase('STEP_COMPLETED', args, { step_id: args.stepId });
+}
+
+export function buildStepFailedEvent(args: {
+  sessionId: string;
+  taskId: string;
+  stepId: string;
+  reason: string;
+  recoverable: boolean;
+}): Event {
+  return ccpBase('STEP_FAILED', args, {
+    step_id: args.stepId,
+    reason: args.reason,
+    recoverable: args.recoverable,
+  });
+}
+
 // ----- Verify -----
 
 export function buildVerificationStartedEvent(args: {

@@ -11,7 +11,7 @@ import { makeMockStepExecutor } from '../../../../src/ccp/commands/shared/step-e
 import { writeTaskState } from '../../../../src/ccp/commands/shared/task-loader';
 import { taskArtifactPath, taskStatePath } from '../../../../src/ccp/task-paths';
 import { readEvents } from '../../../../src/core/event-log';
-import { eventLogPath } from '../../../../src/core/runtime-paths';
+import { sessionEventsPath } from '../../../../src/core/runtime-paths';
 
 function fixtureWithApprovedPlan(planSteps = 2): { dir: string; taskId: string } {
   const dir = mkdtempSync(join(tmpdir(), 'aos-run-'));
@@ -60,7 +60,7 @@ describe('runRun', () => {
     expect(record.steps[0].status).toBe('completed');
     const stateRecord = JSON.parse(readFileSync(taskStatePath(dir, taskId), 'utf-8'));
     expect(stateRecord.state).toBe('VERIFYING');
-    const events = readEvents(eventLogPath(dir));
+    const events = readEvents(sessionEventsPath(dir, 's1'));
     expect(events.find((e) => e.event_type === 'COMMAND_STARTED')).toBeTruthy();
     expect(events.find((e) => e.event_type === 'COMMAND_COMPLETED')).toBeTruthy();
   });

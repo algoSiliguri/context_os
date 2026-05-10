@@ -1,5 +1,4 @@
-import { eventLogPath } from '../../core/runtime-paths';
-import { appendJsonlEventAtomic } from '../../core/session-store';
+import { emitAndProject } from '../../core/projector';
 import { makeEnvelope } from '../artifacts/envelope';
 import { readArtifact, writeArtifact } from '../artifacts/io';
 import {
@@ -25,15 +24,15 @@ export interface VerifyArgs {
 export type VerifyResult = 'pass' | 'fail' | 'blocked';
 
 export async function runVerify(args: VerifyArgs): Promise<{ result: VerifyResult }> {
-  const log = eventLogPath(args.repoRoot);
   const currentState = requireTaskState(args.repoRoot, args.taskId, [
     'VERIFYING',
     'AWAITING_HUMAN_REVIEW',
     'FAILED_RECOVERABLE',
   ]);
   if (currentState !== 'VERIFYING') {
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildTaskStateTransitionEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -44,8 +43,9 @@ export async function runVerify(args: VerifyArgs): Promise<{ result: VerifyResul
     );
     writeTaskState(args.repoRoot, args.taskId, 'VERIFYING');
   }
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildVerificationStartedEvent({ sessionId: args.sessionId, taskId: args.taskId }),
   );
 
@@ -99,12 +99,14 @@ export async function runVerify(args: VerifyArgs): Promise<{ result: VerifyResul
   });
 
   if (result === 'pass') {
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildVerificationPassedEvent({ sessionId: args.sessionId, taskId: args.taskId }),
     );
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildTaskStateTransitionEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -115,8 +117,9 @@ export async function runVerify(args: VerifyArgs): Promise<{ result: VerifyResul
     );
     writeTaskState(args.repoRoot, args.taskId, 'AWAITING_HUMAN_REVIEW');
   } else {
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildVerificationFailedEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -124,8 +127,9 @@ export async function runVerify(args: VerifyArgs): Promise<{ result: VerifyResul
         nextAction: next_action ?? 'fix and re-run',
       }),
     );
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildTaskStateTransitionEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,

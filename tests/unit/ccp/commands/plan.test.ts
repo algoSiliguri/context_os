@@ -9,7 +9,7 @@ import { runPlan } from '../../../../src/ccp/commands/plan';
 import { writeTaskState } from '../../../../src/ccp/commands/shared/task-loader';
 import { taskArtifactPath, taskStatePath } from '../../../../src/ccp/task-paths';
 import { readEvents } from '../../../../src/core/event-log';
-import { eventLogPath } from '../../../../src/core/runtime-paths';
+import { sessionEventsPath } from '../../../../src/core/runtime-paths';
 
 function fixtureWithGrill(decision = true): { dir: string; taskId: string } {
   const dir = mkdtempSync(join(tmpdir(), 'aos-pln-'));
@@ -56,7 +56,7 @@ describe('runPlan', () => {
     expect(yaml.steps.length).toBeGreaterThanOrEqual(1);
     const stateRecord = JSON.parse(readFileSync(taskStatePath(dir, taskId), 'utf-8'));
     expect(stateRecord.state).toBe('AWAITING_PLAN_APPROVAL');
-    const events = readEvents(eventLogPath(dir));
+    const events = readEvents(sessionEventsPath(dir, 's1'));
     expect(events.find((e) => e.event_type === 'PLAN_CREATED')).toBeTruthy();
     expect(events.find((e) => e.event_type === 'PLAN_APPROVED')).toBeTruthy();
   });
@@ -70,7 +70,7 @@ describe('runPlan', () => {
     };
     const result = await runPlan({ repoRoot: dir, sessionId: 's1', taskId, ui: rejectUi });
     expect(result.outcome).toBe('rejected');
-    const events = readEvents(eventLogPath(dir));
+    const events = readEvents(sessionEventsPath(dir, 's1'));
     expect(events.find((e) => e.event_type === 'PLAN_REJECTED')).toBeTruthy();
     const stateRecord = JSON.parse(readFileSync(taskStatePath(dir, taskId), 'utf-8'));
     expect(stateRecord.state).toBe('SHARED_UNDERSTANDING');

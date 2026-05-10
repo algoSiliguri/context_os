@@ -18,6 +18,7 @@ Inside `pi`, eight slash commands:
 | `/verify` | Check the plan's success criteria pass. |
 | `/remember` | Review and save what was learned to your brain. |
 | `/status` | See what task is active and what comes next. |
+| `/flight` | Show the Black Box flight recorder timeline for the current session. |
 
 ## Prerequisites
 
@@ -132,11 +133,47 @@ Re-running `/init` on an already-initialized project is safe — it upgrades gov
 
 For a per-step transcript with expected events, see [docs/demo/section-16-walkthrough.md](docs/demo/section-16-walkthrough.md).
 
+## Observe what happened
+
+Agent OS records every event to a local flight recorder. After any command, run:
+
+```
+/flight
+```
+
+You will see a timestamped timeline of what happened — state transitions, steps, brain memory operations, verification results — and a health summary.
+
+**Health states:**
+
+| State | Meaning |
+|---|---|
+| `● HEALTHY` | Session active, events recent |
+| `● DONE` | Task completed or aborted |
+| `● STUCK` | No events for >90 seconds |
+| `● LOOPING` | Same state transition repeated ≥3 times |
+| `● FAILED` | Task ended in failure state |
+
+**Where reports are stored:**
+
+```
+.agent-os/runtime/sessions/{session_id}/
+├── events.jsonl     ← append-only event tape
+├── dashboard.json   ← live-projected health snapshot
+└── report.md        ← last /flight output as markdown
+```
+
+The `/flight` command always shows the most recent session. To view a specific session:
+
+```
+/flight <session-uuid>
+/flight --tail 20
+```
+
 ## Architecture
 
-- **Spec:** `project/docs/superpowers/specs/2026-05-03-agent-os-ccp-v1-design.md`
-- **Constitution:** `AGENT_OS_CONSTITUTION.md` (governance, version-bound)
+- **Constitution:** `AGENT_OS_CONSTITUTION.md`
 - **Domain glossary:** `CONTEXT.md`
+- **Observability:** `docs/architecture/observability.md`
 
 ## Develop
 

@@ -1,5 +1,4 @@
-import { eventLogPath } from '../../core/runtime-paths';
-import { appendJsonlEventAtomic } from '../../core/session-store';
+import { emitAndProject } from '../../core/projector';
 import type { UiAdapter } from '../../pi/ui';
 import { makeEnvelope } from '../artifacts/envelope';
 import { writeArtifact } from '../artifacts/io';
@@ -33,11 +32,11 @@ export interface GrillResult {
 
 export async function runGrill(args: RunGrillArgs): Promise<GrillResult> {
   const taskId = allocateNextTaskId(args.repoRoot);
-  const log = eventLogPath(args.repoRoot);
   setCurrentTaskId(args.repoRoot, taskId);
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskCreatedEvent({
       sessionId: args.sessionId,
       taskId,
@@ -45,9 +44,10 @@ export async function runGrill(args: RunGrillArgs): Promise<GrillResult> {
       userType: args.userType,
     }),
   );
-  writeTaskState(args.repoRoot, taskId, 'NEW_IDEA');
-  appendJsonlEventAtomic(
-    log,
+  writeTaskState(args.repoRoot, taskId, 'NEW_IDEA', args.sessionId);
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskStateTransitionEvent({
       sessionId: args.sessionId,
       taskId,
@@ -57,7 +57,7 @@ export async function runGrill(args: RunGrillArgs): Promise<GrillResult> {
     }),
   );
   writeTaskState(args.repoRoot, taskId, 'GRILLING');
-  appendJsonlEventAtomic(log, buildGrillStartedEvent({ sessionId: args.sessionId, taskId }));
+  emitAndProject(args.repoRoot, args.sessionId, buildGrillStartedEvent({ sessionId: args.sessionId, taskId }));
 
   const generator = args.generator ?? defaultQuestionGenerator();
   const priorAnswers: Array<{ category: string; answer: string }> = [];
@@ -75,8 +75,9 @@ export async function runGrill(args: RunGrillArgs): Promise<GrillResult> {
     if (!next) break;
 
     const qId = `Q-${questions.length + 1}`;
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildQuestionAskedEvent({
         sessionId: args.sessionId,
         taskId,
@@ -92,8 +93,9 @@ export async function runGrill(args: RunGrillArgs): Promise<GrillResult> {
       proceed = false;
       break;
     }
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildAnswerRecordedEvent({
         sessionId: args.sessionId,
         taskId,
@@ -131,16 +133,18 @@ export async function runGrill(args: RunGrillArgs): Promise<GrillResult> {
   };
   writeArtifact(args.repoRoot, taskId, 'grill', record);
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildSharedUnderstandingCreatedEvent({
       sessionId: args.sessionId,
       taskId,
       decisionProceed: proceed,
     }),
   );
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskStateTransitionEvent({
       sessionId: args.sessionId,
       taskId,

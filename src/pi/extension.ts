@@ -16,9 +16,13 @@ import { runPlan } from '../ccp/commands/plan';
 import { runRemember } from '../ccp/commands/remember';
 import { runRun } from '../ccp/commands/run';
 import { runStatus } from '../ccp/commands/status';
+import { runTrace } from '../ccp/commands/trace';
 import { runVerify } from '../ccp/commands/verify';
 import { BrainClient } from '../ccp/brain/client';
 import { getCurrentTaskId } from '../ccp/commands/shared/current-task';
+import { loadTaskSessionId, loadTaskState } from '../ccp/commands/shared/task-loader';
+import { buildHeartbeatEvent } from '../core/events';
+import { emitAndProject } from '../core/projector';
 import { defaultQuestionGenerator } from '../ccp/commands/shared/question-generator';
 import { defaultPlanDrafter } from '../ccp/commands/shared/plan-drafter';
 import { makeMockStepExecutor } from '../ccp/commands/shared/step-executor';
@@ -200,12 +204,15 @@ export default async function extension(pi: any): Promise<void> {
 
   // ── /status ──────────────────────────────────────────────────────────────
   pi.registerCommand('status', {
-    description: 'Show current Agent OS task status',
+    description: 'Show current Agent OS task status and Black Box health',
     handler: async (args: string, ctx: any) => {
       const taskIdArg = args.match(/T-\d{3}/)?.[0];
+      const sessionIdArg = args.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];
       const status = await runStatus({
         repoRoot: ctx.cwd,
         taskId: taskIdArg ?? undefined,
+        sessionId: sessionIdArg ?? undefined,
+        render: true,
       });
       if (status) {
         ctx.ui.notify(
@@ -214,6 +221,25 @@ export default async function extension(pi: any): Promise<void> {
         );
       } else {
         ctx.ui.notify('No active task. Run /init if this project is not yet initialized.', 'info');
+      }
+    },
+  });
+
+  // ── /flight ──────────────────────────────────────────────────────────────
+  pi.registerCommand('flight', {
+    description: 'Show Black Box flight recorder timeline. Usage: /flight [session-id] [--tail N]',
+    handler: async (args: string, ctx: any) => {
+      const sessionIdArg = args.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)?.[0];
+      const tailMatch = args.match(/--tail\s+(\d+)/);
+      const tail = tailMatch?.[1] !== undefined ? parseInt(tailMatch[1], 10) : undefined;
+      try {
+        await runTrace({
+          repoRoot: ctx.cwd,
+          sessionId: sessionIdArg,
+          tail,
+        });
+      } catch (e) {
+        ctx.ui.notify(`/flight failed: ${(e as Error).message}`, 'error');
       }
     },
   });
@@ -259,7 +285,7 @@ export default async function extension(pi: any): Promise<void> {
       try {
         const { outcome } = await runPlan({
           repoRoot: ctx.cwd,
-          sessionId: randomUUID(),
+          sessionId: loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID(),
           taskId,
           ui: makePiUiAdapter(ctx.ui),
           drafter: defaultPlanDrafter(),
@@ -291,7 +317,7 @@ export default async function extension(pi: any): Promise<void> {
       try {
         const { outcome } = await runRun({
           repoRoot: ctx.cwd,
-          sessionId: randomUUID(),
+          sessionId: loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID(),
           taskId,
           executor: makeMockStepExecutor({}),
         });
@@ -322,7 +348,7 @@ export default async function extension(pi: any): Promise<void> {
       try {
         const { result } = await runVerify({
           repoRoot: ctx.cwd,
-          sessionId: randomUUID(),
+          sessionId: loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID(),
           taskId,
           runner: {
             async runCommand(_cmd: string) {
@@ -362,7 +388,7 @@ export default async function extension(pi: any): Promise<void> {
       try {
         const { kept, dropped } = await runRemember({
           repoRoot: ctx.cwd,
-          sessionId: randomUUID(),
+          sessionId: loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID(),
           taskId,
           brain,
           ui: makePiUiAdapter(ctx.ui),
@@ -410,10 +436,24 @@ export default async function extension(pi: any): Promise<void> {
   });
 
   // ── session_start ─────────────────────────────────────────────────────────
-  // Confirm the extension loaded. Only notify when a real UI is present.
   pi.on('session_start', (_event: any, ctx: any) => {
     if (ctx.hasUI) {
       ctx.ui.notify('Agent OS active. Run /doctor to check project setup.', 'info');
     }
+
+    // Heartbeat: emit every 30s to keep last_event_timestamp fresh.
+    // Prevents false STUCK signals during long-running AI turns.
+    setInterval(() => {
+      try {
+        const taskId = getCurrentTaskId(ctx.cwd);
+        if (!taskId) return;
+        const sessionId = loadTaskSessionId(ctx.cwd, taskId);
+        if (!sessionId) return;
+        const state = loadTaskState(ctx.cwd, taskId) ?? 'UNKNOWN';
+        emitAndProject(ctx.cwd, sessionId, buildHeartbeatEvent({ sessionId, state }));
+      } catch {
+        // heartbeat is best-effort
+      }
+    }, 30_000);
   });
 }

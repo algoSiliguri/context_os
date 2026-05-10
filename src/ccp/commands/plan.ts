@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { eventLogPath } from '../../core/runtime-paths';
-import { appendJsonlEventAtomic } from '../../core/session-store';
+import { emitAndProject } from '../../core/projector';
 import type { UiAdapter } from '../../pi/ui';
 import { makeEnvelope } from '../artifacts/envelope';
 import { readArtifact, writeArtifact } from '../artifacts/io';
@@ -25,10 +24,10 @@ export interface RunPlanArgs {
 
 export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome }> {
   requireTaskState(args.repoRoot, args.taskId, ['SHARED_UNDERSTANDING']);
-  const log = eventLogPath(args.repoRoot);
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskStateTransitionEvent({
       sessionId: args.sessionId,
       taskId: args.taskId,
@@ -71,8 +70,9 @@ export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome
   };
   writeArtifact(args.repoRoot, args.taskId, 'plan', planArtifact);
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildPlanCreatedEvent({
       sessionId: args.sessionId,
       taskId: args.taskId,
@@ -81,8 +81,9 @@ export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome
     }),
   );
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskStateTransitionEvent({
       sessionId: args.sessionId,
       taskId: args.taskId,
@@ -96,8 +97,9 @@ export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome
   const summary = renderPlanSummary(draft);
   const approved = await args.ui.confirm(`${summary}\n\nApprove this plan?`);
   if (!approved) {
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildPlanRejectedEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -105,8 +107,9 @@ export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome
         reason: 'user rejected',
       }),
     );
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildTaskStateTransitionEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -119,8 +122,9 @@ export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome
     return { outcome: 'rejected' };
   }
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildPlanApprovedEvent({
       sessionId: args.sessionId,
       taskId: args.taskId,

@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { readEvents } from '../../core/event-log';
-import { eventLogPath } from '../../core/runtime-paths';
-import { appendJsonlEventAtomic } from '../../core/session-store';
+import { emitAndProject } from '../../core/projector';
+import { sessionEventsPath } from '../../core/runtime-paths';
 import type { UiAdapter } from '../../pi/ui';
 import { makeEnvelope } from '../artifacts/envelope';
 import { writeArtifact } from '../artifacts/io';
@@ -33,10 +33,10 @@ export interface RememberArgs {
 
 export async function runRemember(args: RememberArgs): Promise<{ kept: number; dropped: number }> {
   requireTaskState(args.repoRoot, args.taskId, ['AWAITING_HUMAN_REVIEW']);
-  const log = eventLogPath(args.repoRoot);
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskStateTransitionEvent({
       sessionId: args.sessionId,
       taskId: args.taskId,
@@ -48,7 +48,8 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
   writeTaskState(args.repoRoot, args.taskId, 'PERSISTING_KNOWLEDGE');
 
   const proposer = args.proposer ?? defaultCaptureProposer();
-  const allEvents = readEvents(log).filter(
+  const eventsLog = sessionEventsPath(args.repoRoot, args.sessionId);
+  const allEvents = readEvents(eventsLog).filter(
     (e) => (e.payload as Record<string, unknown>).task_id === args.taskId,
   );
   const proposals = await proposer.propose({ taskId: args.taskId, events: allEvents });
@@ -69,8 +70,9 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
   for (let i = 0; i < proposals.length; i++) {
     const p = proposals[i]!;
     const captureId = `K-${i + 1}`;
-    appendJsonlEventAtomic(
-      log,
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
       buildKnowledgeCaptureProposedEvent({
         sessionId: args.sessionId,
         taskId: args.taskId,
@@ -91,8 +93,9 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
         taskId: args.taskId,
         project: args.projectName,
       });
-      appendJsonlEventAtomic(
-        log,
+      emitAndProject(
+        args.repoRoot,
+        args.sessionId,
         buildKnowledgeCaptureApprovedEvent({
           sessionId: args.sessionId,
           taskId: args.taskId,
@@ -112,8 +115,9 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
       });
       kept++;
     } else {
-      appendJsonlEventAtomic(
-        log,
+      emitAndProject(
+        args.repoRoot,
+        args.sessionId,
         buildKnowledgeCaptureRejectedEvent({
           sessionId: args.sessionId,
           taskId: args.taskId,
@@ -139,8 +143,9 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
     items,
   });
 
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskStateTransitionEvent({
       sessionId: args.sessionId,
       taskId: args.taskId,
@@ -150,8 +155,9 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
     }),
   );
   writeTaskState(args.repoRoot, args.taskId, 'COMPLETED');
-  appendJsonlEventAtomic(
-    log,
+  emitAndProject(
+    args.repoRoot,
+    args.sessionId,
     buildTaskCompletedEvent({ sessionId: args.sessionId, taskId: args.taskId }),
   );
 

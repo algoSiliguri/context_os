@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { ALL_COMMANDS, makeAllStubs, makeStubHandler } from '../../../src/pi/slash-commands';
 
 describe('slash-commands', () => {
-  it('exports the six v1 commands', () => {
-    expect(ALL_COMMANDS).toEqual(['grill', 'plan', 'run', 'verify', 'remember', 'status']);
+  it('exports the v1 commands', () => {
+    expect(ALL_COMMANDS).toEqual(['grill', 'plan', 'run', 'verify', 'remember', 'status', 'flight']);
   });
 
   it('makeStubHandler logs "not implemented" without throwing', async () => {
@@ -21,7 +21,7 @@ describe('slash-commands', () => {
       expect(typeof stubs[name]).toBe('function');
       await stubs[name]('args');
     }
-    expect(logs).toHaveLength(6);
+    expect(logs).toHaveLength(7);
     for (const name of ALL_COMMANDS) {
       expect(logs.some((l) => l.includes(`/${name}`) && l.includes('not implemented'))).toBe(true);
     }

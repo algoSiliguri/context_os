@@ -1,12 +1,15 @@
 // src/ccp/brain/client.ts
+import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { appendFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { promisify } from 'node:util';
 import YAML from 'yaml';
 import { BindingError } from '../../core/binding';
+import { emitAndProject } from '../../core/projector';
 import type { CaptureType } from '../artifacts/knowledge-capture-record';
 import { taskPendingCapturesPath } from '../task-paths';
+import { buildBrainQueryEvent, buildBrainWriteEvent } from './brain-events';
 
 const execFileAsync = promisify(execFile);
 
@@ -52,6 +55,7 @@ export interface BrainClientOptions {
   dbPath?: string;
   spawn?: BrainSpawnFn;
   repoRoot?: string; // required for queueing on failure
+  sessionId?: string; // when set, brain ops emit to session trajectory
 }
 
 const CONFIDENCE: Record<CaptureType, number> = {
@@ -68,11 +72,22 @@ export class BrainClient {
   private readonly dbPath: string | undefined;
   private readonly spawn: BrainSpawnFn;
   private readonly repoRoot: string | undefined;
+  private readonly sessionId: string | undefined;
 
   constructor(opts: BrainClientOptions) {
     this.dbPath = opts.dbPath;
     this.spawn = opts.spawn ?? defaultSpawn;
     this.repoRoot = opts.repoRoot;
+    this.sessionId = opts.sessionId;
+  }
+
+  private emitBrainEvent(event: ReturnType<typeof buildBrainQueryEvent>): void {
+    if (!this.repoRoot || !this.sessionId) return;
+    try {
+      emitAndProject(this.repoRoot, this.sessionId, event);
+    } catch {
+      // brain events are best-effort
+    }
   }
 
   private dbPathArgs(): string[] {
@@ -107,9 +122,17 @@ export class BrainClient {
       String(BrainClient.confidenceFor(args.type)),
       ...(args.sourceType ? ['--source-type', args.sourceType] : []),
     ];
+    const t0 = Date.now();
     try {
       const result = await this.spawn('brain', cliArgs);
       const node = JSON.parse(result.stdout) as BrainNode;
+      this.emitBrainEvent(buildBrainWriteEvent({
+        sessionId: this.sessionId ?? '',
+        contentHash: createHash('sha256').update(args.content).digest('hex').slice(0, 8),
+        tagCount: tags.length,
+        confidence: BrainClient.confidenceFor(args.type),
+        latencyMs: Date.now() - t0,
+      }));
       return { id: node.id, deferred: false };
     } catch (e) {
       const err = e as NodeJS.ErrnoException;
@@ -168,9 +191,18 @@ export class BrainClient {
       ...(args.tags ? ['--tags', args.tags.join(',')] : []),
       ...(args.max ? ['--max', String(args.max)] : []),
     ];
+    const t0 = Date.now();
     try {
       const result = await this.spawn('brain', cliArgs);
-      return JSON.parse(result.stdout) as BrainQueryResult;
+      const parsed = JSON.parse(result.stdout) as BrainQueryResult;
+      this.emitBrainEvent(buildBrainQueryEvent({
+        sessionId: this.sessionId ?? '',
+        queryHash: createHash('sha256').update(args.query).digest('hex').slice(0, 8),
+        resultCount: parsed.returned_count,
+        latencyMs: Date.now() - t0,
+        tagCount: args.tags?.length ?? 0,
+      }));
+      return parsed;
     } catch {
       return { query: args.query, items: [], total_matches: 0, returned_count: 0 };
     }

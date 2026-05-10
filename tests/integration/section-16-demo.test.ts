@@ -15,7 +15,7 @@ import { runStatus } from '../../src/ccp/commands/status';
 import { runVerify } from '../../src/ccp/commands/verify';
 import { taskArtifactPath, taskStatePath } from '../../src/ccp/task-paths';
 import { readEvents } from '../../src/core/event-log';
-import { eventLogPath } from '../../src/core/runtime-paths';
+import { sessionEventsPath } from '../../src/core/runtime-paths';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, '..', '..');
@@ -165,7 +165,7 @@ describe('Section-16 demo — end-to-end', () => {
     expect(status?.current_state).toBe('COMPLETED');
 
     // Assert the event log tells the full story
-    const events = readEvents(eventLogPath(dir));
+    const events = readEvents(sessionEventsPath(dir, sessionId));
     const types = events.map((e) => e.event_type);
     expect(types).toContain('TASK_CREATED');
     expect(types).toContain('GRILL_STARTED');

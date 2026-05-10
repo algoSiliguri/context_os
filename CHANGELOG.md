@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.3.0 — 2026-05-10
+
+### Added
+- **Local Black Box Observability** — session-scoped flight recorder for every task.
+  - Every command writes events to `.agent-os/runtime/sessions/{session_id}/events.jsonl`.
+  - Dashboard projected live to `.agent-os/runtime/sessions/{session_id}/dashboard.json`.
+  - `/flight` slash command — timestamped timeline, health classification, writes `report.md`.
+  - `/status` now shows Black Box health (HEALTHY / STUCK / LOOPING / FAILED / DONE).
+  - Brain memory operations (query, write) captured as events with latency and hash.
+  - Step boundaries (STEP_STARTED / STEP_COMPLETED / STEP_FAILED) captured during `/run`.
+  - Heartbeat emitted every 30s — prevents false STUCK classification during long AI turns.
+  - Brain query dedup signal: same query repeated ≥3 times increments `repeated_queries`.
+  - Loop detection: same state transition ≥3 times sets `loop_detected=true`.
+  - Session continuity: task's `state.json` stores `session_id` — all commands for a task share one session, producing a complete GRILL→PLAN→RUN→VERIFY→REMEMBER arc in one `/flight` view.
+  - Report written to `report.md` in session directory after each `/flight` call.
+
+### Changed
+- `/status` extended with optional `sessionId` and `render` parameters; backward compatible.
+- `task.json` (state.json) now includes `session_id` field (written on first `/grill`).
+
+### Backwards compatibility
+- v1.2.0-era projects work unchanged. Tasks created before v1.3.0 lack `session_id` in `state.json`; those tasks fall back to a fresh UUID per command (split sessions, pre-existing behavior).
+
 ## v1.2.0 — 2026-05-08
 
 ### Fixed

@@ -15,3 +15,15 @@ export function eventLogPath(repoRoot: string): string {
 export function sessionSnapshotPath(repoRoot: string): string {
   return join(runtimeDir(repoRoot), 'session.json');
 }
+
+export function sessionDir(repoRoot: string, sessionId: string): string {
+  return join(runtimeDir(repoRoot), 'sessions', sessionId);
+}
+
+export function sessionEventsPath(repoRoot: string, sessionId: string): string {
+  return join(sessionDir(repoRoot, sessionId), 'events.jsonl');
+}
+
+export function sessionDashboardPath(repoRoot: string, sessionId: string): string {
+  return join(sessionDir(repoRoot, sessionId), 'dashboard.json');
+}
