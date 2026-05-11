@@ -1,4 +1,4 @@
-import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { UiAdapter } from '../../pi/ui';
 import { parseInitArgs } from './init/args';
@@ -88,6 +88,18 @@ export async function runInit({
   log('[3/4] creating runtime dirs…');
   mkdirSync(join(targetRoot, '.agent-os', 'runtime'), { recursive: true });
   mkdirSync(join(targetRoot, '.agent-os', 'tasks'), { recursive: true });
+
+  // Ensure .agent-os/ and data_store/ are gitignored so git stash --include-untracked
+  // doesn't stash task state during /run checkpoint creation.
+  const gitignorePath = join(targetRoot, '.gitignore');
+  const REQUIRED_IGNORES = ['.agent-os/', 'data_store/'];
+  const existing = existsSync(gitignorePath) ? readFileSync(gitignorePath, 'utf-8') : '';
+  const lines = existing.split('\n').map((l) => l.trim());
+  const missing = REQUIRED_IGNORES.filter((e) => !lines.includes(e));
+  if (missing.length > 0) {
+    const append = (existing && !existing.endsWith('\n') ? '\n' : '') + missing.join('\n') + '\n';
+    appendFileSync(gitignorePath, append);
+  }
 
   log('[4/4] rendering project.yaml…');
   const yaml = renderProjectYaml({
