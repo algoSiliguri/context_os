@@ -38,12 +38,14 @@ export interface RememberArgs {
 }
 
 export async function runRemember(args: RememberArgs): Promise<{ kept: number; dropped: number }> {
+  const allowedPre = ['AWAITING_HUMAN_REVIEW', 'PERSISTING_KNOWLEDGE'];
+  let currentState: string;
   try {
-    requireTaskState(args.repoRoot, args.taskId, ['AWAITING_HUMAN_REVIEW']);
+    currentState = requireTaskState(args.repoRoot, args.taskId, allowedPre);
     emitPolicyDecision(args.repoRoot, args.sessionId, {
       taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/remember',
       actionRequested: 'enter PERSISTING_KNOWLEDGE', decision: 'allow', reasonCode: 'state_ok',
-      reason: 'state is AWAITING_HUMAN_REVIEW', source: 'command_handler',
+      reason: `state is ${currentState}`, source: 'command_handler',
     });
   } catch (e) {
     emitPolicyDecision(args.repoRoot, args.sessionId, {
@@ -54,18 +56,20 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
     throw e;
   }
 
-  emitAndProject(
-    args.repoRoot,
-    args.sessionId,
-    buildTaskStateTransitionEvent({
-      sessionId: args.sessionId,
-      taskId: args.taskId,
-      from: 'AWAITING_HUMAN_REVIEW',
-      to: 'PERSISTING_KNOWLEDGE',
-      triggeredBy: '/remember',
-    }),
-  );
-  writeTaskState(args.repoRoot, args.taskId, 'PERSISTING_KNOWLEDGE');
+  if (currentState !== 'PERSISTING_KNOWLEDGE') {
+    emitAndProject(
+      args.repoRoot,
+      args.sessionId,
+      buildTaskStateTransitionEvent({
+        sessionId: args.sessionId,
+        taskId: args.taskId,
+        from: currentState,
+        to: 'PERSISTING_KNOWLEDGE',
+        triggeredBy: '/remember',
+      }),
+    );
+    writeTaskState(args.repoRoot, args.taskId, 'PERSISTING_KNOWLEDGE');
+  }
 
   const proposer = args.proposer ?? defaultCaptureProposer();
   const eventsLog = sessionEventsPath(args.repoRoot, args.sessionId);
