@@ -97,7 +97,7 @@ function checkC10(repoRoot: string): VerificationResult {
     }
   }
   if (errors.length > 0) {
-    return { passed: [], hardFailed: null, softFailed: ['C10'], detail: errors.join('; ') };
+    return { passed: [], hardFailed: null, softFailed: ['C10'], detail: errors.join('; '), constitutionHash: null };
   }
   return ok(['C10']);
 }

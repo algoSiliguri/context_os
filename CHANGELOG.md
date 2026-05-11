@@ -1,5 +1,43 @@
 # Changelog
 
+## v1.4.0 — 2026-05-11
+
+### Added
+- **Workflow-pack runtime** — manifest-driven phase registry for governed orchestration.
+  - `src/core/workflow-pack-loader.ts` — loads and validates `workflow-pack.yaml` manifests.
+  - `src/core/phase-registry.ts` — immutable registry of phases and validators; predecessor gate checks.
+  - `workflow-pack.yaml` bundled at `src/ccp/commands/init/packs/copilot-workflow/` — copilot-workflow is the first workflow pack (9 phases: setup-workflow → diagnose → grill → write-plan → quick-task → execute-plan → verify → review → evaluate → remember).
+  - `WORKFLOW_PACK_LOADED`, `PHASE_STARTED`, `PHASE_COMPLETED`, `PHASE_FAILED`, `PHASE_BLOCKED_PREDECESSOR` events emitted with every phase execution.
+
+- **Advisory validators** — 4 built-in validators in `src/core/validator-runner.ts`, wired into extension.ts post-phase.
+  - `validate-artifact` — envelope fields present and well-formed (artifact_type, task_id T-NNN pattern, schema_version, created_at).
+  - `validate-plan-scope` — plan has non-empty `scope.in` and at least one step.
+  - `validate-criteria-coverage` — if grill defined success_criteria, verification result must be pass/pass_with_degradation.
+  - `validate-evaluation-gate` — evaluation record has valid `criteria_satisfaction_rate` (0–1) and `task_outcome`; PASS/0% consistency check.
+  - `VALIDATOR_STARTED`, `VALIDATOR_PASSED`, `VALIDATOR_FAILED` events emitted per validator run.
+
+- **4 new Pi slash commands** (13 total):
+  - `/diagnose` — structured bug analysis (6 prompts → `diagnosis.yaml`). State: `NEW_IDEA → DIAGNOSING → SHARED_UNDERSTANDING`.
+  - `/quick-task` — fast escape-hatch for trivial tasks with escalation check (`quick-task.yaml`). State: `NEW_IDEA → QUICK_TASKING → AWAITING_HUMAN_REVIEW`.
+  - `/review` — human review of completed work (`review.yaml`). State: `AWAITING_HUMAN_REVIEW → EVALUATING` (PASS) or `VERIFYING` (FAIL/BLOCKED).
+  - `/evaluate` — score task outcome; computes `criteria_satisfaction_rate` (`evaluation.yaml`). State: `EVALUATING → PERSISTING_KNOWLEDGE` (PASS) or `FAILED_RECOVERABLE` (FAIL).
+
+- **3 new task states** (17 total): `DIAGNOSING`, `QUICK_TASKING`, `EVALUATING`.
+- **4 new artifact types**: `diagnosis`, `quick-task`, `review`, `evaluation` (written via `writeArtifactRaw`; TypeBox schemas deferred to v1.5.0).
+- **8 new CCP events**: `DIAGNOSE_STARTED/COMPLETED`, `QUICK_TASK_STARTED/COMPLETED`, `REVIEW_STARTED/COMPLETED`, `EVALUATE_STARTED/COMPLETED`.
+
+### Fixed
+- `/plan` after `/diagnose` no longer throws ENOENT — falls back to `diagnosis.yaml:bug_summary` when `grill.yaml` is absent.
+
+### Architecture
+- Implemented: workflow-pack runtime, phase registry, advisory validators, 4 new commands, extended state machine.
+- Partially implemented: TypeBox schemas for new artifact types (deferred — using raw YAML read/write).
+- Deferred: external (file-based) validator plugins; `/flight` phase-state display; TypeBox schemas for diagnosis/quick-task/review/evaluation artifacts.
+- Not implemented: Copilot/Codex/Claude Code/MCP runtime adapters (Pi only for v1).
+
+### Backwards compatibility
+- v1.3.0-era projects work unchanged. New commands only activate when a workflow pack is loaded. All 9 original commands (`/init`, `/doctor`, `/grill`, `/plan`, `/run`, `/verify`, `/remember`, `/status`, `/flight`) behave identically.
+
 ## v1.3.0 — 2026-05-10
 
 ### Added

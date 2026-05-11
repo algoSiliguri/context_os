@@ -5,6 +5,9 @@ import { Value } from '@sinclair/typebox/value';
 import YAML from 'yaml';
 import { type ArtifactType, taskArtifactPath } from '../task-paths';
 import type { ArtifactEnvelope } from './envelope';
+
+// Artifact types that have TypeBox schemas registered in this file.
+type SchemaArtifactType = 'grill' | 'plan' | 'execution' | 'verification' | 'knowledge';
 import { ExecutionRecord } from './execution-record';
 import { GrillRecord } from './grill-record';
 import { KnowledgeCaptureRecord } from './knowledge-capture-record';
@@ -27,7 +30,7 @@ const NAME_BY_TYPE = {
   knowledge: 'KnowledgeCaptureRecord',
 } as const;
 
-export function writeArtifact<T extends ArtifactType>(
+export function writeArtifact<T extends SchemaArtifactType>(
   repoRoot: string,
   taskId: string,
   type: T,
@@ -45,7 +48,37 @@ export function writeArtifact<T extends ArtifactType>(
   renameSync(tmp, path);
 }
 
-export function readArtifact<T extends ArtifactType>(
+// Read without TypeBox schema validation — for artifact types without a schema yet.
+export function readArtifactRaw(
+  repoRoot: string,
+  taskId: string,
+  type: ArtifactType,
+): Record<string, unknown> | null {
+  try {
+    const path = taskArtifactPath(repoRoot, taskId, type);
+    const text = readFileSync(path, 'utf-8');
+    const parsed = YAML.parse(text);
+    return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
+  } catch {
+    return null;
+  }
+}
+
+// Write without TypeBox schema validation — for artifact types without a schema yet.
+export function writeArtifactRaw(
+  repoRoot: string,
+  taskId: string,
+  type: ArtifactType,
+  record: unknown,
+): void {
+  const path = taskArtifactPath(repoRoot, taskId, type);
+  mkdirSync(dirname(path), { recursive: true });
+  const tmp = `${path}.tmp`;
+  writeFileSync(tmp, YAML.stringify(record, { indent: 2 }), 'utf-8');
+  renameSync(tmp, path);
+}
+
+export function readArtifact<T extends SchemaArtifactType>(
   repoRoot: string,
   taskId: string,
   type: T,

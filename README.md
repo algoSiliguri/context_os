@@ -6,16 +6,20 @@ operator surface on top of [Pi](https://github.com/earendil-works/pi).
 
 ## What this gives you
 
-Inside `pi`, eight slash commands:
+Inside `pi`, thirteen slash commands:
 
 | Command | What it does |
 |---|---|
 | `/init` | Set up Agent OS in your project (run once per project). |
 | `/doctor` | Check everything is working. |
 | `/grill <idea>` | Answer a few questions to pressure-test your idea. |
+| `/diagnose` | Structured bug analysis — 6 prompts → `diagnosis.yaml`. |
 | `/plan` | See a plan for the idea and approve or reject it. |
+| `/quick-task` | Fast path for trivial tasks with escalation check. |
 | `/run` | Record that the plan was executed. |
 | `/verify` | Check the plan's success criteria pass. |
+| `/review` | Human review of completed work before evaluation. |
+| `/evaluate` | Score the task outcome against success criteria. |
 | `/remember` | Review and save what was learned to your brain. |
 | `/status` | See what task is active and what comes next. |
 | `/flight` | Show the Black Box flight recorder timeline for the current session. |
@@ -29,7 +33,7 @@ Inside `pi`, eight slash commands:
 ## Install
 
 ```bash
-pi install git:github.com/algoSiliguri/Agent_OS@v1.2.0
+pi install git:github.com/algoSiliguri/Agent_OS@v1.4.0
 ```
 
 That's the entire install. The extension auto-loads when you run `pi`.

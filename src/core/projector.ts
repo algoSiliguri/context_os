@@ -15,6 +15,9 @@ export interface SessionDashboard {
   last_updated: string;
   current_state: string | null;
   current_task_id: string | null;
+  current_pack?: { id: string; version: string } | null;
+  current_phase?: string | null;
+  last_completed_phase?: string | null;
   timeline: TimelineEntry[];
   signals: {
     loop_detected: boolean;
@@ -32,6 +35,9 @@ function blank(sessionId: string): SessionDashboard {
     last_updated: new Date().toISOString(),
     current_state: null,
     current_task_id: null,
+    current_pack: null,
+    current_phase: null,
+    last_completed_phase: null,
     timeline: [],
     signals: {
       loop_detected: false,
@@ -109,6 +115,24 @@ function labelFor(event: Event): string {
       return `Memory query → ${p.result_count} result${p.result_count === 1 ? '' : 's'} (${p.latency_ms}ms)`;
     case 'BRAIN_WRITE':
       return `Memory written (confidence ${p.confidence}, ${p.latency_ms}ms)`;
+    case 'WORKFLOW_PACK_LOADED':
+      return `Pack loaded: ${str(p.pack_id)} v${str(p.pack_version)} (${p.phase_count} phases)`;
+    case 'WORKFLOW_PACK_LOAD_FAILED':
+      return `Pack load failed: ${str(p.error, 80)}`;
+    case 'PHASE_STARTED':
+      return `Phase started: ${str(p.phase_id)}`;
+    case 'PHASE_COMPLETED':
+      return `Phase done: ${str(p.phase_id)} → next: ${str((p.next_allowed_phases as string[]).join(', '), 60)}`;
+    case 'PHASE_FAILED':
+      return `Phase failed: ${str(p.phase_id)} — ${str(p.reason, 60)}`;
+    case 'PHASE_BLOCKED_PREDECESSOR':
+      return `Phase blocked: ${str(p.phase_id)} — needs ${str((p.missing_predecessors as string[]).join(' or '), 60)}`;
+    case 'VALIDATOR_STARTED':
+      return `Validator running: ${str(p.validator_id)} [${str(p.mode)}]`;
+    case 'VALIDATOR_PASSED':
+      return `Validator passed: ${str(p.validator_id)}`;
+    case 'VALIDATOR_FAILED':
+      return `Validator ${str(p.mode) === 'advisory' ? 'warn' : 'FAILED'}: ${str(p.validator_id)}`;
     default:
       return event.event_type;
   }
@@ -135,6 +159,26 @@ function applyEvent(d: SessionDashboard, event: Event): void {
 
   if (event.event_type === 'COMMAND_FAILED' || event.event_type === 'STEP_FAILED') {
     d.signals.silent_failures += 1;
+  }
+
+  if (event.event_type === 'WORKFLOW_PACK_LOADED') {
+    d.current_pack = {
+      id: String(event.payload.pack_id ?? ''),
+      version: String(event.payload.pack_version ?? ''),
+    };
+  }
+
+  if (event.event_type === 'PHASE_STARTED') {
+    d.current_phase = String(event.payload.phase_id ?? '');
+  }
+
+  if (event.event_type === 'PHASE_COMPLETED') {
+    d.last_completed_phase = String(event.payload.phase_id ?? '');
+    d.current_phase = null;
+  }
+
+  if (event.event_type === 'PHASE_FAILED') {
+    d.current_phase = null;
   }
 
   if (event.event_type === 'BRAIN_QUERY') {

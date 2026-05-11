@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { emitAndProject } from '../../core/projector';
 import type { UiAdapter } from '../../pi/ui';
 import { makeEnvelope } from '../artifacts/envelope';
-import { readArtifact, writeArtifact } from '../artifacts/io';
+import { readArtifact, readArtifactRaw, writeArtifact } from '../artifacts/io';
 import {
   buildPlanApprovedEvent,
   buildPlanCreatedEvent,
@@ -38,21 +38,39 @@ export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome
   );
   writeTaskState(args.repoRoot, args.taskId, 'PLANNING');
 
-  const grill = readArtifact(args.repoRoot, args.taskId, 'grill') as unknown as {
-    goal: string;
-    assumptions: Array<{ id: string; text: string }>;
-    risks: Array<{ id: string; risk: string }>;
-    constraints: Array<{ id: string; text: string }>;
-    success_criteria: Array<{ id: string; text: string }>;
-  };
+  // Diagnose tasks have no grill.yaml — fall back to diagnosis.yaml for goal.
+  let grillGoal = '';
+  let grillAssumptions: Array<{ id: string; text: string }> = [];
+  let grillRisks: Array<{ id: string; risk: string }> = [];
+  let grillConstraints: Array<{ id: string; text: string }> = [];
+  let grillCriteria: Array<{ id: string; text: string }> = [];
+
+  try {
+    const grill = readArtifact(args.repoRoot, args.taskId, 'grill') as unknown as {
+      goal: string;
+      assumptions: Array<{ id: string; text: string }>;
+      risks: Array<{ id: string; risk: string }>;
+      constraints: Array<{ id: string; text: string }>;
+      success_criteria: Array<{ id: string; text: string }>;
+    };
+    grillGoal = grill.goal ?? '';
+    grillAssumptions = grill.assumptions ?? [];
+    grillRisks = grill.risks ?? [];
+    grillConstraints = grill.constraints ?? [];
+    grillCriteria = grill.success_criteria ?? [];
+  } catch {
+    // No grill.yaml — try diagnosis.yaml (diagnose → plan flow)
+    const diagnosis = readArtifactRaw(args.repoRoot, args.taskId, 'diagnosis');
+    grillGoal = String(diagnosis?.bug_summary ?? 'bugfix task');
+  }
 
   const drafter = args.drafter ?? defaultPlanDrafter();
   const draft = await drafter.draft({
-    goal: grill.goal,
-    assumptions: grill.assumptions,
-    risks: grill.risks,
-    constraints: grill.constraints,
-    successCriteria: grill.success_criteria,
+    goal: grillGoal,
+    assumptions: grillAssumptions,
+    risks: grillRisks,
+    constraints: grillConstraints,
+    successCriteria: grillCriteria,
     workspaceRoot: args.repoRoot,
   });
 

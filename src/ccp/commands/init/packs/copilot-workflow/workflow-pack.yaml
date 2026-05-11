@@ -1,0 +1,107 @@
+workflow_pack_id: copilot-workflow
+version: "1.0.0"
+schema_version: "1.0.0"
+runtime_target: pi
+min_agent_os_version: "1.3.0"
+artifact_root: ".agent-os/tasks"
+task_id_pattern: "T-\\d{3}"
+artifact_format: yaml
+
+phases:
+  - id: setup-workflow
+    agent_os_command: /init
+    allowed_predecessors: []
+    produces: [WorkflowConfig]
+    may_edit_source: false
+    requires_approval: false
+    validators: []
+
+  - id: diagnose
+    agent_os_command: /diagnose
+    allowed_predecessors: [setup-workflow]
+    produces: [DiagnosisRecord]
+    may_edit_source: false
+    requires_approval: false
+    validators: [validate-artifact]
+
+  - id: grill
+    agent_os_command: /grill
+    allowed_predecessors: [setup-workflow, diagnose]
+    produces: [GrillRecord]
+    may_edit_source: false
+    requires_approval: false
+    validators: [validate-artifact]
+
+  - id: write-plan
+    agent_os_command: /plan
+    allowed_predecessors: [grill]
+    produces: [PlanArtifact]
+    may_edit_source: false
+    requires_approval: true
+    validators: [validate-artifact, validate-plan-scope]
+
+  - id: quick-task
+    agent_os_command: /quick-task
+    allowed_predecessors: [setup-workflow, diagnose, grill]
+    produces: [QuickTaskRecord]
+    may_edit_source: true
+    requires_approval: true
+    validators: [validate-artifact]
+    escape_hatch: true
+
+  - id: execute-plan
+    agent_os_command: /run
+    allowed_predecessors: [write-plan]
+    produces: [ExecutionRecord]
+    may_edit_source: true
+    requires_approval: false
+    validators: [validate-artifact, validate-plan-scope]
+
+  - id: verify
+    agent_os_command: /verify
+    allowed_predecessors: [execute-plan]
+    produces: [VerificationRecord]
+    may_edit_source: false
+    requires_approval: false
+    validators: [validate-artifact, validate-criteria-coverage]
+
+  - id: review
+    agent_os_command: /review
+    allowed_predecessors: [verify]
+    produces: [ReviewRecord]
+    may_edit_source: false
+    requires_approval: true
+    validators: [validate-artifact]
+
+  - id: evaluate
+    agent_os_command: /evaluate
+    allowed_predecessors: [review]
+    produces: [EvaluationRecord]
+    may_edit_source: false
+    requires_approval: true
+    validators: [validate-artifact, validate-evaluation-gate]
+
+  - id: remember
+    agent_os_command: /remember
+    allowed_predecessors: [evaluate, verify]
+    produces: [KnowledgeCaptureRecord]
+    may_edit_source: false
+    requires_approval: false
+    validators: []
+
+validators:
+  - id: validate-artifact
+    path: validators/validate-artifact.ts
+    mode: advisory
+
+  - id: validate-plan-scope
+    path: validators/validate-plan-scope.ts
+    mode: advisory
+
+  - id: validate-criteria-coverage
+    path: validators/validate-criteria-coverage.ts
+    mode: advisory
+
+  - id: validate-evaluation-gate
+    path: validators/validate-evaluation-gate.ts
+    mode: advisory

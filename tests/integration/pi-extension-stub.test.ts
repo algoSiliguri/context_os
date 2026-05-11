@@ -70,18 +70,22 @@ workspace:
 }
 
 describe('Pi extension stub integration', () => {
-  it('registers nine slash commands and a tool_call handler on load', async () => {
+  it('registers thirteen slash commands and a tool_call handler on load', async () => {
     const dir = setupRepo();
     const fake = makeFakeApi(dir);
     await piExtension(fake.api as unknown as ExtensionAPI);
     const snap = fake.snapshot();
     expect(snap.slashCommands).toEqual([
+      'diagnose',
       'doctor',
+      'evaluate',
       'flight',
       'grill',
       'init',
       'plan',
+      'quick-task',
       'remember',
+      'review',
       'run',
       'status',
       'verify',

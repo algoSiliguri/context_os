@@ -64,7 +64,7 @@ describe('runStatus next_action coverage', () => {
     { state: 'AWAITING_PLAN_APPROVAL', needle: 'approve' },
     { state: 'AWAITING_TOOL_APPROVAL', needle: 'approve' },
     { state: 'VERIFYING', needle: 'wait' },
-    { state: 'AWAITING_HUMAN_REVIEW', needle: '/remember' },
+    { state: 'AWAITING_HUMAN_REVIEW', needle: '/review' },
     { state: 'PERSISTING_KNOWLEDGE', needle: 'capture' },
     { state: 'FAILED_RECOVERABLE', needle: '/run --resume' },
     { state: 'FAILED_BLOCKED', needle: 'replan' },

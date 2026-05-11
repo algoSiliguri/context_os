@@ -7,17 +7,20 @@ import {
 } from '../../../src/ccp/task-state-machine';
 
 describe('task-state-machine', () => {
-  it('exports 14 states', () => {
-    expect(ALL_STATES).toHaveLength(14);
+  it('exports 17 states', () => {
+    expect(ALL_STATES).toHaveLength(17);
     expect(ALL_STATES).toContain(TaskState.NEW_IDEA);
+    expect(ALL_STATES).toContain(TaskState.DIAGNOSING);
     expect(ALL_STATES).toContain(TaskState.GRILLING);
     expect(ALL_STATES).toContain(TaskState.SHARED_UNDERSTANDING);
     expect(ALL_STATES).toContain(TaskState.PLANNING);
     expect(ALL_STATES).toContain(TaskState.AWAITING_PLAN_APPROVAL);
+    expect(ALL_STATES).toContain(TaskState.QUICK_TASKING);
     expect(ALL_STATES).toContain(TaskState.EXECUTING);
     expect(ALL_STATES).toContain(TaskState.AWAITING_TOOL_APPROVAL);
     expect(ALL_STATES).toContain(TaskState.VERIFYING);
     expect(ALL_STATES).toContain(TaskState.AWAITING_HUMAN_REVIEW);
+    expect(ALL_STATES).toContain(TaskState.EVALUATING);
     expect(ALL_STATES).toContain(TaskState.PERSISTING_KNOWLEDGE);
     expect(ALL_STATES).toContain(TaskState.COMPLETED);
     expect(ALL_STATES).toContain(TaskState.FAILED_RECOVERABLE);

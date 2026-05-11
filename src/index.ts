@@ -71,7 +71,7 @@ export { LockRecord } from './core/lock';
 export { ProjectManifest, SessionBindingRecord, validateProjectManifest } from './core/models';
 
 // Pi extension entry (Pi auto-loads default export)
-export { default as piExtension, getExtensionState, type ExtensionState } from './pi/extension';
+export { default as piExtension } from './pi/extension';
 export { ALL_COMMANDS, type CommandName } from './pi/slash-commands';
 
 // CCP kernel exports for Plan 2b

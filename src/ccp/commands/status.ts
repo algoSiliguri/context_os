@@ -62,7 +62,11 @@ export async function runStatus(args: RunStatusArgs): Promise<SessionStatus | nu
 function deriveNextAction(state: TaskState): string {
   switch (state) {
     case 'NEW_IDEA':
-      return 'run /grill <idea>';
+      return 'run /grill <idea> or /diagnose or /quick-task';
+    case 'DIAGNOSING':
+      return 'wait — diagnosis in progress';
+    case 'QUICK_TASKING':
+      return 'wait — quick task in progress';
     case 'GRILLING':
       return 'answer questions or type "done"';
     case 'SHARED_UNDERSTANDING':
@@ -78,7 +82,9 @@ function deriveNextAction(state: TaskState): string {
     case 'VERIFYING':
       return 'wait';
     case 'AWAITING_HUMAN_REVIEW':
-      return 'run /remember or close';
+      return 'run /review';
+    case 'EVALUATING':
+      return 'run /evaluate';
     case 'PERSISTING_KNOWLEDGE':
       return 'approve each capture';
     case 'COMPLETED':

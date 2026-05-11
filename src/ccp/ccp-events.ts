@@ -300,3 +300,63 @@ export function buildKnowledgeCaptureRejectedEvent(args: {
 }): Event {
   return ccpBase('KNOWLEDGE_CAPTURE_REJECTED', args, { capture_id: args.captureId });
 }
+
+export function buildDiagnoseStartedEvent(args: { sessionId: string; taskId: string }): Event {
+  return ccpBase('DIAGNOSE_STARTED', args, {});
+}
+
+export function buildDiagnoseCompletedEvent(args: {
+  sessionId: string;
+  taskId: string;
+  confidence: string;
+  decision: string;
+}): Event {
+  return ccpBase('DIAGNOSE_COMPLETED', args, {
+    confidence: args.confidence,
+    decision: args.decision,
+  });
+}
+
+export function buildQuickTaskStartedEvent(args: { sessionId: string; taskId: string }): Event {
+  return ccpBase('QUICK_TASK_STARTED', args, {});
+}
+
+export function buildQuickTaskCompletedEvent(args: {
+  sessionId: string;
+  taskId: string;
+  status: string;
+  filesChanged: number;
+}): Event {
+  return ccpBase('QUICK_TASK_COMPLETED', args, {
+    status: args.status,
+    files_changed: args.filesChanged,
+  });
+}
+
+export function buildReviewStartedEvent(args: { sessionId: string; taskId: string }): Event {
+  return ccpBase('REVIEW_STARTED', args, {});
+}
+
+export function buildReviewCompletedEvent(args: {
+  sessionId: string;
+  taskId: string;
+  status: string;
+}): Event {
+  return ccpBase('REVIEW_COMPLETED', args, { status: args.status });
+}
+
+export function buildEvaluateStartedEvent(args: { sessionId: string; taskId: string }): Event {
+  return ccpBase('EVALUATE_STARTED', args, {});
+}
+
+export function buildEvaluateCompletedEvent(args: {
+  sessionId: string;
+  taskId: string;
+  taskOutcome: string;
+  criteriaSatisfactionRate: number;
+}): Event {
+  return ccpBase('EVALUATE_COMPLETED', args, {
+    task_outcome: args.taskOutcome,
+    criteria_satisfaction_rate: args.criteriaSatisfactionRate,
+  });
+}

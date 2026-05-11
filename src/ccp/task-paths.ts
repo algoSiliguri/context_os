@@ -1,6 +1,15 @@
 import { join } from 'node:path';
 
-export type ArtifactType = 'execution' | 'grill' | 'knowledge' | 'plan' | 'verification';
+export type ArtifactType =
+  | 'diagnosis'
+  | 'evaluation'
+  | 'execution'
+  | 'grill'
+  | 'knowledge'
+  | 'plan'
+  | 'quick-task'
+  | 'review'
+  | 'verification';
 
 export function taskDir(repoRoot: string, taskId: string): string {
   return join(repoRoot, '.agent-os', 'tasks', taskId);

@@ -172,3 +172,148 @@ export function buildToolDeniedEvent(args: {
     payload: { action_hash: args.actionHash, reason: args.reason },
   });
 }
+
+// --- Workflow pack events ---
+
+export function buildWorkflowPackLoadedEvent(args: {
+  sessionId: string;
+  packId: string;
+  packVersion: string;
+  packDir: string;
+  phaseCount: number;
+}): Event {
+  return baseEvent('WORKFLOW_PACK_LOADED', {
+    sessionId: args.sessionId,
+    payload: {
+      pack_id: args.packId,
+      pack_version: args.packVersion,
+      pack_dir: args.packDir,
+      phase_count: args.phaseCount,
+    },
+  });
+}
+
+export function buildWorkflowPackLoadFailedEvent(args: {
+  sessionId: string;
+  packDir: string;
+  error: string;
+}): Event {
+  return baseEvent('WORKFLOW_PACK_LOAD_FAILED', {
+    sessionId: args.sessionId,
+    payload: { pack_dir: args.packDir, error: args.error },
+  });
+}
+
+export function buildPhaseStartedEvent(args: {
+  sessionId: string;
+  packId: string;
+  phaseId: string;
+  taskId?: string;
+}): Event {
+  return baseEvent('PHASE_STARTED', {
+    sessionId: args.sessionId,
+    payload: { pack_id: args.packId, phase_id: args.phaseId, task_id: args.taskId ?? null },
+  });
+}
+
+export function buildPhaseCompletedEvent(args: {
+  sessionId: string;
+  packId: string;
+  phaseId: string;
+  taskId?: string;
+  nextAllowedPhases: string[];
+}): Event {
+  return baseEvent('PHASE_COMPLETED', {
+    sessionId: args.sessionId,
+    payload: {
+      pack_id: args.packId,
+      phase_id: args.phaseId,
+      task_id: args.taskId ?? null,
+      next_allowed_phases: args.nextAllowedPhases,
+    },
+  });
+}
+
+export function buildPhaseFailedEvent(args: {
+  sessionId: string;
+  packId: string;
+  phaseId: string;
+  taskId?: string;
+  reason: string;
+}): Event {
+  return baseEvent('PHASE_FAILED', {
+    sessionId: args.sessionId,
+    payload: {
+      pack_id: args.packId,
+      phase_id: args.phaseId,
+      task_id: args.taskId ?? null,
+      reason: args.reason,
+    },
+  });
+}
+
+export function buildPhaseBlockedEvent(args: {
+  sessionId: string;
+  packId: string;
+  phaseId: string;
+  missingPredecessors: string[];
+}): Event {
+  return baseEvent('PHASE_BLOCKED_PREDECESSOR', {
+    sessionId: args.sessionId,
+    payload: {
+      pack_id: args.packId,
+      phase_id: args.phaseId,
+      missing_predecessors: args.missingPredecessors,
+    },
+  });
+}
+
+export function buildValidatorStartedEvent(args: {
+  sessionId: string;
+  packId: string;
+  validatorId: string;
+  phaseId: string;
+  mode: 'advisory' | 'blocking';
+}): Event {
+  return baseEvent('VALIDATOR_STARTED', {
+    sessionId: args.sessionId,
+    payload: {
+      pack_id: args.packId,
+      validator_id: args.validatorId,
+      phase_id: args.phaseId,
+      mode: args.mode,
+    },
+  });
+}
+
+export function buildValidatorPassedEvent(args: {
+  sessionId: string;
+  packId: string;
+  validatorId: string;
+  phaseId: string;
+}): Event {
+  return baseEvent('VALIDATOR_PASSED', {
+    sessionId: args.sessionId,
+    payload: { pack_id: args.packId, validator_id: args.validatorId, phase_id: args.phaseId },
+  });
+}
+
+export function buildValidatorFailedEvent(args: {
+  sessionId: string;
+  packId: string;
+  validatorId: string;
+  phaseId: string;
+  mode: 'advisory' | 'blocking';
+  findings: string[];
+}): Event {
+  return baseEvent('VALIDATOR_FAILED', {
+    sessionId: args.sessionId,
+    payload: {
+      pack_id: args.packId,
+      validator_id: args.validatorId,
+      phase_id: args.phaseId,
+      mode: args.mode,
+      findings: args.findings,
+    },
+  });
+}
