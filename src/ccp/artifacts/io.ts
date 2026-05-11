@@ -7,27 +7,48 @@ import { type ArtifactType, taskArtifactPath } from '../task-paths';
 import type { ArtifactEnvelope } from './envelope';
 
 // Artifact types that have TypeBox schemas registered in this file.
-type SchemaArtifactType = 'grill' | 'plan' | 'execution' | 'verification' | 'knowledge';
+type SchemaArtifactType =
+  | 'diagnosis'
+  | 'evaluation'
+  | 'execution'
+  | 'grill'
+  | 'knowledge'
+  | 'plan'
+  | 'quick-task'
+  | 'review'
+  | 'verification';
+import { DiagnosisRecord } from './diagnosis-record';
+import { EvaluationRecord } from './evaluation-record';
 import { ExecutionRecord } from './execution-record';
 import { GrillRecord } from './grill-record';
 import { KnowledgeCaptureRecord } from './knowledge-capture-record';
 import { PlanArtifact } from './plan-artifact';
+import { QuickTaskRecord } from './quick-task-record';
+import { ReviewRecord } from './review-record';
 import { VerificationRecord } from './verification-record';
 
 const SCHEMA_BY_TYPE = {
-  grill: GrillRecord,
-  plan: PlanArtifact,
+  diagnosis: DiagnosisRecord,
+  evaluation: EvaluationRecord,
   execution: ExecutionRecord,
-  verification: VerificationRecord,
+  grill: GrillRecord,
   knowledge: KnowledgeCaptureRecord,
+  plan: PlanArtifact,
+  'quick-task': QuickTaskRecord,
+  review: ReviewRecord,
+  verification: VerificationRecord,
 } as const;
 
 const NAME_BY_TYPE = {
-  grill: 'GrillRecord',
-  plan: 'PlanArtifact',
+  diagnosis: 'DiagnosisRecord',
+  evaluation: 'EvaluationRecord',
   execution: 'ExecutionRecord',
-  verification: 'VerificationRecord',
+  grill: 'GrillRecord',
   knowledge: 'KnowledgeCaptureRecord',
+  plan: 'PlanArtifact',
+  'quick-task': 'QuickTaskRecord',
+  review: 'ReviewRecord',
+  verification: 'VerificationRecord',
 } as const;
 
 export function writeArtifact<T extends SchemaArtifactType>(

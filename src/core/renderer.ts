@@ -74,6 +74,7 @@ const SHOW = new Set([
   'KNOWLEDGE_CAPTURE_APPROVED',
   'BRAIN_QUERY',
   'BRAIN_WRITE',
+  'POLICY_DECISION',
 ]);
 
 function filtered(entries: TimelineEntry[]): TimelineEntry[] {

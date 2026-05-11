@@ -34,3 +34,7 @@ export function taskRawFile(repoRoot: string, taskId: string, hash: string): str
 export function taskPendingCapturesPath(repoRoot: string, taskId: string): string {
   return join(taskDir(repoRoot, taskId), 'pending-captures.yaml');
 }
+
+export function taskMemoryCandidatesPath(repoRoot: string, taskId: string): string {
+  return join(taskDir(repoRoot, taskId), 'memory-candidates.yaml');
+}

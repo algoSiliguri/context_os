@@ -317,3 +317,44 @@ export function buildValidatorFailedEvent(args: {
     },
   });
 }
+
+// --- Policy decision events ---
+
+export type PolicyDecisionOutcome = 'allow' | 'block' | 'require_approval' | 'approved' | 'rejected' | 'escalate';
+export type PolicySubjectType = 'command' | 'tool_call' | 'artifact_write' | 'memory_write' | 'sandbox' | 'phase_transition' | 'flow_pause';
+
+export function buildPolicyDecisionEvent(args: {
+  sessionId: string;
+  taskId?: string;
+  phase?: string;
+  subjectType: PolicySubjectType;
+  subjectName: string;
+  actionRequested: string;
+  decision: PolicyDecisionOutcome;
+  reasonCode: string;
+  reason: string;
+  riskTier?: number | null;
+  approvedBy?: 'human' | 'system' | 'none';
+  source: string;
+  commandStr?: string;
+  memoryCandidateRefs?: string[];
+}): Event {
+  return baseEvent('POLICY_DECISION', {
+    sessionId: args.sessionId,
+    payload: {
+      task_id: args.taskId ?? null,
+      phase: args.phase ?? null,
+      subject_type: args.subjectType,
+      subject_name: args.subjectName,
+      action_requested: args.actionRequested,
+      decision: args.decision,
+      reason_code: args.reasonCode,
+      reason: args.reason,
+      risk_tier: args.riskTier ?? null,
+      approved_by: args.approvedBy ?? 'none',
+      source: args.source,
+      command: args.commandStr ?? null,
+      memory_candidate_refs: args.memoryCandidateRefs ?? [],
+    },
+  });
+}

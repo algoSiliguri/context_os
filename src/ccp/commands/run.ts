@@ -13,6 +13,7 @@ import {
 } from '../ccp-events';
 import type { StepExecutionResult, StepExecutor } from './shared/step-executor';
 import { requireTaskState, writeTaskState } from './shared/task-loader';
+import { emitPolicyDecision } from './shared/policy-decision-writer';
 
 export interface RunArgs {
   repoRoot: string;
@@ -26,7 +27,21 @@ export type RunOutcome = 'verifying' | 'failed_recoverable' | 'failed_blocked';
 
 export async function runRun(args: RunArgs): Promise<{ outcome: RunOutcome }> {
   const allowedPre = args.resume ? ['FAILED_RECOVERABLE'] : ['AWAITING_PLAN_APPROVAL'];
-  requireTaskState(args.repoRoot, args.taskId, allowedPre);
+  try {
+    requireTaskState(args.repoRoot, args.taskId, allowedPre);
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/run',
+      actionRequested: 'enter EXECUTING', decision: 'allow', reasonCode: 'state_ok',
+      reason: `state in ${allowedPre.join(' | ')}`, source: 'command_handler',
+    });
+  } catch (e) {
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/run',
+      actionRequested: 'enter EXECUTING', decision: 'block', reasonCode: 'wrong_state',
+      reason: (e as Error).message, source: 'command_handler',
+    });
+    throw e;
+  }
 
   const plan = readArtifact(args.repoRoot, args.taskId, 'plan') as unknown as {
     steps: Array<{

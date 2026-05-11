@@ -18,7 +18,13 @@ import {
   type CaptureProposer,
   defaultCaptureProposer,
 } from './shared/capture-proposer';
+import {
+  approveCandidate,
+  rejectCandidate,
+  stageCandidates,
+} from './shared/memory-staging';
 import { requireTaskState, writeTaskState } from './shared/task-loader';
+import { emitPolicyDecision } from './shared/policy-decision-writer';
 
 export interface RememberArgs {
   repoRoot: string;
@@ -32,7 +38,21 @@ export interface RememberArgs {
 }
 
 export async function runRemember(args: RememberArgs): Promise<{ kept: number; dropped: number }> {
-  requireTaskState(args.repoRoot, args.taskId, ['AWAITING_HUMAN_REVIEW']);
+  try {
+    requireTaskState(args.repoRoot, args.taskId, ['AWAITING_HUMAN_REVIEW']);
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/remember',
+      actionRequested: 'enter PERSISTING_KNOWLEDGE', decision: 'allow', reasonCode: 'state_ok',
+      reason: 'state is AWAITING_HUMAN_REVIEW', source: 'command_handler',
+    });
+  } catch (e) {
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/remember',
+      actionRequested: 'enter PERSISTING_KNOWLEDGE', decision: 'block', reasonCode: 'wrong_state',
+      reason: (e as Error).message, source: 'command_handler',
+    });
+    throw e;
+  }
 
   emitAndProject(
     args.repoRoot,
@@ -54,6 +74,19 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
   );
   const proposals = await proposer.propose({ taskId: args.taskId, events: allEvents });
 
+  // Stage all candidates to disk before prompting — survives session interruption.
+  const staged = stageCandidates(
+    args.repoRoot,
+    args.taskId,
+    args.sessionId,
+    proposals.map((p) => ({
+      content: p.text,
+      type: p.type,
+      scope: p.scope,
+      evidence: p.evidence,
+    })),
+  );
+
   let kept = 0;
   let dropped = 0;
   const items: Array<{
@@ -67,8 +100,8 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
     brain_node_id?: string;
   }> = [];
 
-  for (let i = 0; i < proposals.length; i++) {
-    const p = proposals[i]!;
+  for (let i = 0; i < staged.length; i++) {
+    const candidate = staged[i]!;
     const captureId = `K-${i + 1}`;
     emitAndProject(
       args.repoRoot,
@@ -77,21 +110,28 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
         sessionId: args.sessionId,
         taskId: args.taskId,
         captureId,
-        captureType: p.type,
+        captureType: candidate.type,
       }),
     );
 
     const keep = await args.ui.confirm(
-      `[capture ${i + 1}/${proposals.length}] type=${p.type} scope=${p.scope}\n  ${p.text}\n  Keep?`,
+      `[capture ${i + 1}/${staged.length}] type=${candidate.type} scope=${candidate.scope}\n  ${candidate.content}\n  Keep?`,
     );
 
     if (keep) {
       const result = await args.brain.write({
-        content: p.text,
-        type: p.type,
-        scope: p.scope,
+        content: candidate.content,
+        type: candidate.type,
+        scope: candidate.scope,
         taskId: args.taskId,
         project: args.projectName,
+      });
+      approveCandidate(args.repoRoot, args.taskId, candidate.id, result.id ?? undefined);
+      emitPolicyDecision(args.repoRoot, args.sessionId, {
+        taskId: args.taskId, subjectType: 'memory_write', subjectName: candidate.id,
+        actionRequested: 'write to brain', decision: 'approved', reasonCode: 'human_approved',
+        reason: 'user confirmed memory capture', approvedBy: 'human',
+        memoryCandidateRefs: [candidate.id], source: 'memory_staging',
       });
       emitAndProject(
         args.repoRoot,
@@ -105,16 +145,23 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
       );
       items.push({
         id: captureId,
-        scope: p.scope,
-        type: p.type,
-        text: p.text,
-        evidence: p.evidence,
+        scope: candidate.scope,
+        type: candidate.type,
+        text: candidate.content,
+        evidence: candidate.evidence,
         approval: 'approved',
         brain_status: result.deferred ? 'deferred' : 'written',
         ...(result.id ? { brain_node_id: result.id } : {}),
       });
       kept++;
     } else {
+      rejectCandidate(args.repoRoot, args.taskId, candidate.id);
+      emitPolicyDecision(args.repoRoot, args.sessionId, {
+        taskId: args.taskId, subjectType: 'memory_write', subjectName: candidate.id,
+        actionRequested: 'write to brain', decision: 'rejected', reasonCode: 'human_rejected',
+        reason: 'user skipped memory capture', approvedBy: 'none',
+        memoryCandidateRefs: [candidate.id], source: 'memory_staging',
+      });
       emitAndProject(
         args.repoRoot,
         args.sessionId,
@@ -126,10 +173,10 @@ export async function runRemember(args: RememberArgs): Promise<{ kept: number; d
       );
       items.push({
         id: captureId,
-        scope: p.scope,
-        type: p.type,
-        text: p.text,
-        evidence: p.evidence,
+        scope: candidate.scope,
+        type: candidate.type,
+        text: candidate.content,
+        evidence: candidate.evidence,
         approval: 'rejected',
       });
       dropped++;

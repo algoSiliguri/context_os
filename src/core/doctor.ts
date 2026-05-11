@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { verifyConstitution } from './constitution';
 import { loadProjectConfig } from './manifest';
@@ -89,6 +89,44 @@ export function runDoctor(repoRoot: string): DoctorReport {
       ? undefined
       : `Brain DB not found at ${resolvedDbPath}. Run: brain --db-path "${resolvedDbPath}" init`,
   });
+
+  const manifestPath = join(repoRoot, '.agent-os', 'install-manifest.json');
+  if (!existsSync(manifestPath)) {
+    checks.push({
+      id: 'install_manifest',
+      description: '.agent-os/install-manifest.json exists',
+      status: 'soft_fail',
+      detail: `Not found at ${manifestPath}. Run: bash setup.sh`,
+    });
+  } else {
+    try {
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+      const required = ['installed_at', 'knowledge_brain_version', 'agent_os_extension', 'brain_db_path'];
+      const missing = required.filter((k) => !manifest[k]);
+      if (missing.length > 0) {
+        checks.push({
+          id: 'install_manifest',
+          description: '.agent-os/install-manifest.json is valid',
+          status: 'soft_fail',
+          detail: `Missing fields: ${missing.join(', ')}. Re-run setup.sh`,
+        });
+      } else {
+        checks.push({
+          id: 'install_manifest',
+          description: '.agent-os/install-manifest.json is valid',
+          status: 'pass',
+          detail: `Installed at ${manifest.installed_at}, extension: ${manifest.agent_os_extension}`,
+        });
+      }
+    } catch {
+      checks.push({
+        id: 'install_manifest',
+        description: '.agent-os/install-manifest.json is valid',
+        status: 'soft_fail',
+        detail: 'File exists but could not parse JSON. Re-run setup.sh',
+      });
+    }
+  }
 
   const hasSoft = checks.some((c) => c.status === 'soft_fail');
   return { status: hasSoft ? 'soft_fail' : 'ok', checks };

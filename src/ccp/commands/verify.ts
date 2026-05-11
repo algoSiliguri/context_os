@@ -9,6 +9,7 @@ import {
 } from '../ccp-events';
 import { compressOutput } from './shared/compressed-output';
 import { requireTaskState, writeTaskState } from './shared/task-loader';
+import { emitPolicyDecision } from './shared/policy-decision-writer';
 
 export interface VerificationRunner {
   runCommand(cmd: string): Promise<{ exitCode: number; stdout: string; stderr: string }>;
@@ -24,11 +25,23 @@ export interface VerifyArgs {
 export type VerifyResult = 'pass' | 'fail' | 'blocked';
 
 export async function runVerify(args: VerifyArgs): Promise<{ result: VerifyResult }> {
-  const currentState = requireTaskState(args.repoRoot, args.taskId, [
-    'VERIFYING',
-    'AWAITING_HUMAN_REVIEW',
-    'FAILED_RECOVERABLE',
-  ]);
+  const allowedVerify = ['VERIFYING', 'AWAITING_HUMAN_REVIEW', 'FAILED_RECOVERABLE'];
+  let currentState: string;
+  try {
+    currentState = requireTaskState(args.repoRoot, args.taskId, allowedVerify);
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/verify',
+      actionRequested: 'enter VERIFYING', decision: 'allow', reasonCode: 'state_ok',
+      reason: `state in ${allowedVerify.join(' | ')}`, source: 'command_handler',
+    });
+  } catch (e) {
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/verify',
+      actionRequested: 'enter VERIFYING', decision: 'block', reasonCode: 'wrong_state',
+      reason: (e as Error).message, source: 'command_handler',
+    });
+    throw e;
+  }
   if (currentState !== 'VERIFYING') {
     emitAndProject(
       args.repoRoot,

@@ -133,6 +133,10 @@ function labelFor(event: Event): string {
       return `Validator passed: ${str(p.validator_id)}`;
     case 'VALIDATOR_FAILED':
       return `Validator ${str(p.mode) === 'advisory' ? 'warn' : 'FAILED'}: ${str(p.validator_id)}`;
+    case 'POLICY_DECISION': {
+      const icon = p.decision === 'allow' || p.decision === 'approved' ? '✓' : p.decision === 'block' || p.decision === 'rejected' ? '✗' : '?';
+      return `[policy] ${icon} ${str(p.decision)} ${str(p.subject_name)} (${str(p.reason_code)}) src=${str(p.source)}`;
+    }
     default:
       return event.event_type;
   }

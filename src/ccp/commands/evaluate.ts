@@ -1,7 +1,7 @@
 import { emitAndProject } from '../../core/projector';
 import type { UiAdapter } from '../../pi/ui';
 import { makeEnvelope } from '../artifacts/envelope';
-import { readArtifactRaw as readArtifact, writeArtifactRaw as writeArtifact } from '../artifacts/io';
+import { readArtifactRaw as readArtifact, writeArtifact } from '../artifacts/io';
 import {
   buildEvaluateCompletedEvent,
   buildEvaluateStartedEvent,
@@ -9,6 +9,7 @@ import {
 } from '../ccp-events';
 import { taskArtifactPath } from '../task-paths';
 import { requireTaskState, writeTaskState } from './shared/task-loader';
+import { emitPolicyDecision } from './shared/policy-decision-writer';
 
 export type TaskOutcome = 'PASS' | 'PASS_WITH_DEGRADATION' | 'FAIL';
 export type ProcessQuality = 'high' | 'medium' | 'low';
@@ -27,7 +28,21 @@ export interface EvaluateResult {
 }
 
 export async function runEvaluate(args: EvaluateArgs): Promise<EvaluateResult> {
-  requireTaskState(args.repoRoot, args.taskId, ['EVALUATING']);
+  try {
+    requireTaskState(args.repoRoot, args.taskId, ['EVALUATING']);
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/evaluate',
+      actionRequested: 'enter EVALUATING', decision: 'allow', reasonCode: 'state_ok',
+      reason: 'state is EVALUATING', source: 'command_handler',
+    });
+  } catch (e) {
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/evaluate',
+      actionRequested: 'enter EVALUATING', decision: 'block', reasonCode: 'wrong_state',
+      reason: (e as Error).message, source: 'command_handler',
+    });
+    throw e;
+  }
 
   emitAndProject(args.repoRoot, args.sessionId, buildEvaluateStartedEvent({
     sessionId: args.sessionId, taskId: args.taskId,

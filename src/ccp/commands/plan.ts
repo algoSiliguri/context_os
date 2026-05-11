@@ -11,6 +11,7 @@ import {
 } from '../ccp-events';
 import { type PlanDrafter, defaultPlanDrafter } from './shared/plan-drafter';
 import { requireTaskState, writeTaskState } from './shared/task-loader';
+import { emitPolicyDecision } from './shared/policy-decision-writer';
 
 export type PlanOutcome = 'approved' | 'rejected';
 
@@ -23,7 +24,21 @@ export interface RunPlanArgs {
 }
 
 export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome }> {
-  requireTaskState(args.repoRoot, args.taskId, ['SHARED_UNDERSTANDING']);
+  try {
+    requireTaskState(args.repoRoot, args.taskId, ['SHARED_UNDERSTANDING']);
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/plan',
+      actionRequested: 'enter PLANNING', decision: 'allow', reasonCode: 'state_ok',
+      reason: 'state is SHARED_UNDERSTANDING', source: 'command_handler',
+    });
+  } catch (e) {
+    emitPolicyDecision(args.repoRoot, args.sessionId, {
+      taskId: args.taskId, subjectType: 'phase_transition', subjectName: '/plan',
+      actionRequested: 'enter PLANNING', decision: 'block', reasonCode: 'wrong_state',
+      reason: (e as Error).message, source: 'command_handler',
+    });
+    throw e;
+  }
 
   emitAndProject(
     args.repoRoot,

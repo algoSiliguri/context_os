@@ -63,6 +63,23 @@ describe('runRun', () => {
     const events = readEvents(sessionEventsPath(dir, 's1'));
     expect(events.find((e) => e.event_type === 'COMMAND_STARTED')).toBeTruthy();
     expect(events.find((e) => e.event_type === 'COMMAND_COMPLETED')).toBeTruthy();
+    // Phase 1: POLICY_DECISION emitted for gate allow
+    const pde = events.find((e) => e.event_type === 'POLICY_DECISION');
+    expect(pde).toBeDefined();
+    expect(pde!.payload.decision).toBe('allow');
+    expect(pde!.payload.subject_name).toBe('/run');
+  });
+
+  it('wrong state emits POLICY_DECISION block and throws', async () => {
+    const { dir, taskId } = fixtureWithApprovedPlan(1);
+    writeTaskState(dir, taskId, 'GRILLING'); // wrong state
+    const executor = makeMockStepExecutor({});
+    await expect(runRun({ repoRoot: dir, sessionId: 's1', taskId, executor })).rejects.toThrow();
+    const events = readEvents(sessionEventsPath(dir, 's1'));
+    const pde = events.find((e) => e.event_type === 'POLICY_DECISION');
+    expect(pde).toBeDefined();
+    expect(pde!.payload.decision).toBe('block');
+    expect(pde!.payload.reason_code).toBe('wrong_state');
   });
 
   it('halts at first failed step, writes FAILED_RECOVERABLE', async () => {

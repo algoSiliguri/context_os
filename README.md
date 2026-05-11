@@ -6,7 +6,7 @@ operator surface on top of [Pi](https://github.com/earendil-works/pi).
 
 ## What this gives you
 
-Inside `pi`, thirteen slash commands:
+Inside `pi`, sixteen slash commands:
 
 | Command | What it does |
 |---|---|
@@ -16,13 +16,16 @@ Inside `pi`, thirteen slash commands:
 | `/diagnose` | Structured bug analysis — 6 prompts → `diagnosis.yaml`. |
 | `/plan` | See a plan for the idea and approve or reject it. |
 | `/quick-task` | Fast path for trivial tasks with escalation check. |
-| `/run` | Record that the plan was executed. |
+| `/run` | Execute the plan — real shell commands, output captured per step. |
 | `/verify` | Check the plan's success criteria pass. |
 | `/review` | Human review of completed work before evaluation. |
 | `/evaluate` | Score the task outcome against success criteria. |
 | `/remember` | Review and save what was learned to your brain. |
-| `/status` | See what task is active and what comes next. |
+| `/status` | See task state, next legal action, and any pending memory candidates. |
 | `/flight` | Show the Black Box flight recorder timeline for the current session. |
+| `/flow <goal>` | Run the full governed lifecycle in one command (grill → run → verify → remember). |
+| `/continue` | Resume a task from its current state without restarting. |
+| `/memory` | Recover pending memory candidates from an interrupted /remember. |
 
 ## Prerequisites
 
