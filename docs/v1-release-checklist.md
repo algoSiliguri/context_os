@@ -26,7 +26,7 @@ bash smoke-test.sh              # all checks ok expected
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Starter single install path (`bash setup.sh`) | **Done** | Writes `install-manifest.json`; re-run safe |
+| Starter single install path (`bash setup.sh`) | **Done** | Writes `install-manifest.json`; re-run safe; enforces Pi ≥v0.74.0 |
 | Agent_OS Pi extension loads (`pi install ...`) | **Done** | Tested via Pi v0.74.0 |
 | `/doctor` validates install | **Done** | Checks manifest, brain DB, project.yaml |
 | `/init` initializes project | **Done** | Byte-exact governance files, valid project.yaml |
@@ -68,7 +68,7 @@ bash smoke-test.sh              # all checks ok expected
 |-----------|----------------------|----------------|
 | Agent_OS Pi extension | `v1.4.0` @ `algoSiliguri/Agent_OS` | `pi install git:github.com/algoSiliguri/Agent_OS@v1.4.0` |
 | knowledge-brain | `v1.0.0` @ `agnivadc/knowledge-brain` | `uv tool install` |
-| Pi coding agent | `v0.74.0+` | `npm install -g @earendil-works/pi-coding-agent` |
+| Pi coding agent | `v0.74.0+` minimum; `setup.sh` enforces this and records installed version in manifest | `npm install -g @earendil-works/pi-coding-agent` |
 | Node.js | `20+` | system install |
 | uv | latest | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
 
@@ -115,9 +115,17 @@ Short, realistic. In priority order:
 
 ---
 
+## Version alignment (RC.1)
+
+`knowledge-brain` pyproject.toml, `__init__.py`, and `brain --version` output are now all `1.0.0` — aligned with git tag `v1.0.0`. `brain --protocol-version` also returns `1.0.0`. All version signals agree.
+
+`brain --version` now exits 0 (was: argparse error, exit 2). This unblocks `ensureBrainCli` which previously always reinstalled brain because the check always threw.
+
+---
+
 ## Compatibility notes
 
 - Agent_OS v1.x requires Pi v0.74.0+. Earlier Pi versions lack `registerCommand` and `on('tool_call')`.
-- Agent_OS v1.x requires knowledge-brain v1.0.0+. Protocol version checked via `brain --protocol-version`.
+- Agent_OS v1.x requires knowledge-brain v1.0.0+. Verified via `brain --version` (→ `knowledge-brain 1.0.0`) or `brain --protocol-version` (→ `1.0.0`).
 - `data_store/knowledge.db` is SQLite — portable, no server required.
 - `data_store/knowledge.jsonl` is the portable export — commit this to preserve memory across machines.

@@ -1,6 +1,6 @@
 # Agent_OS v1 Readiness
 
-_Last updated: 2026-05-11. Strict — no wishful marking._
+_Last updated: 2026-05-12. Strict — no wishful marking._
 
 ---
 
@@ -28,11 +28,34 @@ Baseline: **395 tests, 0 failures, 0 TypeScript errors.** (80 test files, incl. 
 | Memory staging | **Done** | `stageCandidates` → `approveCandidate` / `rejectCandidate` — disk-durable |
 | Memory orphan recovery | **Done** | `/memory [task-id]` resumes pending candidates; POLICY_DECISION emitted |
 | Status/flight operator UI | **Done** | Status bar, `/status` shows pending count + recovery command, `/flight` shows POLICY_DECISION |
-| Starter single-source onboarding | **Done** | `setup.sh` is single entrypoint |
+| Starter single-source onboarding | **Done** | `setup.sh` is single entrypoint; fails hard with exact Pi install command if Pi absent |
 | Install manifest | **Done** | Written by `setup.sh`; validated by `doctor` and `smoke-test.sh` |
 | Doctor/smoke test | **Done** | Doctor checks manifest + brain DB; smoke-test validates manifest schema |
 | knowledge-brain tests | **Done** | 91 passed, 0 skipped (fixed by `uv sync --extra dev`) |
 | Docs match implementation | **Done** | This document; no unsupported claims |
+
+---
+
+## What Changed — v1.0.0-RC.1 UI Pass (2026-05-12)
+
+### UI-first improvements (non-breaking)
+- **`plan.ts` — `renderPlanSummary`**: now shows command count per step; warns "⚠ no commands (edit plan.yaml before approving)" when a step has empty commands. Full hint appended to summary text.
+- **`extension.ts` — session_start**: state-aware welcome message. If project not initialized → guide to /init. If active task → show task ID + state + memory candidate count + suggest /continue. If no task → suggest /flow.
+- **`extension.ts` — /plan handler**: on approve, notify now shows the exact plan.yaml path (`edit .agent-os/tasks/<taskId>/plan.yaml to add commands if needed`). On reject, same path hint.
+
+### Why
+`defaultPlanDrafter` is the v1 stub — produces a skeleton plan with `commands: []`. Without the warning, a developer could approve an empty plan, run /run (which succeeds with zero commands), and not understand why no work was done. The UI fix surfaces this gap at approval time without changing the backend or the drafter architecture.
+
+---
+
+## What Changed — v1.0.0-RC.1 Install Hardening (2026-05-12)
+
+- **`agent-os-starter/setup.sh`**: Pi check moved to top (after Node check). Fails hard (`exit 1`) with exact install command if `pi` not found. Removed late soft warning that allowed setup to "succeed" without extension installation. Next-steps message updated to include `/flow "<goal>"` as step 4.
+- **`agent-os-starter/README.md`**: Pi install (`npm install -g @earendil-works/pi-coding-agent`) promoted to step 0 in Start section. `/flow` is now primary documented demo; `/grill /plan /run` demoted to "Power user — step by step" section.
+- **`agent-os-starter/smoke-test.sh`**: Final success message updated to mention `/flow`.
+
+### Why
+Previously, `setup.sh` checked for `pi` after installing brain CLI and writing the manifest. If Pi was missing, setup printed a warning and exited cleanly — leaving a "complete" manifest that did not reflect a functioning install. A first-time user would see "Setup complete" but the Pi extension was not registered, and they would hit confusing errors inside Pi. Failing early with an exact install command is unambiguous and safe.
 
 ---
 
@@ -147,7 +170,7 @@ Baseline: **395 tests, 0 failures, 0 TypeScript errors.** (80 test files, incl. 
 
 ## UI/Operator Behavior
 
-**On session start:** "Agent OS active. Run /doctor to check project setup."
+**On session start:** State-aware — guides to /init if uninitialized, shows active task state + /continue if task in progress, /flow if no task.
 
 **Status bar:** `{taskId} | {STATE}` — updates after every command.
 
@@ -155,7 +178,7 @@ Baseline: **395 tests, 0 failures, 0 TypeScript errors.** (80 test files, incl. 
 
 **`/flight`:** Shows all lifecycle events including POLICY_DECISION lines.
 
-**Entry point:** `/flow <goal>` is the guided path. `/continue` resumes in-progress tasks. Slash commands remain as escape hatches.
+**Entry point:** `/flow <goal>` is the primary documented path. `/continue` resumes in-progress tasks. Individual slash commands (/grill, /plan, /run) are power-user escape hatches.
 
 **No-UI mode:** All commands degrade to `ctx.ui.notify` text output. No UI-only paths.
 

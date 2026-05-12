@@ -167,7 +167,18 @@ export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome
   return { outcome: 'approved' };
 }
 
-function renderPlanSummary(draft: { steps: Array<{ title: string; risk_tier: string }> }): string {
-  const lines = draft.steps.map((s, i) => `  ${i + 1}. ${s.title} (risk: ${s.risk_tier})`);
-  return `PLAN — ${draft.steps.length} steps:\n${lines.join('\n')}`;
+function renderPlanSummary(draft: {
+  steps: Array<{ title: string; risk_tier: string; commands: Array<unknown> }>;
+}): string {
+  const lines = draft.steps.map((s, i) => {
+    const cmdNote = s.commands.length === 0
+      ? ' — ⚠ no commands (edit plan.yaml before approving)'
+      : ` — ${s.commands.length} command(s)`;
+    return `  ${i + 1}. ${s.title} (risk: ${s.risk_tier})${cmdNote}`;
+  });
+  const hasEmptySteps = draft.steps.some((s) => s.commands.length === 0);
+  const hint = hasEmptySteps
+    ? '\n\nPlan has steps with no commands. Fill in commands in .agent-os/tasks/<id>/plan.yaml before /run will do real work.'
+    : '';
+  return `PLAN — ${draft.steps.length} steps:\n${lines.join('\n')}${hint}`;
 }

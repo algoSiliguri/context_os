@@ -445,12 +445,14 @@ export default async function extension(pi: any): Promise<void> {
           drafter: defaultPlanDrafter(),
         });
         refreshStatusBar(ctx.cwd, taskId, ctx);
-        ctx.ui.notify(
-          outcome === 'approved'
-            ? 'Plan approved. Run /run to execute.'
-            : 'Plan rejected. Refine and run /plan again.',
-          'info',
-        );
+        if (outcome === 'approved') {
+          ctx.ui.notify(
+            `Plan approved. Edit .agent-os/tasks/${taskId}/plan.yaml to add commands if needed, then run /run.`,
+            'info',
+          );
+        } else {
+          ctx.ui.notify(`Plan rejected. Edit .agent-os/tasks/${taskId}/plan.yaml and run /plan again.`, 'info');
+        }
         await runPackValidators(ctx.cwd, planSessionId, 'write-plan', 'plan', taskId, ctx);
       } catch (e) {
         ctx.ui.setStatus('agent-os', undefined);
@@ -1183,7 +1185,25 @@ export default async function extension(pi: any): Promise<void> {
   // ── session_start ─────────────────────────────────────────────────────────
   pi.on('session_start', (_event: any, ctx: any) => {
     if (ctx.hasUI) {
-      ctx.ui.notify('Agent OS active. Run /doctor to check project setup.', 'info');
+      // State-aware welcome: guide user to the right next action.
+      const initialized = existsSync(join(ctx.cwd, '.agent-os', 'project.yaml'));
+      if (!initialized) {
+        ctx.ui.notify('Agent OS active. Project not initialized — run /init to set up, then /doctor.', 'info');
+      } else {
+        try {
+          const taskId = getCurrentTaskId(ctx.cwd);
+          if (taskId) {
+            const state = loadTaskState(ctx.cwd, taskId) ?? 'UNKNOWN';
+            const pending = listPendingCandidates(ctx.cwd, taskId);
+            const memHint = pending.length > 0 ? ` | ${pending.length} memory candidate(s) — /memory ${taskId}` : '';
+            ctx.ui.notify(`Agent OS active. ${taskId} | ${state}${memHint} — /continue to resume, /status for details.`, 'info');
+          } else {
+            ctx.ui.notify('Agent OS active. No active task — /flow <goal> to start, /doctor to verify setup.', 'info');
+          }
+        } catch {
+          ctx.ui.notify('Agent OS active. Run /doctor to check project setup.', 'info');
+        }
+      }
     }
 
     // Heartbeat: emit every 30s to keep last_event_timestamp fresh.
