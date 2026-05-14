@@ -180,11 +180,38 @@ export function renderStatusToString(
   const recent = filtered(dashboard.timeline).slice(-tail);
   const sig = dashboard.signals;
 
-  const lines: string[] = [
-    healthLine(status, dashboard),
-    `  Last event:  ${ageLabel(sig.last_event_timestamp, nowMs)}`,
-    `  Failures:    ${sig.silent_failures}   Loop: ${sig.loop_detected ? c('yellow', 'YES') : 'no'}   Repeated queries: ${sig.repeated_queries > 0 ? c('yellow', String(sig.repeated_queries)) : '0'}`,
-  ];
+  const lines: string[] = [healthLine(status, dashboard)];
+
+  // ── Medium-density data block (Phase 2 additions) ──────────────────────────
+  // Each row appears only if the corresponding field is populated on the dashboard.
+  const dataLines: string[] = [];
+
+  if (dashboard.active_pack) {
+    const p = dashboard.active_pack;
+    dataLines.push(`  Pack:        ${renderPackBadge(p.state, p.id, p.version, p.bundled_version)}`);
+  }
+  if (dashboard.phase_progress) {
+    const pp = dashboard.phase_progress;
+    dataLines.push(`  Phase:       ${renderProgressBar(pp.current, pp.total)}  (currently: ${pp.name})`);
+  }
+  if (dashboard.validator_outcomes) {
+    const vo = dashboard.validator_outcomes;
+    const summary = renderValidatorSummary([
+      ...Array(vo.passed).fill({ ok: true }),
+      ...Array(vo.failed).fill({ ok: false, severity: 'fail' as const, findings: [] }),
+      ...Array(vo.warned).fill({ ok: false, severity: 'warn' as const, findings: [] }),
+    ]);
+    dataLines.push(`  Validators:  ${summary}`);
+  }
+  if (typeof dashboard.memory_pending === 'number') {
+    dataLines.push(`  Memory:      ${renderMemoryState(dashboard.memory_pending)}`);
+  }
+  dataLines.push(`  Last event:  ${ageLabel(sig.last_event_timestamp, nowMs)}`);
+  // Preserved from legacy layout for parity:
+  dataLines.push(`  Failures:    ${sig.silent_failures}   Loop: ${sig.loop_detected ? c('yellow', 'YES') : 'no'}   Repeated queries: ${sig.repeated_queries > 0 ? c('yellow', String(sig.repeated_queries)) : '0'}`);
+
+  lines.push('');
+  lines.push(...dataLines);
 
   if (recent.length > 0) {
     lines.push('');
