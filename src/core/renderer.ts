@@ -95,6 +95,37 @@ export function renderProgressBar(
   return `${c0}/${t}  [${filledChar.repeat(filled)}${emptyChar.repeat(empty)}]`;
 }
 
+// ── Validator summary ─────────────────────────────────────────────────────────
+
+export interface ValidatorOutcome {
+  ok: boolean;
+  findings?: Array<{ message: string }>;
+  /** Optional severity hint; defaults to 'fail' when !ok, 'pass' when ok */
+  severity?: 'pass' | 'warn' | 'fail';
+}
+
+export function renderValidatorSummary(results: ValidatorOutcome[]): string {
+  let pass = 0, fail = 0, warn = 0;
+  for (const r of results) {
+    const sev = r.severity ?? (r.ok ? 'pass' : 'fail');
+    if (sev === 'pass') pass++;
+    else if (sev === 'warn') warn++;
+    else fail++;
+  }
+  const okGlyph = c('green', USE_ANSI ? '✓' : '[ok]');
+  const failGlyph = c('red', USE_ANSI ? '✗' : '[x]');
+  const warnGlyph = c('yellow', USE_ANSI ? '⚠' : '[!]');
+  return `${okGlyph} ${pass}   ${failGlyph} ${fail}   ${warnGlyph} ${warn}`;
+}
+
+// ── Memory state ──────────────────────────────────────────────────────────────
+
+export function renderMemoryState(pending: number): string {
+  const n = Math.max(0, pending);
+  const word = n === 1 ? 'candidate' : 'candidates';
+  return `${n} ${word} pending${n > 0 ? ' approval' : ''}`;
+}
+
 // ── Timeline filter ───────────────────────────────────────────────────────────
 
 const SHOW = new Set([
