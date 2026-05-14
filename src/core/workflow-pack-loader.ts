@@ -1,5 +1,5 @@
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { isAbsolute, join, relative, resolve } from 'node:path';
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import YAML from 'yaml';
 
 export interface PhaseDefinition {
@@ -204,15 +204,37 @@ function readPromptFile(
   if (!existsSync(fullPath)) {
     return { warning: `prompt file not found: ${relPath}` };
   }
-  const size = statSync(fullPath).size;
-  if (size > PROMPT_FILE_MAX_BYTES) {
-    throw new Error(`prompt file "${relPath}" (${size} bytes) exceeds 10KB per-file limit`);
+  // Block symlink traversal: resolve the real path and verify it is still inside packDir.
+  let realPath: string;
+  try {
+    realPath = realpathSync(fullPath);
+  } catch {
+    return { warning: `prompt file not found: ${relPath}` };
   }
-  if (budget.used + size > PROMPT_TOTAL_MAX_BYTES) {
+  const realPackDir = realpathSync(packDir);
+  if (realPath !== realPackDir && !realPath.startsWith(realPackDir + sep)) {
+    throw new Error(`prompt path "${relPath}" resolves outside pack directory via symlink`);
+  }
+  // Fast-fail size check before reading (cheap path)
+  const stat = statSync(fullPath);
+  if (!stat.isFile()) {
+    throw new Error(`prompt path "${relPath}" is not a regular file`);
+  }
+  if (stat.size > PROMPT_FILE_MAX_BYTES) {
+    throw new Error(`prompt file "${relPath}" (${stat.size} bytes) exceeds 10KB per-file limit`);
+  }
+  if (budget.used + stat.size > PROMPT_TOTAL_MAX_BYTES) {
     throw new Error(`total prompt bytes exceeds 200KB budget after including "${relPath}"`);
   }
-  budget.used += size;
   const buf = readFileSync(fullPath);
+  // Authoritative size check after read (defends against TOCTOU)
+  if (buf.length > PROMPT_FILE_MAX_BYTES) {
+    throw new Error(`prompt file "${relPath}" (${buf.length} bytes) exceeds 10KB per-file limit`);
+  }
+  if (budget.used + buf.length > PROMPT_TOTAL_MAX_BYTES) {
+    throw new Error(`total prompt bytes exceeds 200KB budget after including "${relPath}"`);
+  }
+  budget.used += buf.length;
   let content: string;
   try {
     content = new TextDecoder('utf-8', { fatal: true }).decode(buf);

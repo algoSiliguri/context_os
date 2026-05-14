@@ -158,4 +158,46 @@ prompts:
     if (r.ok) throw new Error('expected ok:false for path escape');
     expect(r.error).toMatch(/outside pack directory|invalid path/i);
   });
+
+  it('loads grill.intro and grill.question_packs prompts', () => {
+    const yaml = `${BASE_YAML}
+prompts:
+  grill:
+    intro: prompts/grill/intro.md
+    question_packs:
+      - prompts/grill/legacy-safe.md
+`;
+    const root = makePack('p', yaml, {
+      'prompts/grill/intro.md': '# Intro\nWelcome to grill.',
+      'prompts/grill/legacy-safe.md': '# Legacy-safe questions\nQ1\nQ2',
+    });
+    const results = loadWorkflowPacks(root);
+    const r = results[0];
+    if (!r) throw new Error('expected a result');
+    if (!r.ok) throw new Error(`expected ok, got error: ${r.error}`);
+    expect(r.manifest.prompts?.grill?.intro?.path).toBe('prompts/grill/intro.md');
+    expect(r.manifest.prompts?.grill?.intro?.content).toContain('Welcome to grill');
+    expect(r.manifest.prompts?.grill?.question_packs?.[0]?.path).toBe('prompts/grill/legacy-safe.md');
+    expect(r.manifest.prompts?.grill?.question_packs?.[0]?.content).toContain('Q1');
+    expect(r.manifest.prompt_warnings).toEqual([]);
+  });
+
+  it('emits soft-fail warnings for missing grill prompt files', () => {
+    const yaml = `${BASE_YAML}
+prompts:
+  grill:
+    intro: prompts/grill/missing-intro.md
+    question_packs:
+      - prompts/grill/missing-pack.md
+`;
+    const root = makePack('p', yaml); // no files written
+    const results = loadWorkflowPacks(root);
+    const r = results[0];
+    if (!r) throw new Error('expected a result');
+    if (!r.ok) throw new Error(`expected ok — missing grill prompts are soft-fail`);
+    expect(r.manifest.prompts?.grill?.intro?.content).toBeUndefined();
+    expect(r.manifest.prompts?.grill?.question_packs?.[0]?.content).toBeUndefined();
+    expect(r.manifest.prompt_warnings.some((w) => w.includes('missing-intro.md'))).toBe(true);
+    expect(r.manifest.prompt_warnings.some((w) => w.includes('missing-pack.md'))).toBe(true);
+  });
 });
