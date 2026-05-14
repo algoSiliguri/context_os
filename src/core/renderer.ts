@@ -51,6 +51,33 @@ function healthLine(status: HealthStatus, dashboard: SessionDashboard): string {
   return `${dot} ${label}  ${task}  ${state}`;
 }
 
+// ── Pack badge ────────────────────────────────────────────────────────────────
+
+export type PackVersionState = 'current' | 'stale' | 'newer' | 'unknown' | 'modified-locally';
+
+const PACK_GLYPH: Record<PackVersionState, { ansi: string; ascii: string; color: string }> = {
+  current:            { ansi: '✓', ascii: '[ok]', color: 'green' },
+  stale:              { ansi: '⚠', ascii: '[!]',  color: 'yellow' },
+  newer:              { ansi: '↑', ascii: '[^]',  color: 'cyan' },
+  unknown:            { ansi: '?', ascii: '[?]',  color: 'yellow' },
+  'modified-locally': { ansi: '~', ascii: '[~]',  color: 'yellow' },
+};
+
+export function renderPackBadge(
+  state: PackVersionState,
+  packId: string,
+  version: string,
+  bundledVersion?: string,
+): string {
+  const g = PACK_GLYPH[state];
+  const glyph = c(g.color, USE_ANSI ? g.ansi : g.ascii);
+  const idPart = `${packId}@${version}`;
+  let suffix: string = state;
+  if (state === 'stale' && bundledVersion) suffix = `stale (bundled v${bundledVersion})`;
+  if (state === 'newer' && bundledVersion) suffix = `newer than bundled v${bundledVersion}`;
+  return `${idPart} ${glyph} ${suffix}`;
+}
+
 // ── Timeline filter ───────────────────────────────────────────────────────────
 
 const SHOW = new Set([
