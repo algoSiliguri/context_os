@@ -31,7 +31,7 @@ import {
   listPendingCandidates,
   rejectCandidate,
 } from '../ccp/commands/shared/memory-staging';
-import { defaultPlanDrafter } from '../ccp/commands/shared/plan-drafter';
+import { type DraftedPlan, defaultPlanDrafter } from '../ccp/commands/shared/plan-drafter';
 import { emitPolicyDecision } from '../ccp/commands/shared/policy-decision-writer';
 import { defaultQuestionGenerator } from '../ccp/commands/shared/question-generator';
 import { makeShellStepExecutor } from '../ccp/commands/shared/step-executor';
@@ -600,13 +600,38 @@ export default async function extension(pi: any): Promise<void> {
       ctx.ui.setStatus('agent-os', 'planning…');
       try {
         const planSessionId = loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID();
+        // Wrap the drafter to capture detectedCommands for narration.
+        let capturedDraft: DraftedPlan | undefined;
+        const baseDrafter = buildPlanDrafter();
+        const capturingDrafter = {
+          async draft(input: Parameters<typeof baseDrafter.draft>[0]): Promise<DraftedPlan> {
+            const result = await baseDrafter.draft(input);
+            capturedDraft = result;
+            return result;
+          },
+        };
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('plan', _planConfig?.verification_profile === 'detected' ? 'drafting plan (verification: detected)' : 'drafting plan'),
+            'info',
+          );
+        }
         const { outcome } = await runPlan({
           repoRoot: ctx.cwd,
           sessionId: planSessionId,
           taskId,
           ui: makePiUiAdapter(ctx.ui),
-          drafter: buildPlanDrafter(),
+          drafter: capturingDrafter,
         });
+        if (ctx.hasUI && capturedDraft?.detectedCommands && capturedDraft.detectedCommands.length > 0) {
+          const first = capturedDraft.detectedCommands[0];
+          if (first) {
+            ctx.ui.notify(
+              narrate('plan', `detected verification: ${first.command} (${first.source_file})`),
+              'info',
+            );
+          }
+        }
         if (ctx.hasUI) {
           ctx.ui.notify(
             narrate('phase', outcome === 'approved' ? 'entered AWAITING_PLAN_APPROVAL' : 'AWAITING_PLAN_APPROVAL → SHARED_UNDERSTANDING'),
@@ -773,12 +798,44 @@ export default async function extension(pi: any): Promise<void> {
       ctx.ui.setStatus('agent-os', 'verifying…');
       try {
         const verifySessionId = loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID();
+        // Count verification commands from plan artifact for entry narration.
+        if (ctx.hasUI) {
+          try {
+            const planForVerify = readArtifact(ctx.cwd, taskId, 'plan') as unknown as {
+              steps: Array<{ verification: Array<{ command: string }> }>;
+            };
+            const verifyCommandCount = planForVerify.steps.flatMap((s) => s.verification).length;
+            ctx.ui.notify(
+              narrate('verify', `running ${verifyCommandCount} verification command${verifyCommandCount === 1 ? '' : 's'}`),
+              'info',
+            );
+          } catch {
+            /* plan may not be readable — skip count narration */
+          }
+        }
         const { result } = await runVerify({
           repoRoot: ctx.cwd,
           sessionId: verifySessionId,
           taskId,
           runner: makeShellCommandRunner({ cwd: ctx.cwd }),
         });
+        if (ctx.hasUI) {
+          // Entry/exit verify narration: report overall pass or fail count.
+          try {
+            const verRec = readArtifact(ctx.cwd, taskId, 'verification') as unknown as {
+              commands: Array<{ exit_code: number }>;
+              result: string;
+            };
+            const passed = verRec.commands.filter((c) => c.exit_code === 0).length;
+            const failed = verRec.commands.filter((c) => c.exit_code !== 0).length;
+            ctx.ui.notify(
+              narrate('verify', `${passed} passed, ${failed} failed`),
+              failed > 0 ? 'error' : 'info',
+            );
+          } catch {
+            /* verification record may not be readable — skip summary narration */
+          }
+        }
         if (ctx.hasUI) {
           ctx.ui.notify(
             narrate('phase', result === 'pass' ? 'entered AWAITING_HUMAN_REVIEW' : 'VERIFYING → FAILED_RECOVERABLE'),
