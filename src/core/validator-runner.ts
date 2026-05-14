@@ -164,6 +164,31 @@ function validateEvaluationGate(artifact: Record<string, unknown>): ValidatorRes
   return findings.length === 0 ? { ok: true } : { ok: false, findings };
 }
 
+// ── validate-falsifiable-hypothesis ──────────────────────────────────────────
+// Advisory: every hypothesis statement contains an "if X then Y" clause.
+function validateFalsifiableHypothesis(artifact: Record<string, unknown>): ValidatorResult {
+  if (artifact.artifact_type !== 'DiagnosisRecord') {
+    return { ok: true }; // not a diagnosis — skip
+  }
+  const hypotheses = artifact.hypotheses;
+  if (!Array.isArray(hypotheses) || hypotheses.length === 0) {
+    return { ok: true }; // no hypotheses provided (legacy flow) — skip
+  }
+  const IF_THEN = /\bif\b[\s\S]+?\bthen\b/i;
+  const findings: ValidatorFinding[] = [];
+  for (let i = 0; i < hypotheses.length; i++) {
+    const h = hypotheses[i] as Record<string, unknown> | undefined;
+    const statement = typeof h?.statement === 'string' ? h.statement : '';
+    if (!IF_THEN.test(statement)) {
+      findings.push({
+        field: `hypotheses[${i}]`,
+        message: `hypothesis "${statement.slice(0, 60)}" must be falsifiable: contain "if … then …" structure`,
+      });
+    }
+  }
+  return findings.length === 0 ? { ok: true } : { ok: false, findings };
+}
+
 // ── dispatcher ───────────────────────────────────────────────────────────────
 
 const BUILT_IN_VALIDATORS: Record<
@@ -174,6 +199,7 @@ const BUILT_IN_VALIDATORS: Record<
   'validate-plan-scope': (a) => validatePlanScope(a),
   'validate-criteria-coverage': (a, ctx) => validateCriteriaCoverage(a, ctx),
   'validate-evaluation-gate': (a) => validateEvaluationGate(a),
+  'validate-falsifiable-hypothesis': (a) => validateFalsifiableHypothesis(a),
 };
 
 /**
