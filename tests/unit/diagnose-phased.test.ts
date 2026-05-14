@@ -133,6 +133,8 @@ describe('runDiagnose — phased flow', () => {
     expect(yaml.phases).toHaveLength(6);
     expect(yaml.phases.every((p: any) => p.satisfied)).toBe(true);
     expect(yaml.feedback_loop).toBe('curl');
+    expect(yaml.reported_behavior).toBe('npm test -- foo.test.ts');  // from reproduce sub-phase
+    expect(yaml.expected_behavior).toBe('curl');                      // from build-feedback-loop sub-phase
     expect(yaml.hypotheses).toHaveLength(1);
     expect(yaml.hypotheses[0].statement).toMatch(/if .* then/i);
     expect(yaml.instrumentation_tag).toBe('[DEBUG-a4f2]');
@@ -156,5 +158,23 @@ describe('runDiagnose — phased flow', () => {
     const artifactPath = join(repoRoot, '.agent-os', 'tasks', result.taskId, 'diagnosis.yaml');
     const yaml = YAML.parse(readFileSync(artifactPath, 'utf-8'));
     expect(yaml.phases[0].satisfied).toBe(false);
+  });
+
+  it('treats empty phasedConfig array as legacy flow', async () => {
+    const repoRoot = makeRepo('empty-config');
+    const ui = makeUi([
+      'reported X', 'expected Y', 'minimal repro', 'unknown root cause',
+      'medium',
+      'proceed',
+    ]);
+    const result = await runDiagnose({
+      repoRoot, sessionId: 's1', bugSummary: 'bug',
+      ui: ui as any,
+      phasedConfig: [],
+    });
+    expect(result.decision).toBe('proceed');
+    const artifactPath = join(repoRoot, '.agent-os', 'tasks', result.taskId, 'diagnosis.yaml');
+    const yaml = YAML.parse(readFileSync(artifactPath, 'utf-8'));
+    expect(yaml.phases).toBeUndefined();
   });
 });

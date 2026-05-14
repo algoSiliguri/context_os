@@ -60,7 +60,7 @@ import { PackQuestionGenerator } from '../core/pack-question-generator';
 import { PhaseRegistry } from '../core/phase-registry';
 import { emitAndProject } from '../core/projector';
 import { runValidatorsForPhase } from '../core/validator-runner';
-import { type GrillConfig, type PlanConfig, loadWorkflowPacks } from '../core/workflow-pack-loader';
+import { type GrillConfig, type PlanConfig, type PromptPhaseDefinition, loadWorkflowPacks } from '../core/workflow-pack-loader';
 import type { UiAdapter } from './ui';
 
 /**
@@ -179,6 +179,7 @@ export default async function extension(pi: any): Promise<void> {
   let _packLoadedForCwd: string | null = null;
   let _grillConfig: GrillConfig | undefined = undefined;
   let _planConfig: PlanConfig | undefined = undefined;
+  let _diagnoseConfig: PromptPhaseDefinition[] | undefined = undefined;
 
   // Updates the Pi status bar with the current task state. No-op if no active task.
   function refreshStatusBar(cwd: string, taskId: string | null, ctx: any): void {
@@ -199,6 +200,7 @@ export default async function extension(pi: any): Promise<void> {
     _packLoadedForCwd = cwd;
     _grillConfig = undefined;
     _planConfig = undefined;
+    _diagnoseConfig = undefined;
     try {
       const sessionId = randomUUID();
       const packResults = loadWorkflowPacks(cwd);
@@ -213,6 +215,7 @@ export default async function extension(pi: any): Promise<void> {
             _phaseRegistry = new PhaseRegistry(result.manifest);
             _grillConfig = result.manifest.grill;
             _planConfig = result.manifest.plan;
+            _diagnoseConfig = result.manifest.prompts?.diagnose?.phases;
             if (ctx.hasUI) {
               ctx.ui.notify(narrate('pack', `${result.manifest.workflow_pack_id} v${result.manifest.version} loaded`), 'info');
               ctx.ui.setStatus(
@@ -297,7 +300,7 @@ export default async function extension(pi: any): Promise<void> {
       return;
     }
 
-    const context = { taskDir: taskDir(cwd, taskId), taskId };
+    const context = { taskDir: taskDir(cwd, taskId), taskId, repoRoot: cwd };
     const validatorDefs = _phaseRegistry.allValidatorDefs();
     const results = runValidatorsForPhase(validatorIds, validatorDefs, artifact, context);
 
@@ -755,6 +758,7 @@ export default async function extension(pi: any): Promise<void> {
           sessionId: randomUUID(),
           bugSummary,
           ui: makePiUiAdapter(ctx.ui),
+          phasedConfig: _diagnoseConfig,
         });
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(

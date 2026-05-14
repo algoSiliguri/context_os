@@ -120,14 +120,16 @@ export async function runDiagnose(args: DiagnoseArgs): Promise<DiagnoseResult> {
       }
     }
 
+    const reproducePhase = sub.phaseRecords.find((p) => p.id === 'reproduce');
+    const loopPhase = sub.phaseRecords.find((p) => p.id === 'build-feedback-loop');
     const env = makeEnvelope({ taskId, artifactType: 'DiagnosisRecord' });
     const artifact = {
       ...env,
       artifact_type: 'DiagnosisRecord' as const,
       bug_summary: args.bugSummary,
-      reported_behavior: '',
-      expected_behavior: '',
-      minimal_case: sub.phaseRecords.find((p) => p.id === 'reproduce')?.user_note ?? '',
+      reported_behavior: reproducePhase?.user_note ?? '(see phases[*].user_note)',
+      expected_behavior: loopPhase?.user_note ?? '(see phases[*].user_note)',
+      minimal_case: reproducePhase?.user_note ?? '',
       suspected_root_cause: sub.hypotheses?.[0]?.statement ?? '',
       confidence: 'medium' as const,
       decision,
