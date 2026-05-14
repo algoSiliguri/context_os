@@ -13,6 +13,7 @@ function makeManifest(overrides: Partial<WorkflowPackManifest> = {}): WorkflowPa
     task_id_pattern: 'T-\\d{3}',
     artifact_format: 'yaml',
     validators: [],
+    prompt_warnings: [],
     phases: [
       {
         id: 'setup-workflow',
