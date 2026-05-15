@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.6.0 — pending tag
+## v1.6.0 — 2026-05-15
 
 Release-hardening cut for safe local development and normal-user lifecycle
 operations. See [docs/release-notes-v1.6.0.md](docs/release-notes-v1.6.0.md).
