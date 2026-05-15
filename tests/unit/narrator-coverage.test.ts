@@ -1,11 +1,24 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const EXTENSION_PATH = join(import.meta.dirname ?? __dirname, '../../src/pi/extension.ts');
+const PI_DIR = join(import.meta.dirname ?? __dirname, '../../src/pi');
 
-describe('narrator coverage in extension.ts', () => {
-  const source = readFileSync(EXTENSION_PATH, 'utf-8');
+function readAllTs(dir: string): string {
+  let out = '';
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out += readAllTs(full);
+    } else if (entry.isFile() && entry.name.endsWith('.ts')) {
+      out += readFileSync(full, 'utf-8');
+    }
+  }
+  return out;
+}
+
+describe('narrator coverage in src/pi/', () => {
+  const source = readAllTs(PI_DIR);
 
   const REQUIRED_TAGS = [
     'pack', 'phase', 'doc', 'validator', 'step',
@@ -16,7 +29,7 @@ describe('narrator coverage in extension.ts', () => {
   for (const tag of REQUIRED_TAGS) {
     it(`emits at least one narrate('${tag}', ...) call`, () => {
       const pattern = new RegExp(`narrate\\(\\s*['"]${tag}['"]`);
-      expect(pattern.test(source), `[${tag}] tag must be wired into extension.ts`).toBe(true);
+      expect(pattern.test(source), `[${tag}] tag must be wired into src/pi/`).toBe(true);
     });
   }
 });
