@@ -1,0 +1,145 @@
+workflow_pack_id: engineering-core
+version: "1.0.0"
+schema_version: "1.0.0"
+runtime_target: pi
+min_agent_os_version: "1.5.0"
+
+grill:
+  question_profile: doc_grounded
+  max_questions: 8
+
+plan:
+  verification_profile: detected
+artifact_root: ".agent-os/tasks"
+task_id_pattern: "T-\\d{3}"
+artifact_format: yaml
+
+phases:
+  - id: setup-workflow
+    agent_os_command: /init
+    allowed_predecessors: []
+    produces: [WorkflowConfig]
+    may_edit_source: false
+    requires_approval: false
+    validators: []
+
+  - id: diagnose
+    agent_os_command: /diagnose
+    allowed_predecessors: [setup-workflow]
+    produces: [DiagnosisRecord]
+    may_edit_source: false
+    requires_approval: false
+    validators: [validate-artifact, validate-falsifiable-hypothesis, validate-no-stray-debug-tags]
+
+  - id: grill
+    agent_os_command: /grill
+    allowed_predecessors: [setup-workflow, diagnose]
+    produces: [GrillRecord]
+    may_edit_source: false
+    requires_approval: false
+    validators: [validate-artifact]
+
+  - id: write-plan
+    agent_os_command: /plan
+    allowed_predecessors: [grill]
+    produces: [PlanArtifact]
+    may_edit_source: false
+    requires_approval: true
+    validators: [validate-artifact, validate-plan-scope]
+
+  - id: quick-task
+    agent_os_command: /quick-task
+    allowed_predecessors: [setup-workflow, diagnose, grill]
+    produces: [QuickTaskRecord]
+    may_edit_source: true
+    requires_approval: true
+    validators: [validate-artifact]
+    escape_hatch: true
+
+  - id: execute-plan
+    agent_os_command: /run
+    allowed_predecessors: [write-plan]
+    produces: [ExecutionRecord]
+    may_edit_source: true
+    requires_approval: false
+    validators: [validate-artifact, validate-plan-scope]
+
+  - id: verify
+    agent_os_command: /verify
+    allowed_predecessors: [execute-plan]
+    produces: [VerificationRecord]
+    may_edit_source: false
+    requires_approval: false
+    validators: [validate-artifact, validate-criteria-coverage]
+
+  - id: review
+    agent_os_command: /review
+    allowed_predecessors: [verify]
+    produces: [ReviewRecord]
+    may_edit_source: false
+    requires_approval: true
+    validators: [validate-artifact]
+
+  - id: evaluate
+    agent_os_command: /evaluate
+    allowed_predecessors: [review]
+    produces: [EvaluationRecord]
+    may_edit_source: false
+    requires_approval: true
+    validators: [validate-artifact, validate-evaluation-gate]
+
+  - id: remember
+    agent_os_command: /remember
+    allowed_predecessors: [evaluate, verify]
+    produces: [KnowledgeCaptureRecord]
+    may_edit_source: false
+    requires_approval: false
+    validators: []
+
+validators:
+  - id: validate-artifact
+    path: validators/validate-artifact.ts
+    mode: advisory
+  - id: validate-plan-scope
+    path: validators/validate-plan-scope.ts
+    mode: advisory
+  - id: validate-criteria-coverage
+    path: validators/validate-criteria-coverage.ts
+    mode: advisory
+  - id: validate-evaluation-gate
+    path: validators/validate-evaluation-gate.ts
+    mode: advisory
+  - id: validate-falsifiable-hypothesis
+    path: validators/validate-falsifiable-hypothesis.ts
+    mode: advisory
+  - id: validate-no-stray-debug-tags
+    path: validators/validate-no-stray-debug-tags.ts
+    mode: advisory
+
+prompts:
+  diagnose:
+    phases:
+      - id: build-feedback-loop
+        prompt: prompts/diagnose/01-build-feedback-loop.md
+        exit_condition: feedback_loop_confirmed
+      - id: reproduce
+        prompt: prompts/diagnose/02-reproduce.md
+        exit_condition: reproduction_confirmed
+      - id: falsifiable-hypothesis
+        prompt: prompts/diagnose/03-falsifiable-hypothesis.md
+        exit_condition: hypothesis_stated
+        validator: validate-falsifiable-hypothesis
+      - id: instrument
+        prompt: prompts/diagnose/04-instrument.md
+        exit_condition: instrumentation_acknowledged
+      - id: fix-at-seam
+        prompt: prompts/diagnose/05-fix-at-seam.md
+        exit_condition: fix_applied_or_no_seam_reported
+      - id: cleanup
+        prompt: prompts/diagnose/06-cleanup.md
+        exit_condition: cleanup_done
+        validator: validate-no-stray-debug-tags
+  grill:
+    intro: prompts/grill/intro.md
+    question_packs:
+      - prompts/grill/legacy-safe.md

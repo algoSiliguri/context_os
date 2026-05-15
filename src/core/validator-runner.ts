@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { type Dirent, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import YAML from 'yaml';
 import type { ValidatorDefinition } from './workflow-pack-loader';
@@ -15,6 +15,7 @@ export type ValidatorResult =
 export interface ValidatorContext {
   taskDir: string;
   taskId: string;
+  repoRoot?: string;  // optional; required by validators that scan the repo (e.g., validate-no-stray-debug-tags)
 }
 
 const TASK_ID_RE = /^T-\d{3}$/;
@@ -164,6 +165,101 @@ function validateEvaluationGate(artifact: Record<string, unknown>): ValidatorRes
   return findings.length === 0 ? { ok: true } : { ok: false, findings };
 }
 
+// ── validate-falsifiable-hypothesis ──────────────────────────────────────────
+// Advisory: every hypothesis statement contains an "if X then Y" clause.
+function validateFalsifiableHypothesis(artifact: Record<string, unknown>): ValidatorResult {
+  if (artifact.artifact_type !== 'DiagnosisRecord') {
+    return { ok: true }; // not a diagnosis — skip
+  }
+  const hypotheses = artifact.hypotheses;
+  if (!Array.isArray(hypotheses) || hypotheses.length === 0) {
+    return { ok: true }; // no hypotheses provided (legacy flow) — skip
+  }
+  const IF_THEN = /\bif\b[\s\S]+?\bthen\b/i;
+  const findings: ValidatorFinding[] = [];
+  for (let i = 0; i < hypotheses.length; i++) {
+    const h = hypotheses[i] as Record<string, unknown> | undefined;
+    const statement = typeof h?.statement === 'string' ? h.statement : '';
+    if (!IF_THEN.test(statement)) {
+      findings.push({
+        field: `hypotheses[${i}]`,
+        message: `hypothesis "${statement.slice(0, 60)}" must be falsifiable: contain "if … then …" structure`,
+      });
+    }
+  }
+  return findings.length === 0 ? { ok: true } : { ok: false, findings };
+}
+
+// ── validate-no-stray-debug-tags ─────────────────────────────────────────────
+// Advisory: when DiagnosisRecord.instrumentation_tag is set, no stray matches
+// should remain in the repo after the cleanup phase.
+
+const IGNORED_DIRS = new Set([
+  'node_modules', '.git', 'dist', 'build', 'out', '.next', '.nuxt',
+  'coverage', '.vitest', '.turbo', 'target', '__pycache__', '.venv', 'venv',
+]);
+
+function escapeForRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function* walkRepo(dir: string): Generator<string> {
+  let entries: Dirent<string>[];
+  try {
+    entries = readdirSync(dir, { withFileTypes: true, encoding: 'utf-8' });
+  } catch {
+    return;
+  }
+  for (const e of entries) {
+    if (e.isDirectory()) {
+      if (IGNORED_DIRS.has(e.name) || e.name.startsWith('.')) continue;
+      yield* walkRepo(join(dir, e.name));
+    } else if (e.isFile()) {
+      yield join(dir, e.name);
+    }
+  }
+}
+
+function validateNoStrayDebugTags(
+  artifact: Record<string, unknown>,
+  ctx: ValidatorContext,
+): ValidatorResult {
+  if (artifact.artifact_type !== 'DiagnosisRecord') {
+    return { ok: true }; // not a diagnosis — skip
+  }
+  const tag = artifact.instrumentation_tag;
+  if (typeof tag !== 'string' || !tag) {
+    return { ok: true }; // legacy flow — skip
+  }
+  const repoRoot = ctx.repoRoot;
+  if (!repoRoot || !existsSync(repoRoot)) {
+    return { ok: true }; // no repo to scan — skip (best-effort)
+  }
+  const pattern = new RegExp(escapeForRegex(tag));
+  const MAX_FILE_BYTES = 2 * 1024 * 1024; // skip files > 2MB
+  const findings: ValidatorFinding[] = [];
+
+  for (const filePath of walkRepo(repoRoot)) {
+    let size: number;
+    try { size = statSync(filePath).size; } catch { continue; }
+    if (size > MAX_FILE_BYTES) continue;
+    let text: string;
+    try { text = readFileSync(filePath, 'utf-8'); } catch { continue; }
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      if (pattern.test(lines[i] ?? '')) {
+        const rel = filePath.slice(repoRoot.length + 1).replace(/\\/g, '/');
+        findings.push({
+          field: 'instrumentation_tag',
+          message: `stray debug tag "${tag}" at ${rel}:${i + 1}`,
+        });
+      }
+    }
+  }
+
+  return findings.length === 0 ? { ok: true } : { ok: false, findings };
+}
+
 // ── dispatcher ───────────────────────────────────────────────────────────────
 
 const BUILT_IN_VALIDATORS: Record<
@@ -174,6 +270,8 @@ const BUILT_IN_VALIDATORS: Record<
   'validate-plan-scope': (a) => validatePlanScope(a),
   'validate-criteria-coverage': (a, ctx) => validateCriteriaCoverage(a, ctx),
   'validate-evaluation-gate': (a) => validateEvaluationGate(a),
+  'validate-falsifiable-hypothesis': (a) => validateFalsifiableHypothesis(a),
+  'validate-no-stray-debug-tags': (a, ctx) => validateNoStrayDebugTags(a, ctx),
 };
 
 /**

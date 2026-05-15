@@ -295,8 +295,18 @@ describe('/init integration', () => {
     const tgt = mkdtempSync(join(tmpdir(), 'aos-i-'));
     // Install two packs by pointing packsSourceRoot at fixture dir with fake-pack + zzz-pack.
     const FAKE_PACKS_SRC = join(__dirname, '..', 'unit', 'ccp', 'commands', '__fixtures__', 'fake-packs');
+    // Install fake-pack first, then zzz-pack (each call installs only one pack now).
     await runInit({
-      rest: 'my-project --no-prompt',
+      rest: 'my-project --no-prompt --pack fake-pack',
+      targetRoot: tgt,
+      ui: noopUi(),
+      log: () => {},
+      exec,
+      sourceRoot: REPO_ROOT,
+      packsSourceRoot: FAKE_PACKS_SRC,
+    });
+    await runInit({
+      rest: 'my-project --force --no-prompt --pack zzz-pack',
       targetRoot: tgt,
       ui: noopUi(),
       log: () => {},

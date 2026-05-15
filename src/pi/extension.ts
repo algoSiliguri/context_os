@@ -21,6 +21,8 @@ import { runQuickTask } from '../ccp/commands/quick-task';
 import { runRemember } from '../ccp/commands/remember';
 import { runReview } from '../ccp/commands/review';
 import { runRun } from '../ccp/commands/run';
+import { readArtifact } from '../ccp/artifacts/io';
+import type { PlanArtifact } from '../ccp/artifacts/plan-artifact';
 import { makeShellCommandRunner } from '../ccp/commands/shared/command-runner';
 import { getCurrentTaskId } from '../ccp/commands/shared/current-task';
 import { createCheckpoint, restoreCheckpoint } from '../ccp/commands/shared/git-checkpoint';
@@ -29,7 +31,7 @@ import {
   listPendingCandidates,
   rejectCandidate,
 } from '../ccp/commands/shared/memory-staging';
-import { defaultPlanDrafter } from '../ccp/commands/shared/plan-drafter';
+import { type DraftedPlan, defaultPlanDrafter } from '../ccp/commands/shared/plan-drafter';
 import { emitPolicyDecision } from '../ccp/commands/shared/policy-decision-writer';
 import { defaultQuestionGenerator } from '../ccp/commands/shared/question-generator';
 import { makeShellStepExecutor } from '../ccp/commands/shared/step-executor';
@@ -45,6 +47,7 @@ import {
 import { ToolRegistry } from '../ccp/policy/tool-registry';
 import { type ArtifactType, taskArtifactPath, taskDir } from '../ccp/task-paths';
 import { type DetectedDoc, detectDocs } from '../core/doc-detector';
+import { narrate } from '../core/narrator';
 import {
   buildHeartbeatEvent,
   buildValidatorFailedEvent,
@@ -59,7 +62,7 @@ import { PackQuestionGenerator } from '../core/pack-question-generator';
 import { PhaseRegistry } from '../core/phase-registry';
 import { emitAndProject } from '../core/projector';
 import { runValidatorsForPhase } from '../core/validator-runner';
-import { type GrillConfig, type PlanConfig, loadWorkflowPacks } from '../core/workflow-pack-loader';
+import { type GrillConfig, type PlanConfig, type PromptPhaseDefinition, loadWorkflowPacks } from '../core/workflow-pack-loader';
 import type { UiAdapter } from './ui';
 
 /**
@@ -169,6 +172,46 @@ function makePiUiAdapter(piUi: {
   };
 }
 
+/**
+ * Build a step executor that wraps makeShellStepExecutor and emits narrate('step', ...)
+ * notifications for step start and completion/failure.  Extracted so that /run, /flow,
+ * and /continue all share identical narration behaviour.
+ *
+ * @param cwd  The working directory passed to makeShellStepExecutor.
+ * @param ctx  The Pi command context (used for ctx.hasUI and ctx.ui.notify).
+ * @param taskId  The current task id — used to load step info from the plan artifact.
+ */
+function makeNarratingExecutor(cwd: string, ctx: any, taskId: string): { executeStep: (execArgs: { stepId: string; step: any }) => Promise<any> } {
+  let stepInfoMap: Map<string, { title: string; risk_tier: string }> = new Map();
+  try {
+    const plan = readArtifact(cwd, taskId, 'plan') as unknown as PlanArtifact;
+    for (const s of plan.steps) {
+      stepInfoMap.set(s.id, { title: s.title, risk_tier: s.risk_tier });
+    }
+  } catch {
+    /* plan may not exist yet — narration degrades gracefully */
+  }
+
+  const baseExecutor = makeShellStepExecutor({ cwd });
+  return {
+    async executeStep(execArgs: { stepId: string; step: any }) {
+      const info = stepInfoMap.get(execArgs.stepId);
+      const label = info
+        ? `${execArgs.stepId}: ${info.title} (approval tier ${info.risk_tier ?? '?'})`
+        : execArgs.stepId;
+      if (ctx.hasUI) ctx.ui.notify(narrate('step', label), 'info');
+      const result = await baseExecutor.executeStep(execArgs);
+      if (result.status === 'completed') {
+        if (ctx.hasUI) ctx.ui.notify(narrate('step', `${execArgs.stepId} completed`), 'info');
+      } else {
+        const reason = result.failure?.reason ?? 'step failed';
+        if (ctx.hasUI) ctx.ui.notify(narrate('step', `${execArgs.stepId} failed: ${reason}`), 'error');
+      }
+      return result;
+    },
+  };
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function extension(pi: any): Promise<void> {
   const registry = buildPiRegistry();
@@ -178,6 +221,7 @@ export default async function extension(pi: any): Promise<void> {
   let _packLoadedForCwd: string | null = null;
   let _grillConfig: GrillConfig | undefined = undefined;
   let _planConfig: PlanConfig | undefined = undefined;
+  let _diagnoseConfig: PromptPhaseDefinition[] | undefined = undefined;
 
   // Updates the Pi status bar with the current task state. No-op if no active task.
   function refreshStatusBar(cwd: string, taskId: string | null, ctx: any): void {
@@ -198,6 +242,7 @@ export default async function extension(pi: any): Promise<void> {
     _packLoadedForCwd = cwd;
     _grillConfig = undefined;
     _planConfig = undefined;
+    _diagnoseConfig = undefined;
     try {
       const sessionId = randomUUID();
       const packResults = loadWorkflowPacks(cwd);
@@ -212,12 +257,17 @@ export default async function extension(pi: any): Promise<void> {
             _phaseRegistry = new PhaseRegistry(result.manifest);
             _grillConfig = result.manifest.grill;
             _planConfig = result.manifest.plan;
+            _diagnoseConfig = result.manifest.prompts?.diagnose?.phases;
             if (ctx.hasUI) {
+              ctx.ui.notify(narrate('pack', `${result.manifest.workflow_pack_id} v${result.manifest.version} loaded`), 'info');
               ctx.ui.setStatus(
                 'agent-os',
                 `Pack: ${result.manifest.workflow_pack_id} v${result.manifest.version}`,
               );
               setTimeout(() => ctx.ui.setStatus('agent-os', undefined), 5000);
+              for (const w of result.manifest.prompt_warnings) {
+                ctx.ui.notify(narrate('pack', w), 'info');
+              }
             }
             try {
               emitAndProject(
@@ -238,14 +288,14 @@ export default async function extension(pi: any): Promise<void> {
             // Additional valid packs are ignored in v1.x.
             if (ctx.hasUI) {
               ctx.ui.notify(
-                `Workflow pack ignored (v1.x supports one active pack): ${result.manifest.workflow_pack_id}. Active: ${activePackId}.`,
+                narrate('pack', `${result.manifest.workflow_pack_id} ignored — v1.x supports one active pack`),
                 'info',
               );
             }
           }
         } else {
           if (ctx.hasUI) {
-            ctx.ui.notify(`Workflow pack load failed: ${result.error}`, 'error');
+            ctx.ui.notify(narrate('pack', `load failed — ${result.error}`), 'error');
           }
           try {
             emitAndProject(
@@ -292,7 +342,7 @@ export default async function extension(pi: any): Promise<void> {
       return;
     }
 
-    const context = { taskDir: taskDir(cwd, taskId), taskId };
+    const context = { taskDir: taskDir(cwd, taskId), taskId, repoRoot: cwd };
     const validatorDefs = _phaseRegistry.allValidatorDefs();
     const results = runValidatorsForPhase(validatorIds, validatorDefs, artifact, context);
 
@@ -329,7 +379,7 @@ export default async function extension(pi: any): Promise<void> {
           /* best-effort */
         }
         if (ctx.hasUI) {
-          ctx.ui.notify(`[${id}] passed`, 'info');
+          ctx.ui.notify(narrate('validator', `${id} passed`), 'info');
         }
       } else {
         try {
@@ -351,7 +401,7 @@ export default async function extension(pi: any): Promise<void> {
         const summary = result.findings.map((f) => f.message).join('; ');
         if (ctx.hasUI) {
           ctx.ui.notify(
-            `[${id}] ${mode === 'advisory' ? 'advisory' : 'FAILED'}: ${summary}`,
+            narrate('validator', `${id} ${mode === 'advisory' ? 'advisory' : 'FAILED'}: ${summary}`),
             mode === 'advisory' ? 'info' : 'error',
           );
         }
@@ -426,15 +476,29 @@ export default async function extension(pi: any): Promise<void> {
     description: 'Check Agent OS health for this project',
     handler: async (_args: string, ctx: any) => {
       ensurePacksLoaded(ctx.cwd, ctx);
+      if (ctx.hasUI) ctx.ui.notify(narrate('doctor', 'running checks'), 'info');
       const report = await runDoctorCommand({ repoRoot: ctx.cwd });
       const type = report.status === 'ok' ? 'info' : 'error';
       // Emit each check as its own notification so nothing is truncated.
       for (const check of report.checks) {
-        const mark = check.status === 'pass' ? '✓' : check.status === 'soft_fail' ? '~' : '✗';
-        const line = `${mark} ${check.description}${check.detail ? ` — ${check.detail}` : ''}`;
-        ctx.ui.notify(line, check.status === 'fail' ? 'error' : 'info');
+        if (ctx.hasUI) {
+          const checkLine = narrate('doctor', `${check.label ?? check.id ?? check.description}: ${check.status}${check.detail ? ` — ${check.detail}` : ''}`);
+          const checkLevel = check.status === 'fail' ? 'error' : 'info';
+          ctx.ui.notify(checkLine, checkLevel);
+        } else {
+          const mark = check.status === 'pass' ? '✓' : check.status === 'soft_fail' ? '~' : '✗';
+          const line = `${mark} ${check.description}${check.detail ? ` — ${check.detail}` : ''}`;
+          ctx.ui.notify(line, check.status === 'fail' ? 'error' : 'info');
+        }
       }
-      ctx.ui.notify(`status: ${report.status}`, type);
+      if (ctx.hasUI) {
+        ctx.ui.notify(
+          narrate('doctor', `overall status: ${report.status}`),
+          report.status === 'ok' || report.status === 'soft_fail' ? 'info' : 'error',
+        );
+      } else {
+        ctx.ui.notify(`status: ${report.status}`, type);
+      }
     },
   });
 
@@ -517,6 +581,14 @@ export default async function extension(pi: any): Promise<void> {
           );
         }
       }
+      if (docs.length > 0 && ctx.hasUI) {
+        const shown = docs.slice(0, 5).map((d) => d.path);
+        const extra = docs.length > 5 ? ` … +${docs.length - 5} more` : '';
+        ctx.ui.notify(
+          narrate('doc', `using ${shown.join(', ')}${extra} as grounding source${docs.length === 1 ? '' : 's'}`),
+          'info',
+        );
+      }
       const maxQ = _grillConfig.max_questions ?? 8;
       return { generator: new PackQuestionGenerator(docs, maxQ), sourceDocs: docs };
     }
@@ -559,6 +631,7 @@ export default async function extension(pi: any): Promise<void> {
           generator,
           sourceDocs,
         });
+        if (ctx.hasUI) ctx.ui.notify(narrate('phase', 'entered SHARED_UNDERSTANDING'), 'info');
         refreshStatusBar(ctx.cwd, taskId, ctx);
         ctx.ui.notify(`Task ${taskId} created. Run /plan to draft the plan.`, 'info');
       } catch (e) {
@@ -581,13 +654,44 @@ export default async function extension(pi: any): Promise<void> {
       ctx.ui.setStatus('agent-os', 'planning…');
       try {
         const planSessionId = loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID();
+        // Wrap the drafter to capture detectedCommands for narration.
+        let capturedDraft: DraftedPlan | undefined;
+        const baseDrafter = buildPlanDrafter();
+        const capturingDrafter = {
+          async draft(input: Parameters<typeof baseDrafter.draft>[0]): Promise<DraftedPlan> {
+            const result = await baseDrafter.draft(input);
+            capturedDraft = result;
+            return result;
+          },
+        };
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('plan', _planConfig?.verification_profile === 'detected' ? 'drafting plan (verification: detected)' : 'drafting plan'),
+            'info',
+          );
+        }
         const { outcome } = await runPlan({
           repoRoot: ctx.cwd,
           sessionId: planSessionId,
           taskId,
           ui: makePiUiAdapter(ctx.ui),
-          drafter: buildPlanDrafter(),
+          drafter: capturingDrafter,
         });
+        if (ctx.hasUI && capturedDraft?.detectedCommands && capturedDraft.detectedCommands.length > 0) {
+          const first = capturedDraft.detectedCommands[0];
+          if (first) {
+            ctx.ui.notify(
+              narrate('plan', `detected verification: ${first.command} (${first.source_file})`),
+              'info',
+            );
+          }
+        }
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('phase', outcome === 'approved' ? 'entered AWAITING_PLAN_APPROVAL' : 'AWAITING_PLAN_APPROVAL → SHARED_UNDERSTANDING'),
+            'info',
+          );
+        }
         refreshStatusBar(ctx.cwd, taskId, ctx);
         if (outcome === 'approved') {
           ctx.ui.notify(
@@ -655,8 +759,17 @@ export default async function extension(pi: any): Promise<void> {
           repoRoot: ctx.cwd,
           sessionId: runSid,
           taskId,
-          executor: makeShellStepExecutor({ cwd: ctx.cwd }),
+          executor: makeNarratingExecutor(ctx.cwd, ctx, taskId),
         });
+        if (ctx.hasUI) {
+          const runToState =
+            outcome === 'verifying'
+              ? 'VERIFYING'
+              : outcome === 'failed_recoverable'
+                ? 'FAILED_RECOVERABLE'
+                : 'FAILED_BLOCKED';
+          ctx.ui.notify(narrate('phase', `entered ${runToState}`), 'info');
+        }
         refreshStatusBar(ctx.cwd, taskId, ctx);
         if (outcome !== 'verifying' && ckpt.created) {
           // Restore stash on failure so changes aren't lost
@@ -709,12 +822,50 @@ export default async function extension(pi: any): Promise<void> {
       ctx.ui.setStatus('agent-os', 'verifying…');
       try {
         const verifySessionId = loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID();
+        // Count verification commands from plan artifact for entry narration.
+        if (ctx.hasUI) {
+          try {
+            const planForVerify = readArtifact(ctx.cwd, taskId, 'plan') as unknown as {
+              steps: Array<{ verification: Array<{ command: string }> }>;
+            };
+            const verifyCommandCount = planForVerify.steps.flatMap((s) => s.verification).length;
+            ctx.ui.notify(
+              narrate('verify', `running ${verifyCommandCount} verification command${verifyCommandCount === 1 ? '' : 's'}`),
+              'info',
+            );
+          } catch {
+            /* plan may not be readable — skip count narration */
+          }
+        }
         const { result } = await runVerify({
           repoRoot: ctx.cwd,
           sessionId: verifySessionId,
           taskId,
           runner: makeShellCommandRunner({ cwd: ctx.cwd }),
         });
+        if (ctx.hasUI) {
+          // Entry/exit verify narration: report overall pass or fail count.
+          try {
+            const verRec = readArtifact(ctx.cwd, taskId, 'verification') as unknown as {
+              commands: Array<{ exit_code: number }>;
+              result: string;
+            };
+            const passed = verRec.commands.filter((c) => c.exit_code === 0).length;
+            const failed = verRec.commands.filter((c) => c.exit_code !== 0).length;
+            ctx.ui.notify(
+              narrate('verify', `${passed} passed, ${failed} failed`),
+              failed > 0 ? 'error' : 'info',
+            );
+          } catch {
+            /* verification record may not be readable — skip summary narration */
+          }
+        }
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('phase', result === 'pass' ? 'entered AWAITING_HUMAN_REVIEW' : 'VERIFYING → FAILED_RECOVERABLE'),
+            'info',
+          );
+        }
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(
           result === 'pass'
@@ -750,7 +901,14 @@ export default async function extension(pi: any): Promise<void> {
           sessionId: randomUUID(),
           bugSummary,
           ui: makePiUiAdapter(ctx.ui),
+          phasedConfig: _diagnoseConfig,
         });
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('phase', decision === 'proceed' ? 'DIAGNOSING → SHARED_UNDERSTANDING' : 'DIAGNOSING → FAILED_BLOCKED'),
+            'info',
+          );
+        }
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(
           decision === 'proceed'
@@ -786,6 +944,15 @@ export default async function extension(pi: any): Promise<void> {
           taskSummary,
           ui: makePiUiAdapter(ctx.ui),
         });
+        if (ctx.hasUI) {
+          const qtToState =
+            status === 'ESCALATED_TO_FULL_WORKFLOW'
+              ? 'ABORTED'
+              : status === 'PASS_QUICK'
+                ? 'AWAITING_HUMAN_REVIEW'
+                : 'FAILED_RECOVERABLE';
+          ctx.ui.notify(narrate('phase', `entered ${qtToState}`), 'info');
+        }
         ctx.ui.setStatus('agent-os', undefined);
         const msg =
           status === 'ESCALATED_TO_FULL_WORKFLOW'
@@ -812,6 +979,7 @@ export default async function extension(pi: any): Promise<void> {
         return;
       }
       ctx.ui.setStatus('agent-os', 'reviewing…');
+      if (ctx.hasUI) ctx.ui.notify(narrate('review', 'awaiting human review'), 'info');
       try {
         const verifySessionId = loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID();
         const { status } = await runReview({
@@ -820,6 +988,16 @@ export default async function extension(pi: any): Promise<void> {
           taskId,
           ui: makePiUiAdapter(ctx.ui),
         });
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('review', `task ${status}`),
+            status === 'FAIL' || status === 'BLOCKED' ? 'error' : 'info',
+          );
+          ctx.ui.notify(
+            narrate('phase', status === 'PASS' || status === 'PASS_WITH_DEGRADATION' ? 'AWAITING_HUMAN_REVIEW → EVALUATING' : 'AWAITING_HUMAN_REVIEW → VERIFYING'),
+            'info',
+          );
+        }
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(
           status === 'PASS' || status === 'PASS_WITH_DEGRADATION'
@@ -846,6 +1024,7 @@ export default async function extension(pi: any): Promise<void> {
         return;
       }
       ctx.ui.setStatus('agent-os', 'evaluating…');
+      if (ctx.hasUI) ctx.ui.notify(narrate('evaluate', 'evaluating task outcome'), 'info');
       try {
         const evalSessionId = loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID();
         const { taskOutcome, criteriaSatisfactionRate } = await runEvaluate({
@@ -854,6 +1033,16 @@ export default async function extension(pi: any): Promise<void> {
           taskId,
           ui: makePiUiAdapter(ctx.ui),
         });
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('evaluate', `outcome: ${taskOutcome} (criteria=${criteriaSatisfactionRate})`),
+            taskOutcome === 'FAIL' ? 'error' : 'info',
+          );
+          ctx.ui.notify(
+            narrate('phase', taskOutcome !== 'FAIL' ? 'EVALUATING → PERSISTING_KNOWLEDGE' : 'EVALUATING → FAILED_RECOVERABLE'),
+            'info',
+          );
+        }
         ctx.ui.setStatus('agent-os', undefined);
         const pct = Math.round(criteriaSatisfactionRate * 100);
         ctx.ui.notify(
@@ -886,6 +1075,15 @@ export default async function extension(pi: any): Promise<void> {
       });
       ctx.ui.setStatus('agent-os', 'remembering…');
       try {
+        // Narrate any already-staged candidates from a prior interrupted run.
+        const pendingBefore = listPendingCandidates(ctx.cwd, taskId);
+        if (pendingBefore.length > 0 && ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('memory', `${pendingBefore.length} candidate${pendingBefore.length === 1 ? '' : 's'} pending approval`),
+            'info',
+          );
+        }
+
         const { kept, dropped } = await runRemember({
           repoRoot: ctx.cwd,
           sessionId: loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID(),
@@ -894,6 +1092,16 @@ export default async function extension(pi: any): Promise<void> {
           ui: makePiUiAdapter(ctx.ui),
           projectName: (config as any).project_id ?? basename(ctx.cwd),
         });
+
+        // Narrate the overall memory outcome.
+        const total = kept + dropped;
+        if (ctx.hasUI && total > 0) {
+          ctx.ui.notify(
+            narrate('memory', `${kept} candidate${kept === 1 ? '' : 's'} approved, ${dropped} declined`),
+            'info',
+          );
+        }
+        if (ctx.hasUI) ctx.ui.notify(narrate('phase', 'PERSISTING_KNOWLEDGE → COMPLETED'), 'info');
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(`Done — kept ${kept}, dropped ${dropped}. Task complete.`, 'info');
       } catch (e) {
@@ -932,6 +1140,7 @@ export default async function extension(pi: any): Promise<void> {
           generator: grillGen,
           sourceDocs: grillDocs,
         }));
+        if (ctx.hasUI) ctx.ui.notify(narrate('phase', 'entered SHARED_UNDERSTANDING'), 'info');
       } catch (e) {
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(`/flow stopped at grill: ${(e as Error).message}`, 'error');
@@ -956,6 +1165,12 @@ export default async function extension(pi: any): Promise<void> {
           ui,
           drafter: buildPlanDrafter(),
         }));
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('phase', planOutcome === 'approved' ? 'entered AWAITING_PLAN_APPROVAL' : 'AWAITING_PLAN_APPROVAL → SHARED_UNDERSTANDING'),
+            'info',
+          );
+        }
       } catch (e) {
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(`/flow stopped at plan: ${(e as Error).message}`, 'error');
@@ -990,8 +1205,17 @@ export default async function extension(pi: any): Promise<void> {
           repoRoot: ctx.cwd,
           sessionId: loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID(),
           taskId,
-          executor: makeShellStepExecutor({ cwd: ctx.cwd }),
+          executor: makeNarratingExecutor(ctx.cwd, ctx, taskId),
         }));
+        if (ctx.hasUI) {
+          const flowRunToState =
+            runOutcome === 'verifying'
+              ? 'VERIFYING'
+              : runOutcome === 'failed_recoverable'
+                ? 'FAILED_RECOVERABLE'
+                : 'FAILED_BLOCKED';
+          ctx.ui.notify(narrate('phase', `entered ${flowRunToState}`), 'info');
+        }
       } catch (e) {
         ctx.ui.setStatus('agent-os', undefined);
         if (flowCkpt.created) {
@@ -1028,6 +1252,12 @@ export default async function extension(pi: any): Promise<void> {
           taskId,
           runner: makeShellCommandRunner({ cwd: ctx.cwd }),
         }));
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('phase', verifyResult === 'pass' ? 'entered AWAITING_HUMAN_REVIEW' : 'VERIFYING → FAILED_RECOVERABLE'),
+            'info',
+          );
+        }
       } catch (e) {
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(`/flow stopped at verify: ${(e as Error).message}`, 'error');
@@ -1052,6 +1282,12 @@ export default async function extension(pi: any): Promise<void> {
           taskId,
           ui,
         }));
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('phase', reviewStatus === 'PASS' || reviewStatus === 'PASS_WITH_DEGRADATION' ? 'AWAITING_HUMAN_REVIEW → EVALUATING' : 'AWAITING_HUMAN_REVIEW → VERIFYING'),
+            'info',
+          );
+        }
       } catch (e) {
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(`/flow stopped at review: ${(e as Error).message}`, 'error');
@@ -1076,6 +1312,12 @@ export default async function extension(pi: any): Promise<void> {
           taskId,
           ui,
         }));
+        if (ctx.hasUI) {
+          ctx.ui.notify(
+            narrate('phase', taskOutcome !== 'FAIL' ? 'EVALUATING → PERSISTING_KNOWLEDGE' : 'EVALUATING → FAILED_RECOVERABLE'),
+            'info',
+          );
+        }
       } catch (e) {
         ctx.ui.setStatus('agent-os', undefined);
         ctx.ui.notify(`/flow stopped at evaluate: ${(e as Error).message}`, 'error');
@@ -1224,7 +1466,7 @@ export default async function extension(pi: any): Promise<void> {
               repoRoot: ctx.cwd,
               sessionId: sid,
               taskId,
-              executor: makeShellStepExecutor({ cwd: ctx.cwd }),
+              executor: makeNarratingExecutor(ctx.cwd, ctx, taskId),
               resume: state === 'FAILED_RECOVERABLE',
             });
             refreshStatusBar(ctx.cwd, taskId, ctx);

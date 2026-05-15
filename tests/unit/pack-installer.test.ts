@@ -59,7 +59,7 @@ describe('installBundledPacks', () => {
   it('installs pack into .agent-os/packs/<packId>/', () => {
     const src = makeSource([{ name: 'copilot-workflow' }]);
     const target = makeTarget();
-    const results = installBundledPacks({ sourceRoot: src, targetRoot: target });
+    const results = installBundledPacks({ sourceRoot: src, targetRoot: target, packId: 'copilot-workflow' });
 
     expect(results).toHaveLength(1);
     expect(results[0]).toMatchObject({ packId: 'copilot-workflow', status: 'installed' });
@@ -69,7 +69,7 @@ describe('installBundledPacks', () => {
   it('pack yaml content is preserved after install', () => {
     const src = makeSource([{ name: 'copilot-workflow' }]);
     const target = makeTarget();
-    installBundledPacks({ sourceRoot: src, targetRoot: target });
+    installBundledPacks({ sourceRoot: src, targetRoot: target, packId: 'copilot-workflow' });
 
     const written = readFileSync(
       join(target, '.agent-os', 'packs', 'copilot-workflow', 'workflow-pack.yaml'),
@@ -83,14 +83,14 @@ describe('installBundledPacks', () => {
     const target = makeTarget();
 
     // First install
-    installBundledPacks({ sourceRoot: src, targetRoot: target });
+    installBundledPacks({ sourceRoot: src, targetRoot: target, packId: 'copilot-workflow' });
 
     // User modifies the pack
     const packManifestPath = join(target, '.agent-os', 'packs', 'copilot-workflow', 'workflow-pack.yaml');
     writeFileSync(packManifestPath, 'user-modified: true\n');
 
     // Second install — should skip
-    const results = installBundledPacks({ sourceRoot: src, targetRoot: target });
+    const results = installBundledPacks({ sourceRoot: src, targetRoot: target, packId: 'copilot-workflow' });
     expect(results[0]).toMatchObject({ packId: 'copilot-workflow', status: 'skipped' });
 
     // User modification preserved
@@ -101,28 +101,31 @@ describe('installBundledPacks', () => {
     const src = makeSource([{ name: 'copilot-workflow' }]);
     const target = makeTarget();
 
-    installBundledPacks({ sourceRoot: src, targetRoot: target });
+    installBundledPacks({ sourceRoot: src, targetRoot: target, packId: 'copilot-workflow' });
 
     // User modifies the pack
     const packManifestPath = join(target, '.agent-os', 'packs', 'copilot-workflow', 'workflow-pack.yaml');
     writeFileSync(packManifestPath, 'user-modified: true\n');
 
     // Force reinstall
-    const results = installBundledPacks({ sourceRoot: src, targetRoot: target, force: true });
+    const results = installBundledPacks({ sourceRoot: src, targetRoot: target, force: true, packId: 'copilot-workflow' });
     expect(results[0]).toMatchObject({ packId: 'copilot-workflow', status: 'installed' });
     expect(readFileSync(packManifestPath, 'utf-8')).toContain('workflow_pack_id: test-pack');
   });
 
-  it('installs multiple packs when source has multiple dirs', () => {
+  it('installs multiple packs when called with each packId in turn', () => {
     const src = makeSource([
       { name: 'pack-a' },
       { name: 'pack-b', yaml: VALID_PACK_YAML.replace('test-pack', 'pack-b') },
     ]);
     const target = makeTarget();
-    const results = installBundledPacks({ sourceRoot: src, targetRoot: target });
+    const resultA = installBundledPacks({ sourceRoot: src, targetRoot: target, packId: 'pack-a' });
+    const resultB = installBundledPacks({ sourceRoot: src, targetRoot: target, packId: 'pack-b' });
 
-    expect(results).toHaveLength(2);
-    expect(results.every((r) => r.status === 'installed')).toBe(true);
+    expect(resultA).toHaveLength(1);
+    expect(resultA[0]).toMatchObject({ packId: 'pack-a', status: 'installed' });
+    expect(resultB).toHaveLength(1);
+    expect(resultB[0]).toMatchObject({ packId: 'pack-b', status: 'installed' });
     expect(existsSync(join(target, '.agent-os', 'packs', 'pack-a', 'workflow-pack.yaml'))).toBe(true);
     expect(existsSync(join(target, '.agent-os', 'packs', 'pack-b', 'workflow-pack.yaml'))).toBe(true);
   });
@@ -132,7 +135,7 @@ describe('installBundledPacks', () => {
     const target = makeTarget();
     expect(existsSync(join(target, '.agent-os', 'packs'))).toBe(false);
 
-    installBundledPacks({ sourceRoot: src, targetRoot: target });
+    installBundledPacks({ sourceRoot: src, targetRoot: target, packId: 'copilot-workflow' });
 
     expect(existsSync(join(target, '.agent-os', 'packs'))).toBe(true);
   });

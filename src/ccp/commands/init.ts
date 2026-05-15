@@ -4,11 +4,37 @@ import type { UiAdapter } from '../../pi/ui';
 import { parseInitArgs } from './init/args';
 import { ensureBrainCli } from './init/brain-installer';
 import { GOVERNANCE_FILES, bundledGovernanceRoot, copyGovernance } from './init/governance';
-import { bundledPacksSourceRoot, installBundledPacks } from './init/pack-installer';
+import { bundledPacksSourceRoot, installBundledPacks, listBundledPackIds } from './init/pack-installer';
 import { runPreflight } from './init/preflight';
 import { type PromptInputs, collectPrompts } from './init/prompts';
 import { renderProjectYaml } from './init/template';
 import { readExtensionVersion } from './init/version';
+
+const PACK_LABELS: Record<string, string> = {
+  'engineering-core': 'engineering-core (governance + diagnose/grill discipline)',
+  'agent-os-core': 'agent-os-core (governance baseline)',
+};
+
+async function selectPack(
+  packId: string | undefined,
+  ui: UiAdapter,
+  allowPrompt: boolean,
+  packsSourceRoot?: string,
+): Promise<string> {
+  if (packId) return packId;
+
+  const available = listBundledPackIds(packsSourceRoot);
+  if (available.length <= 1) return available[0] ?? 'agent-os-core';
+
+  // Non-interactive fallback: safe default
+  if (!allowPrompt) return 'agent-os-core';
+
+  const labels = available.map((id) => PACK_LABELS[id] ?? id);
+  const choice = await ui.select('Workflow pack to install:', labels);
+  // Extract pack id: first whitespace-delimited token before any parenthesis/space
+  const idMatch = choice.match(/^[a-z0-9][a-z0-9-_]*/i);
+  return idMatch?.[0] ?? 'agent-os-core';
+}
 
 export interface RunInitOptions {
   rest: string;
@@ -42,6 +68,7 @@ export async function runInit({
   const upgrade = parsed.flags.upgrade === true;
   const force = parsed.flags.force === true;
   const allowPrompt = parsed.flags['no-prompt'] !== true;
+  const packIdFlag = parsed.flags.pack;
 
   const pre = runPreflight({ targetRoot, upgrade, force });
   if (!pre.ok) {
@@ -53,10 +80,12 @@ export async function runInit({
     log('[1/3] copying bundled governance files…');
     copyGovernance({ sourceRoot: sourceRoot ?? bundledGovernanceRoot(), targetRoot });
     log('[2/3] installing bundled workflow packs…');
+    const upgradePackId = await selectPack(packIdFlag, ui, allowPrompt, packsSourceRoot ?? bundledPacksSourceRoot());
     installBundledPacks({
       sourceRoot: packsSourceRoot ?? bundledPacksSourceRoot(),
       targetRoot,
       force,
+      packId: upgradePackId,
     });
     log('[3/3] done. project.yaml preserved.');
     return { ok: true };
@@ -111,10 +140,12 @@ export async function runInit({
   }
 
   log('[4/5] installing bundled workflow packs…');
+  const selectedPackId = await selectPack(packIdFlag, ui, allowPrompt, packsSourceRoot ?? bundledPacksSourceRoot());
   installBundledPacks({
     sourceRoot: packsSourceRoot ?? bundledPacksSourceRoot(),
     targetRoot,
     force,
+    packId: selectedPackId,
   });
 
   log('[5/5] rendering project.yaml…');

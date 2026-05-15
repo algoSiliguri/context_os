@@ -6,16 +6,30 @@ import { compareSemver } from './semver';
 import { verifyConstitution } from './constitution';
 import { loadProjectConfig } from './manifest';
 
+export interface DoctorPackItem {
+  id: string;
+  version: string;
+  state: 'current' | 'stale' | 'newer' | 'unknown' | 'no-bundled';
+  bundled_version?: string;
+  active?: boolean;
+}
+
 export interface DoctorCheck {
   id: string;
   description: string;
   status: 'pass' | 'fail' | 'soft_fail';
   detail?: string;
+  /** Optional structured pack data; used for the packs check row. */
+  packs?: DoctorPackItem[];
+  /** Optional human-readable label (overrides description for display). */
+  label?: string;
 }
 
 export interface DoctorReport {
   status: 'ok' | 'soft_fail' | 'hard_fail';
   checks: DoctorCheck[];
+  /** Optional recovery hint shown when status is soft_fail. */
+  hint?: string;
 }
 
 /** Read the `version` field from a workflow-pack.yaml. Returns null on any error. */
@@ -219,6 +233,7 @@ export function runDoctor(repoRoot: string, opts: RunDoctorOptions = {}): Doctor
     } else {
       // Check each installed pack's version against the bundled version.
       const packDetails: string[] = [];
+      const packItems: DoctorPackItem[] = [];
       let anyStale = false;
 
       for (const packId of validPacks) {
@@ -231,6 +246,13 @@ export function runDoctor(repoRoot: string, opts: RunDoctorOptions = {}): Doctor
         if (pvd.state === 'stale' || pvd.state === 'unknown') {
           anyStale = true;
         }
+        packItems.push({
+          id: packId,
+          version: pvd.installedVersion ?? 'unknown',
+          state: pvd.state,
+          bundled_version: pvd.bundledVersion ?? undefined,
+          active: true,
+        });
       }
 
       checks.push({
@@ -238,6 +260,7 @@ export function runDoctor(repoRoot: string, opts: RunDoctorOptions = {}): Doctor
         description: 'Workflow packs installed',
         status: anyStale ? 'soft_fail' : 'pass',
         detail: packDetails.join('; '),
+        packs: packItems,
       });
     }
   }

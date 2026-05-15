@@ -1,5 +1,5 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import YAML from 'yaml';
 
 export interface PhaseDefinition {
@@ -28,6 +28,28 @@ export interface PlanConfig {
   verification_profile: 'detected' | 'none';
 }
 
+export interface PromptPhaseDefinition {
+  id: string;
+  prompt: string;          // relative path inside pack directory
+  exit_condition: string;  // named flag set in artifact when sub-phase completes
+  prompt_content?: string; // populated by loader after reading file
+  validator?: string;      // optional validator ID to run on sub-phase exit
+}
+
+export interface PromptsDiagnoseConfig {
+  phases?: PromptPhaseDefinition[];
+}
+
+export interface PromptsGrillConfig {
+  intro?: { path: string; content?: string };
+  question_packs?: Array<{ path: string; content?: string }>;
+}
+
+export interface PromptsConfig {
+  diagnose?: PromptsDiagnoseConfig;
+  grill?: PromptsGrillConfig;
+}
+
 export interface WorkflowPackManifest {
   workflow_pack_id: string;
   version: string;
@@ -41,6 +63,8 @@ export interface WorkflowPackManifest {
   validators: ValidatorDefinition[];
   grill?: GrillConfig;
   plan?: PlanConfig;
+  prompts?: PromptsConfig;        // NEW
+  prompt_warnings: string[];      // NEW — non-fatal load warnings
 }
 
 export type WorkflowPackLoadResult =
@@ -80,6 +104,9 @@ function validateManifest(raw: unknown, packDir: string): WorkflowPackManifest {
     }
   }
 
+  const prompt_warnings: string[] = [];
+  const prompts = parsePromptsConfig(r.prompts, packDir, prompt_warnings);
+
   return {
     workflow_pack_id: String(r.workflow_pack_id),
     version: String(r.version),
@@ -108,6 +135,8 @@ function validateManifest(raw: unknown, packDir: string): WorkflowPackManifest {
       : [],
     grill: parseGrillConfig(r.grill, packDir),
     plan: parsePlanConfig(r.plan, packDir),
+    prompts,
+    prompt_warnings,
   };
 }
 
@@ -151,6 +180,144 @@ function parsePlanConfig(raw: unknown, packDir: string): PlanConfig | undefined 
     );
   }
   return { verification_profile: profile };
+}
+
+const PROMPT_FILE_MAX_BYTES = 10 * 1024;       // 10KB per file
+const PROMPT_TOTAL_MAX_BYTES = 200 * 1024;     // 200KB total per pack
+
+function isInsidePack(packDir: string, relativePath: string): boolean {
+  if (isAbsolute(relativePath)) return false;
+  const resolved = resolve(packDir, relativePath);
+  const rel = relative(packDir, resolved);
+  return !rel.startsWith('..') && !isAbsolute(rel);
+}
+
+function readPromptFile(
+  packDir: string,
+  relPath: string,
+  budget: { used: number },
+): { content?: string; warning?: string } {
+  if (!isInsidePack(packDir, relPath)) {
+    throw new Error(`prompt path "${relPath}" is outside pack directory or invalid path`);
+  }
+  const fullPath = resolve(packDir, relPath);
+  if (!existsSync(fullPath)) {
+    return { warning: `prompt file not found: ${relPath}` };
+  }
+  // Block symlink traversal: resolve the real path and verify it is still inside packDir.
+  let realPath: string;
+  try {
+    realPath = realpathSync(fullPath);
+  } catch {
+    return { warning: `prompt file not found: ${relPath}` };
+  }
+  const realPackDir = realpathSync(packDir);
+  if (realPath !== realPackDir && !realPath.startsWith(realPackDir + sep)) {
+    throw new Error(`prompt path "${relPath}" resolves outside pack directory via symlink`);
+  }
+  // Fast-fail size check before reading (cheap path)
+  const stat = statSync(fullPath);
+  if (!stat.isFile()) {
+    throw new Error(`prompt path "${relPath}" is not a regular file`);
+  }
+  if (stat.size > PROMPT_FILE_MAX_BYTES) {
+    throw new Error(`prompt file "${relPath}" (${stat.size} bytes) exceeds 10KB per-file limit`);
+  }
+  if (budget.used + stat.size > PROMPT_TOTAL_MAX_BYTES) {
+    throw new Error(`total prompt bytes exceeds 200KB budget after including "${relPath}"`);
+  }
+  const buf = readFileSync(fullPath);
+  // Authoritative size check after read (defends against TOCTOU)
+  if (buf.length > PROMPT_FILE_MAX_BYTES) {
+    throw new Error(`prompt file "${relPath}" (${buf.length} bytes) exceeds 10KB per-file limit`);
+  }
+  if (budget.used + buf.length > PROMPT_TOTAL_MAX_BYTES) {
+    throw new Error(`total prompt bytes exceeds 200KB budget after including "${relPath}"`);
+  }
+  budget.used += buf.length;
+  let content: string;
+  try {
+    content = new TextDecoder('utf-8', { fatal: true }).decode(buf);
+  } catch {
+    throw new Error(`prompt file "${relPath}" is not valid UTF-8`);
+  }
+  return { content };
+}
+
+function parsePromptsConfig(
+  raw: unknown,
+  packDir: string,
+  warnings: string[],
+): PromptsConfig | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'object') {
+    throw new Error(`workflow-pack.yaml in ${packDir}: prompts must be an object`);
+  }
+  const p = raw as Record<string, unknown>;
+  const budget = { used: 0 };
+  const config: PromptsConfig = {};
+
+  // diagnose.phases
+  if (p.diagnose && typeof p.diagnose === 'object') {
+    const d = p.diagnose as Record<string, unknown>;
+    if (d.phases !== undefined) {
+      if (!Array.isArray(d.phases)) {
+        throw new Error(`workflow-pack.yaml in ${packDir}: prompts.diagnose.phases must be an array`);
+      }
+      const phases: PromptPhaseDefinition[] = [];
+      for (const ph of d.phases as Array<Record<string, unknown>>) {
+        if (!ph || typeof ph !== 'object') {
+          throw new Error('each prompts.diagnose.phases entry must be an object');
+        }
+        if (typeof ph.id !== 'string' || !ph.id) {
+          throw new Error('each prompts.diagnose.phases entry must have a string id');
+        }
+        if (typeof ph.prompt !== 'string' || !ph.prompt) {
+          throw new Error(`prompts.diagnose.phases[${ph.id}] must have a string prompt path`);
+        }
+        if (typeof ph.exit_condition !== 'string' || !ph.exit_condition) {
+          throw new Error(`prompts.diagnose.phases[${ph.id}] must have a string exit_condition`);
+        }
+        const result = readPromptFile(packDir, ph.prompt, budget);
+        if (result.warning) warnings.push(result.warning);
+        phases.push({
+          id: ph.id,
+          prompt: ph.prompt,
+          exit_condition: ph.exit_condition,
+          prompt_content: result.content,
+          validator: typeof ph.validator === 'string' ? ph.validator : undefined,
+        });
+      }
+      config.diagnose = { phases };
+    }
+  }
+
+  // grill.intro and grill.question_packs (lightweight; same patterns)
+  if (p.grill && typeof p.grill === 'object') {
+    const g = p.grill as Record<string, unknown>;
+    const grillCfg: PromptsGrillConfig = {};
+    if (typeof g.intro === 'string' && g.intro) {
+      const r = readPromptFile(packDir, g.intro, budget);
+      if (r.warning) warnings.push(r.warning);
+      grillCfg.intro = { path: g.intro, content: r.content };
+    }
+    if (Array.isArray(g.question_packs)) {
+      grillCfg.question_packs = [];
+      for (const qp of g.question_packs as unknown[]) {
+        if (typeof qp !== 'string' || !qp) {
+          throw new Error('prompts.grill.question_packs entries must be non-empty strings');
+        }
+        const r = readPromptFile(packDir, qp, budget);
+        if (r.warning) warnings.push(r.warning);
+        grillCfg.question_packs.push({ path: qp, content: r.content });
+      }
+    }
+    if (grillCfg.intro || grillCfg.question_packs) {
+      config.grill = grillCfg;
+    }
+  }
+
+  return Object.keys(config).length > 0 ? config : undefined;
 }
 
 /**

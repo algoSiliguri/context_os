@@ -27,7 +27,7 @@ describe('runInit', () => {
     });
 
     await runInit({
-      rest: 'my-project --domain general --profile production --no-prompt',
+      rest: 'my-project --domain general --profile production --no-prompt --pack fake-pack',
       targetRoot,
       ui: noopUi(),
       log: () => {},

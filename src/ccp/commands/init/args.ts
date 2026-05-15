@@ -8,10 +8,11 @@ export interface InitArgs {
     profile?: string;
     namespace?: string;
     'critical-actions'?: string;
+    pack?: string;
   };
 }
 
-const VALUE_FLAGS = new Set(['domain', 'profile', 'namespace', 'critical-actions']);
+const VALUE_FLAGS = new Set(['domain', 'profile', 'namespace', 'critical-actions', 'pack']);
 const BOOL_FLAGS = new Set(['upgrade', 'force', 'no-prompt']);
 
 export function parseInitArgs(rest: string): InitArgs {

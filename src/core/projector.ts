@@ -27,6 +27,24 @@ export interface SessionDashboard {
     transition_counts: Record<string, number>;
     query_counts: Record<string, number>;
   };
+  // ── Phase 2 additive (medium-density snapshot) ─────────────────────────────
+  active_pack?: {
+    id: string;
+    version: string;
+    state: 'current' | 'stale' | 'newer' | 'unknown' | 'modified-locally';
+    bundled_version?: string;
+  };
+  phase_progress?: {
+    current: number;
+    total: number;
+    name: string;
+  };
+  validator_outcomes?: {
+    passed: number;
+    failed: number;
+    warned: number;
+  };
+  memory_pending?: number;
 }
 
 function blank(sessionId: string): SessionDashboard {
@@ -170,6 +188,17 @@ function applyEvent(d: SessionDashboard, event: Event): void {
       id: String(event.payload.pack_id ?? ''),
       version: String(event.payload.pack_version ?? ''),
     };
+    // active_pack: extended snapshot for medium-density /status rendering
+    const packId = String(event.payload.pack_id ?? '');
+    const packVersion = String(event.payload.pack_version ?? '');
+    if (packId && packVersion) {
+      d.active_pack = {
+        id: packId,
+        version: packVersion,
+        state: (event.payload.version_state as 'current' | 'stale' | 'newer' | 'unknown' | 'modified-locally') ?? 'current',
+        bundled_version: typeof event.payload.bundled_version === 'string' ? event.payload.bundled_version : undefined,
+      };
+    }
   }
 
   if (event.event_type === 'PHASE_STARTED') {
@@ -193,6 +222,35 @@ function applyEvent(d: SessionDashboard, event: Event): void {
         d.signals.repeated_queries += 1;
       }
     }
+  }
+
+  // ── Phase 2 dashboard fields (best-effort, incremental) ────────────────────
+
+  // validator_outcomes: aggregate VALIDATOR_PASSED / VALIDATOR_FAILED
+  if (event.event_type === 'VALIDATOR_PASSED') {
+    const vo = d.validator_outcomes ?? { passed: 0, failed: 0, warned: 0 };
+    vo.passed += 1;
+    d.validator_outcomes = vo;
+  }
+  if (event.event_type === 'VALIDATOR_FAILED') {
+    const vo = d.validator_outcomes ?? { passed: 0, failed: 0, warned: 0 };
+    if (event.payload.mode === 'blocking') {
+      vo.failed += 1;
+    } else {
+      vo.warned += 1;
+    }
+    d.validator_outcomes = vo;
+  }
+
+  // memory_pending: KNOWLEDGE_CAPTURE_PROPOSED increments; APPROVED/REJECTED decrement
+  if (event.event_type === 'KNOWLEDGE_CAPTURE_PROPOSED') {
+    d.memory_pending = (d.memory_pending ?? 0) + 1;
+  }
+  if (
+    event.event_type === 'KNOWLEDGE_CAPTURE_APPROVED' ||
+    event.event_type === 'KNOWLEDGE_CAPTURE_REJECTED'
+  ) {
+    d.memory_pending = Math.max(0, (d.memory_pending ?? 0) - 1);
   }
 
   d.timeline.push({
