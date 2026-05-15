@@ -5,6 +5,7 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
+    "dev:smoke": "node --import jiti/register scripts/dev-smoke.ts",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "lint": "biome check src tests",

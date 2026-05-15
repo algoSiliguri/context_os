@@ -35,11 +35,23 @@ Inside `pi`, sixteen slash commands:
 
 ## Install
 
+For normal users, install through `agent-os-starter`; its lifecycle scripts read
+one shared `agent-os-install.env` so install, update, doctor, and uninstall agree
+on the intended release source.
+
 ```bash
-pi install git:github.com/algoSiliguri/Agent_OS@v1.4.0
+git clone https://github.com/algoSiliguri/agent-os-starter.git
+cd agent-os-starter
+bash setup.sh
 ```
 
-That's the entire install. The extension auto-loads when you run `pi`.
+After the v1.6.0 tag is published, the starter release config should target:
+
+```bash
+git:github.com/algoSiliguri/Agent_OS@v1.6.0
+```
+
+The extension auto-loads when you run `pi`.
 
 ## Pick a model in Pi
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.6.0 — pending tag
+
+Release-hardening cut for safe local development and normal-user lifecycle
+operations. See [docs/release-notes-v1.6.0.md](docs/release-notes-v1.6.0.md).
+
+### Added
+- Isolated local developer smoke: `npm run dev:smoke`.
+- Doctor provenance reporting for Pi, Agent_OS, project state, and
+  knowledge-brain.
+- agent-os-starter lifecycle wrappers for setup, doctor, update, uninstall, and
+  guarded user/global smoke.
+- Shared lifecycle install config and non-mutating release check.
+
+### Changed
+- Starter lifecycle commands now read install targets from one config instead of
+  hardcoded stale refs.
+- Update and uninstall support dry-run safety; uninstall preserves project data
+  by default.
+
 ## v1.4.0 — 2026-05-11
 
 ### Added

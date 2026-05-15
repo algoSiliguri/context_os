@@ -149,4 +149,19 @@ describe('doctor', () => {
     expect(report.status).toBe('hard_fail');
     expect(report.checks.find((c) => c.id === 'constitution_exists')?.status).toBe('fail');
   });
+
+  it('reports install provenance before project health failures', () => {
+    const dir = makeTmpDir();
+    const report = runDoctor(dir);
+    const ids = report.checks.map((c) => c.id);
+
+    expect(ids).toContain('pi_executable');
+    expect(ids).toContain('pi_version');
+    expect(ids).toContain('agent_os_package');
+    expect(ids).toContain('agent_os_source');
+    expect(ids).toContain('agent_os_git_commit');
+    expect(ids).toContain('knowledge_brain_executable');
+    expect(ids).toContain('knowledge_brain_version');
+    expect(ids.indexOf('agent_os_package')).toBeLessThan(ids.indexOf('constitution_exists'));
+  });
 });
