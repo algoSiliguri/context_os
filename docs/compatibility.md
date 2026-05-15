@@ -1,15 +1,15 @@
 # Agent_OS Compatibility Matrix
 
-_Last updated: 2026-05-12. Update this file whenever a version pin changes._
+_Last updated: 2026-05-15. Update this file whenever a version pin changes._
 
 ---
 
-## Component versions — RC.1 (current)
+## Component versions — v1.6.1 patch release (current)
 
 | Component | Version | Install method | Source |
 |---|---|---|---|
-| Agent_OS Pi extension | `v1.4.0` | `pi install git:github.com/algoSiliguri/Agent_OS@v1.4.0` | algoSiliguri/Agent_OS |
-| knowledge-brain CLI | `v1.0.0` | `uv tool install git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0` | agnivadc/knowledge-brain |
+| Agent_OS Pi extension | `v1.6.1` | `pi install git:github.com/algoSiliguri/Agent_OS@v1.6.1` | algoSiliguri/Agent_OS |
+| knowledge-brain CLI | `v1.0.1` | `uv tool install git+https://github.com/agnivadc/knowledge-brain.git@v1.0.1` | agnivadc/knowledge-brain |
 | Pi coding agent | `v0.74.0` minimum | `npm install -g @earendil-works/pi-coding-agent` | npm |
 | Node.js | `20+` | system install | nodejs.org |
 | Python | `3.12+` | system install | python.org |
@@ -21,10 +21,10 @@ _Last updated: 2026-05-12. Update this file whenever a version pin changes._
 
 | Agent_OS | Pi minimum | knowledge-brain | Notes |
 |---|---|---|---|
-| v1.4.x | v0.74.0 | v1.0.0 | RC.1 baseline |
+| v1.6.x | v0.74.0 | v1.0.1 | Release-hardening baseline |
 
 - Agent_OS `v1.x` requires Pi `≥v0.74.0`. Earlier Pi versions lack `registerCommand` and `on('tool_call')`.
-- Agent_OS `v1.x` requires knowledge-brain `v1.0.0`. Protocol version verified via `brain --protocol-version` (returns `1.0.0`).
+- Agent_OS `v1.6.x` requires knowledge-brain `v1.0.1`. Protocol version verified via `brain --protocol-version` (returns `1.0.0`).
 - `setup.sh` enforces Pi `≥v0.74.0` at install time and records the detected Pi version in `install-manifest.json`.
 
 ---
@@ -33,8 +33,8 @@ _Last updated: 2026-05-12. Update this file whenever a version pin changes._
 
 Each component uses its own versioning scheme:
 
-- **Agent_OS**: npm package version (`1.4.0`) matches the git tag (`v1.4.0`). The product milestone is `v1.0.0`.
-- **knowledge-brain**: Python package version (`1.0.0`) matches the git tag (`v1.0.0`). `brain --version` → `knowledge-brain 1.0.0`. `brain --protocol-version` → `1.0.0`.
+- **Agent_OS**: npm package version (`1.6.1`) matches the git tag (`v1.6.1`). The product milestone is `v1.0.0`.
+- **knowledge-brain**: Python package version (`1.0.1`) matches the git tag (`v1.0.1`). `brain --version` → `knowledge-brain 1.0.1`. `brain --protocol-version` → `1.0.0`.
 - **agent-os-starter**: no package version — it is a scripts/config repo. Version is tracked via `install-manifest.json` `installed_at` timestamp.
 
 ---
@@ -49,7 +49,7 @@ Inside Pi:
 From the shell:
 ```bash
 pi --version           # e.g. 0.74.0
-brain --version        # e.g. knowledge-brain 1.0.0
+brain --version        # e.g. knowledge-brain 1.0.1
 brain --protocol-version  # e.g. 1.0.0
 node --version         # e.g. v22.x.x
 cat .agent-os/install-manifest.json  # full install record

@@ -45,7 +45,7 @@ knowledge-brain.
 - Removed stale Agent_OS `v1.4.0` lifecycle behavior from starter install/update
   paths.
 - Local development smoke no longer overlaps with the real global Pi profile.
-- `brain --version` support is available in knowledge-brain v1.0.0 and exits 0
+- `brain --version` support is available in knowledge-brain v1.0.1 and exits 0
   when the current tool install is up to date.
 
 ## Verification

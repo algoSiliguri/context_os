@@ -229,12 +229,12 @@ function addProvenanceChecks(checks: DoctorCheck[]): void {
     id: 'knowledge_brain_executable',
     description: 'knowledge-brain executable',
     status: brainPath ? 'pass' : 'soft_fail',
-    detail: brainPath ?? 'brain not found on PATH. Repair: uv tool install --from git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0 knowledge-brain --reinstall',
+    detail: brainPath ?? 'brain not found on PATH. Repair: uv tool install --from git+https://github.com/agnivadc/knowledge-brain.git@v1.0.1 knowledge-brain --reinstall',
   });
   const brainVersion = brainPath ? runCommand('brain', ['--version']) : null;
   const brainVersionDetail = brainVersion?.ok
     ? brainVersion.stdout
-    : `brain --version failed${brainVersion?.detail ? ` (${brainVersion.detail})` : ''}${brainVersion?.stderr ? `: ${brainVersion.stderr}` : ''}. Repair: uv tool install --from git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0 knowledge-brain --reinstall`;
+    : `brain --version failed${brainVersion?.detail ? ` (${brainVersion.detail})` : ''}${brainVersion?.stderr ? `: ${brainVersion.stderr}` : ''}. Repair: uv tool install --from git+https://github.com/agnivadc/knowledge-brain.git@v1.0.1 knowledge-brain --reinstall`;
   checks.push({
     id: 'knowledge_brain_version',
     description: 'knowledge-brain version',

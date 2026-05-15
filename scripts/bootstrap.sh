@@ -20,7 +20,7 @@ TEMPLATE="$PLAYGROUND/.mcp.json.template"
 MCP_CONFIG="$PLAYGROUND/.mcp.json"
 DB_PATH="$PLAYGROUND/data_store/knowledge.db"
 JSONL_PATH="$PLAYGROUND/data_store/knowledge.jsonl"
-BRAIN_GIT_URL="git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0"
+BRAIN_GIT_URL="git+https://github.com/agnivadc/knowledge-brain.git@v1.0.1"
 
 # 1. Check uv is installed
 if ! command -v uv >/dev/null 2>&1; then

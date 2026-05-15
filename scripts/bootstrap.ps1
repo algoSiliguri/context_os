@@ -18,7 +18,7 @@ $Template    = Join-Path $Playground ".mcp.json.template"
 $McpConfig   = Join-Path $Playground ".mcp.json"
 $DbPath      = Join-Path $Playground "data_store\knowledge.db"
 $JsonlPath   = Join-Path $Playground "data_store\knowledge.jsonl"
-$BrainGitUrl = "git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0"
+$BrainGitUrl = "git+https://github.com/agnivadc/knowledge-brain.git@v1.0.1"
 
 # 1. Check uv is installed
 $uv = Get-Command uv -ErrorAction SilentlyContinue

@@ -17,7 +17,7 @@ if ($Mode -ne "export" -and $Mode -ne "import") {
 $Playground  = Split-Path -Parent $PSScriptRoot
 $DbPath      = Join-Path $Playground "data_store\knowledge.db"
 $JsonlPath   = Join-Path $Playground "data_store\knowledge.jsonl"
-$BrainGitUrl = "git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0"
+$BrainGitUrl = "git+https://github.com/agnivadc/knowledge-brain.git@v1.0.1"
 
 if ($Mode -eq "export") {
     if (-not (Test-Path $DbPath)) {

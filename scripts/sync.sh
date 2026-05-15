@@ -20,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLAYGROUND="$(cd "$SCRIPT_DIR/.." && pwd)"
 DB_PATH="$PLAYGROUND/data_store/knowledge.db"
 JSONL_PATH="$PLAYGROUND/data_store/knowledge.jsonl"
-BRAIN_GIT_URL="git+https://github.com/agnivadc/knowledge-brain.git@v1.0.0"
+BRAIN_GIT_URL="git+https://github.com/agnivadc/knowledge-brain.git@v1.0.1"
 
 if [[ "$MODE" == "export" ]]; then
     if [[ ! -f "$DB_PATH" ]]; then
