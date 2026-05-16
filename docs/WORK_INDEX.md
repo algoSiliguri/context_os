@@ -21,24 +21,16 @@ GitHub: https://github.com/algoSiliguri/Agent_OS/issues/27
 ## Current Issue
 
 **STORY-001: Create Agent_OS GitHub Project Board**
-Status: Ready (manual GitHub UI task — ~20 minutes)
+Status: Done (board created 2026-05-16 via gh CLI, 10 issues added, all fields set)
 GitHub: https://github.com/algoSiliguri/Agent_OS/issues/28
-
-What to do:
-1. Create GitHub Project for `algoSiliguri/Agent_OS`
-2. Add columns: Inbox → Ready → In Progress → In Review → Dev Verified → Prod Verified → Done
-3. Add labels per `docs/SOLO_DEV_OPERATING_MODEL.md`
-4. Add custom fields: Type, Epic, Risk, Environment, Verification, Release Target,
-   Visible Behavior Changed, Install Impact
-5. Move EPIC-000 to In Progress
 
 ---
 
 ## Next Issue
 
-**STORY-002: Add Issue and PR Templates**
-Status: Done (files committed at 33273d4, pushed, templates live)
-GitHub: https://github.com/algoSiliguri/Agent_OS/issues/29
+**STORY-005: Add Dev vs Prod Environment Guide**
+Status: Ready (file committed at 33273d4, needs manual verification)
+GitHub: https://github.com/algoSiliguri/Agent_OS/issues/32
 
 ---
 
