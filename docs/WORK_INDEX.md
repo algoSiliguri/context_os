@@ -14,7 +14,7 @@ completing each issue.
 **EPIC-000: Solo Development Operating System**
 Goal: Every future change is tracked, tested by risk tier, verified in dev
 and prod when needed, releasable, and understandable later.
-GitHub: _create in GitHub, then add issue URL here_
+GitHub: https://github.com/algoSiliguri/Agent_OS/issues/27
 
 ---
 
@@ -22,7 +22,7 @@ GitHub: _create in GitHub, then add issue URL here_
 
 **STORY-001: Create Agent_OS GitHub Project Board**
 Status: Ready (manual GitHub UI task — ~20 minutes)
-GitHub: _create in GitHub, then add issue URL here_
+GitHub: https://github.com/algoSiliguri/Agent_OS/issues/28
 
 What to do:
 1. Create GitHub Project for `algoSiliguri/Agent_OS`
@@ -37,9 +37,8 @@ What to do:
 ## Next Issue
 
 **STORY-002: Add Issue and PR Templates**
-Status: Done (files already on disk, needs commit + push to activate)
-Files: `.github/ISSUE_TEMPLATE/*.md`, `.github/pull_request_template.md`
-Action: Commit and push — templates activate automatically.
+Status: Done (files committed at 33273d4, pushed, templates live)
+GitHub: https://github.com/algoSiliguri/Agent_OS/issues/29
 
 ---
 
@@ -79,13 +78,11 @@ Performed by: Claude Sonnet 4.6
 - gh CLI confirmed authenticated as `algoSiliguri`.
 
 **What is NOT done yet:**
-- Files not committed or pushed to remote.
-- EPIC-000 not created in GitHub Issues.
-- GitHub Project board not created.
-- Labels not created in GitHub.
+- GitHub Project board not created (STORY-001 — manual UI task).
+- STORY-002 through STORY-009 need manual verification step each.
 - `agent-os-starter` stable tag not published.
 
-**Next human action:** Commit + push these files, then create EPIC-000 in GitHub.
+**Next human action:** Create GitHub Project board (STORY-001).
 
 **Next AI action:** Read this file, read `docs/SOLO_DEV_OPERATING_MODEL.md`,
 check `gh issue list`, pick exactly one Ready issue, do only that.
@@ -122,9 +119,23 @@ Follow these steps exactly. Do not skip. Do not reorder.
 
 ---
 
-## Issue Drafts to Create in GitHub
+## GitHub Issues (created 2026-05-16)
 
-Create these using `.github/ISSUE_TEMPLATE/` templates.
+| Issue | Title | URL |
+|---|---|---|
+| EPIC-000 | Solo Development Operating System | https://github.com/algoSiliguri/Agent_OS/issues/27 |
+| STORY-001 | Create Agent_OS GitHub Project Board | https://github.com/algoSiliguri/Agent_OS/issues/28 |
+| STORY-002 | Add Issue and PR Templates | https://github.com/algoSiliguri/Agent_OS/issues/29 |
+| STORY-003 | Add Definition of Ready and Done | https://github.com/algoSiliguri/Agent_OS/issues/30 |
+| STORY-004 | Add CI Baseline | https://github.com/algoSiliguri/Agent_OS/issues/31 |
+| STORY-005 | Add Dev vs Prod Environment Guide | https://github.com/algoSiliguri/Agent_OS/issues/32 |
+| STORY-006 | Add Install / Update / Uninstall Contract | https://github.com/algoSiliguri/Agent_OS/issues/33 |
+| STORY-007 | Add Pi Runtime Smoke Matrix | https://github.com/algoSiliguri/Agent_OS/issues/34 |
+| STORY-008 | Add Release Candidate Checklist | https://github.com/algoSiliguri/Agent_OS/issues/35 |
+| STORY-009 | Add Clean Prod Install Smoke Script Design | https://github.com/algoSiliguri/Agent_OS/issues/36 |
+
+## Issue Drafts (archived — issues now live in GitHub)
+
 Repository: `algoSiliguri/Agent_OS`
 
 ---
