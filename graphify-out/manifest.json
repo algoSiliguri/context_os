@@ -1,0 +1,1642 @@
+{
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\biome.json": {
+    "mtime": 1778743450.2027428,
+    "ast_hash": "e03a23a4ecb2ea9213dd2ac024f45dc6",
+    "semantic_hash": "e03a23a4ecb2ea9213dd2ac024f45dc6"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\package.json": {
+    "mtime": 1778926658.2150424,
+    "ast_hash": "2044548adbd40be963788f096436c80e",
+    "semantic_hash": "2044548adbd40be963788f096436c80e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tsconfig.json": {
+    "mtime": 1778926658.369859,
+    "ast_hash": "224a28829f07c4e1265fe4d6865c4cc7",
+    "semantic_hash": "224a28829f07c4e1265fe4d6865c4cc7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\vitest.config.ts": {
+    "mtime": 1778743450.9804697,
+    "ast_hash": "e01c813d70d909fe1318ea59da36ca54",
+    "semantic_hash": "e01c813d70d909fe1318ea59da36ca54"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.agent-os\\contracts\\index.json": {
+    "mtime": 1778743450.1489618,
+    "ast_hash": "f7bff0a2652b852cce47eca5c1d3c627",
+    "semantic_hash": "f7bff0a2652b852cce47eca5c1d3c627"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.agent-os\\contracts\\signature.json": {
+    "mtime": 1778743450.1509633,
+    "ast_hash": "750044af3e42ace1e2a86eb9b3b2a3c0",
+    "semantic_hash": "750044af3e42ace1e2a86eb9b3b2a3c0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.agent-os\\schemas\\constitution-binding.schema.json": {
+    "mtime": 1778743450.1574738,
+    "ast_hash": "b94dab4e908d4732fcb7ce0caefccf66",
+    "semantic_hash": "b94dab4e908d4732fcb7ce0caefccf66"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.agent-os\\schemas\\permission-manifest.schema.json": {
+    "mtime": 1778743450.1597483,
+    "ast_hash": "a8235d8055ccccb9fb2a0499a60426b0",
+    "semantic_hash": "a8235d8055ccccb9fb2a0499a60426b0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.agent-os\\schemas\\project-binding.schema.json": {
+    "mtime": 1778743450.1631765,
+    "ast_hash": "0da7fd0c6f3013fe992285303c69d06c",
+    "semantic_hash": "0da7fd0c6f3013fe992285303c69d06c"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.agent-os\\schemas\\session-binding-record.schema.json": {
+    "mtime": 1778743450.1661785,
+    "ast_hash": "db4d5c4eca52d8f07e81d0c20f6d408f",
+    "semantic_hash": "db4d5c4eca52d8f07e81d0c20f6d408f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.agent-os\\schemas\\telemetry-event.schema.json": {
+    "mtime": 1778743450.1686938,
+    "ast_hash": "dc676e4c0562555e48d84a9066de5f78",
+    "semantic_hash": "dc676e4c0562555e48d84a9066de5f78"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.claude\\settings.json": {
+    "mtime": 1778926658.1782315,
+    "ast_hash": "e99d00f34528b94fcaaa41a2ab1c1654",
+    "semantic_hash": "e99d00f34528b94fcaaa41a2ab1c1654"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.claude\\settings.local.json": {
+    "mtime": 1778930153.6724596,
+    "ast_hash": "2bb7618459d8500b305cbedbf6ddee06",
+    "semantic_hash": "2bb7618459d8500b305cbedbf6ddee06"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\brainstorming.permission.json": {
+    "mtime": 1778743450.3345149,
+    "ast_hash": "414b1464fe58a395f698622a0cd41986",
+    "semantic_hash": "414b1464fe58a395f698622a0cd41986"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\context-packet.permission.json": {
+    "mtime": 1778743450.337995,
+    "ast_hash": "8b2a4f50cee5b3684e7da4f35d2918e4",
+    "semantic_hash": "8b2a4f50cee5b3684e7da4f35d2918e4"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\debugging.permission.json": {
+    "mtime": 1778743450.3414748,
+    "ast_hash": "7c7387eae3f7a6661cd20b98921bdd8c",
+    "semantic_hash": "7c7387eae3f7a6661cd20b98921bdd8c"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\design-agent.permission.json": {
+    "mtime": 1778743450.3432164,
+    "ast_hash": "d4b6df1fb003eb151a0e01518f106165",
+    "semantic_hash": "d4b6df1fb003eb151a0e01518f106165"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\handoff-protocol.permission.json": {
+    "mtime": 1778743450.3457232,
+    "ast_hash": "5ad75d8f5a1955a86163a946f65fae5d",
+    "semantic_hash": "5ad75d8f5a1955a86163a946f65fae5d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\implementation-agent.permission.json": {
+    "mtime": 1778743450.3467305,
+    "ast_hash": "e4dc9cb5df6014f57ecb2f58a95e9b49",
+    "semantic_hash": "e4dc9cb5df6014f57ecb2f58a95e9b49"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\planning.permission.json": {
+    "mtime": 1778743450.3502216,
+    "ast_hash": "d0ec5b1cfcd794320e1a115bfbf140e1",
+    "semantic_hash": "d0ec5b1cfcd794320e1a115bfbf140e1"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\review-agent.permission.json": {
+    "mtime": 1778743450.353705,
+    "ast_hash": "00598e0593a04401dc9631e1b1242c66",
+    "semantic_hash": "00598e0593a04401dc9631e1b1242c66"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\review.permission.json": {
+    "mtime": 1778743450.3557107,
+    "ast_hash": "2a5440a4f06a76e1eb0ff831bfb6de15",
+    "semantic_hash": "2a5440a4f06a76e1eb0ff831bfb6de15"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\spec-writing.permission.json": {
+    "mtime": 1778743450.357461,
+    "ast_hash": "5581d6659d4db081b4c352a2e0eaacf5",
+    "semantic_hash": "5581d6659d4db081b4c352a2e0eaacf5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\tdd.permission.json": {
+    "mtime": 1778743450.359202,
+    "ast_hash": "6492aceecd19fb4a9923881f74091fc9",
+    "semantic_hash": "6492aceecd19fb4a9923881f74091fc9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\manifests\\verification-gate.permission.json": {
+    "mtime": 1778743450.3626797,
+    "ast_hash": "8edafcb84843680f9bf48331b255ffde",
+    "semantic_hash": "8edafcb84843680f9bf48331b255ffde"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\scripts\\bootstrap.ps1": {
+    "mtime": 1778926658.221468,
+    "ast_hash": "dfdbf13a9d459522a2269c0143fdf861",
+    "semantic_hash": "dfdbf13a9d459522a2269c0143fdf861"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\scripts\\bootstrap.sh": {
+    "mtime": 1778926658.2232068,
+    "ast_hash": "5f176415cf18f437ac4eb1687c687f0d",
+    "semantic_hash": "5f176415cf18f437ac4eb1687c687f0d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\scripts\\compute_constitution_hash.py": {
+    "mtime": 1778743450.4278374,
+    "ast_hash": "fb49074a10d44de95d535e386d4a393a",
+    "semantic_hash": "fb49074a10d44de95d535e386d4a393a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\scripts\\dev-smoke.ts": {
+    "mtime": 1778926658.2324686,
+    "ast_hash": "46abcb54fa4738980c153af30c54a9f5",
+    "semantic_hash": "46abcb54fa4738980c153af30c54a9f5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\scripts\\generate_contract_index.py": {
+    "mtime": 1778743450.4326725,
+    "ast_hash": "972c845daf2c64a7b5d6b1c92000ed6b",
+    "semantic_hash": "972c845daf2c64a7b5d6b1c92000ed6b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\scripts\\sync.ps1": {
+    "mtime": 1778926658.2366083,
+    "ast_hash": "b67be6f3169bb80fe2c0206274e3bb65",
+    "semantic_hash": "b67be6f3169bb80fe2c0206274e3bb65"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\scripts\\sync.sh": {
+    "mtime": 1778926658.2408595,
+    "ast_hash": "dccb8798c3fdd0e48fb5c9b2d15df3e9",
+    "semantic_hash": "dccb8798c3fdd0e48fb5c9b2d15df3e9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\scripts\\verify_agent_os_bundle.py": {
+    "mtime": 1778743450.439766,
+    "ast_hash": "01ae5cb77717e23d27c5b59027b11c63",
+    "semantic_hash": "01ae5cb77717e23d27c5b59027b11c63"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\bootstrap.ts": {
+    "mtime": 1778743450.4443183,
+    "ast_hash": "8bbbc0b4f7a176676fed7eb2299abf50",
+    "semantic_hash": "8bbbc0b4f7a176676fed7eb2299abf50"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\index.ts": {
+    "mtime": 1778743450.6974747,
+    "ast_hash": "2d7968475df39fb2fe502c81f2ac5bb4",
+    "semantic_hash": "2d7968475df39fb2fe502c81f2ac5bb4"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\ccp-events.ts": {
+    "mtime": 1778743450.489388,
+    "ast_hash": "69a6f87232b4479200e46744e81769df",
+    "semantic_hash": "69a6f87232b4479200e46744e81769df"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\recovery.ts": {
+    "mtime": 1778743450.60747,
+    "ast_hash": "a87a16478d4f0c10a98563a9f77468e6",
+    "semantic_hash": "a87a16478d4f0c10a98563a9f77468e6"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\task-id.ts": {
+    "mtime": 1778743450.6096117,
+    "ast_hash": "037b5ee36dc32ab597ec96062f9c61f9",
+    "semantic_hash": "037b5ee36dc32ab597ec96062f9c61f9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\task-paths.ts": {
+    "mtime": 1778743450.611627,
+    "ast_hash": "23ce764bbea573f43dc0d77d7f7047d4",
+    "semantic_hash": "23ce764bbea573f43dc0d77d7f7047d4"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\task-state-machine.ts": {
+    "mtime": 1778743450.6145074,
+    "ast_hash": "eb9f5125c9a70f154b9c6a81ef2645a5",
+    "semantic_hash": "eb9f5125c9a70f154b9c6a81ef2645a5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\diagnosis-record.ts": {
+    "mtime": 1778913776.111325,
+    "ast_hash": "35b0bbc9f3315d76d8418f8553853538",
+    "semantic_hash": "35b0bbc9f3315d76d8418f8553853538"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\envelope.ts": {
+    "mtime": 1778743450.4529173,
+    "ast_hash": "bbdb7211654bdf434c9c00b9cc22f422",
+    "semantic_hash": "bbdb7211654bdf434c9c00b9cc22f422"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\evaluation-record.ts": {
+    "mtime": 1778743450.4564457,
+    "ast_hash": "3081b671f394e3998102d32d0cc4d060",
+    "semantic_hash": "3081b671f394e3998102d32d0cc4d060"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\execution-record.ts": {
+    "mtime": 1778743450.4585342,
+    "ast_hash": "bc86b4a23925d9773f602c72e3eeeb1b",
+    "semantic_hash": "bc86b4a23925d9773f602c72e3eeeb1b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\grill-record.ts": {
+    "mtime": 1778743450.4611883,
+    "ast_hash": "ea8f41e71c871aaa3ed5a4275afc65cf",
+    "semantic_hash": "ea8f41e71c871aaa3ed5a4275afc65cf"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\io.ts": {
+    "mtime": 1778743450.4640465,
+    "ast_hash": "0f8b556e5c3fba238f701ca64d95e11c",
+    "semantic_hash": "0f8b556e5c3fba238f701ca64d95e11c"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\knowledge-capture-record.ts": {
+    "mtime": 1778743450.4659688,
+    "ast_hash": "1c3c46675b6afe690cee2a368cd684cb",
+    "semantic_hash": "1c3c46675b6afe690cee2a368cd684cb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\memory-candidate.ts": {
+    "mtime": 1778743450.4694202,
+    "ast_hash": "793530fce36ac88194567bdaf6cdc106",
+    "semantic_hash": "793530fce36ac88194567bdaf6cdc106"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\plan-artifact.ts": {
+    "mtime": 1778743450.4714744,
+    "ast_hash": "9cd54b979e558806c5fe8c29baa191eb",
+    "semantic_hash": "9cd54b979e558806c5fe8c29baa191eb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\quick-task-record.ts": {
+    "mtime": 1778743450.474217,
+    "ast_hash": "331ff9785fa45ff84e3df34fdfe4448f",
+    "semantic_hash": "331ff9785fa45ff84e3df34fdfe4448f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\review-record.ts": {
+    "mtime": 1778743450.476475,
+    "ast_hash": "6b2e77a1aa51aadefe5dc4ad26e334f5",
+    "semantic_hash": "6b2e77a1aa51aadefe5dc4ad26e334f5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\session-status.ts": {
+    "mtime": 1778743450.4787493,
+    "ast_hash": "ef969bb47cde9de1a53de250797ff524",
+    "semantic_hash": "ef969bb47cde9de1a53de250797ff524"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\artifacts\\verification-record.ts": {
+    "mtime": 1778743450.4808905,
+    "ast_hash": "a3e9b8a88c46b2ca29d48b3cf03906db",
+    "semantic_hash": "a3e9b8a88c46b2ca29d48b3cf03906db"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\brain\\brain-events.ts": {
+    "mtime": 1778743450.484509,
+    "ast_hash": "98818c5f553a4ad9ef156c856daebb9b",
+    "semantic_hash": "98818c5f553a4ad9ef156c856daebb9b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\brain\\client.ts": {
+    "mtime": 1778743450.4865417,
+    "ast_hash": "a5eb49fc0cbca1bc164678c2d5eda6b6",
+    "semantic_hash": "a5eb49fc0cbca1bc164678c2d5eda6b6"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\diagnose.ts": {
+    "mtime": 1778913776.1123333,
+    "ast_hash": "cd212ef7e080259ab3403a175e07b65b",
+    "semantic_hash": "cd212ef7e080259ab3403a175e07b65b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\doctor.ts": {
+    "mtime": 1778913776.114918,
+    "ast_hash": "4b2929def9b775591376219734ec75f9",
+    "semantic_hash": "4b2929def9b775591376219734ec75f9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\evaluate.ts": {
+    "mtime": 1778743450.4981437,
+    "ast_hash": "165b7131042264ca1542ec3ce393db6f",
+    "semantic_hash": "165b7131042264ca1542ec3ce393db6f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\grill.ts": {
+    "mtime": 1778743450.500412,
+    "ast_hash": "88206cde4c11385bb187556ab32f9046",
+    "semantic_hash": "88206cde4c11385bb187556ab32f9046"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init.ts": {
+    "mtime": 1778913776.114918,
+    "ast_hash": "69f62fa549f1bb1f0aefd37d968fcd4f",
+    "semantic_hash": "69f62fa549f1bb1f0aefd37d968fcd4f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\plan.ts": {
+    "mtime": 1778743450.5370677,
+    "ast_hash": "0540919f3220f18a28d748ccc4f7fd65",
+    "semantic_hash": "0540919f3220f18a28d748ccc4f7fd65"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\quick-task.ts": {
+    "mtime": 1778743450.5393481,
+    "ast_hash": "47af689776cd733c70c25ae32f229c82",
+    "semantic_hash": "47af689776cd733c70c25ae32f229c82"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\remember.ts": {
+    "mtime": 1778743450.5413961,
+    "ast_hash": "268f8e56cc837effb78455a9a8cfd64f",
+    "semantic_hash": "268f8e56cc837effb78455a9a8cfd64f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\review.ts": {
+    "mtime": 1778743450.5433986,
+    "ast_hash": "935dbe96b0c685f44d1ddbcb6259e9f0",
+    "semantic_hash": "935dbe96b0c685f44d1ddbcb6259e9f0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\run.ts": {
+    "mtime": 1778743450.546398,
+    "ast_hash": "b653f55278d1ab8951dd6eaf768aad02",
+    "semantic_hash": "b653f55278d1ab8951dd6eaf768aad02"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\status.ts": {
+    "mtime": 1778743450.5860338,
+    "ast_hash": "0e5ab211776aebbb0903216821f19e08",
+    "semantic_hash": "0e5ab211776aebbb0903216821f19e08"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\trace.ts": {
+    "mtime": 1778743450.5882566,
+    "ast_hash": "bb2885a9cf4d4dcd1cfd06345e3b0b43",
+    "semantic_hash": "bb2885a9cf4d4dcd1cfd06345e3b0b43"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\verify.ts": {
+    "mtime": 1778743450.59105,
+    "ast_hash": "3ff83e0bc87a10709a07895f8e5be6ea",
+    "semantic_hash": "3ff83e0bc87a10709a07895f8e5be6ea"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\args.ts": {
+    "mtime": 1778913776.1219804,
+    "ast_hash": "71b7a597bd82d90913bb83958e40f1db",
+    "semantic_hash": "71b7a597bd82d90913bb83958e40f1db"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\brain-installer.ts": {
+    "mtime": 1778926658.2465558,
+    "ast_hash": "7cac9fd33c94a2c653b1e0448c9f37cb",
+    "semantic_hash": "7cac9fd33c94a2c653b1e0448c9f37cb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\governance.ts": {
+    "mtime": 1778743450.510775,
+    "ast_hash": "1657b73b372701227f846104d2e63a74",
+    "semantic_hash": "1657b73b372701227f846104d2e63a74"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\pack-installer.ts": {
+    "mtime": 1778913776.1264808,
+    "ast_hash": "1bfa321067cf36a14a951d75d44a67df",
+    "semantic_hash": "1bfa321067cf36a14a951d75d44a67df"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\preflight.ts": {
+    "mtime": 1778743450.5233245,
+    "ast_hash": "8886da11fc27e3cbeff5288d590267cc",
+    "semantic_hash": "8886da11fc27e3cbeff5288d590267cc"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\prompts.ts": {
+    "mtime": 1778743450.52772,
+    "ast_hash": "457787d31b89be665513c5a50dbd35e2",
+    "semantic_hash": "457787d31b89be665513c5a50dbd35e2"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\template.ts": {
+    "mtime": 1778743450.5300612,
+    "ast_hash": "eda3597b7b367e5c94f3668bbee6e20a",
+    "semantic_hash": "eda3597b7b367e5c94f3668bbee6e20a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\validation.ts": {
+    "mtime": 1778743450.532434,
+    "ast_hash": "110b77a55ce7225f6938d0956fd03a4d",
+    "semantic_hash": "110b77a55ce7225f6938d0956fd03a4d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\version.ts": {
+    "mtime": 1778743450.534436,
+    "ast_hash": "832c8ccccd8bc761b6096bd79f7c970b",
+    "semantic_hash": "832c8ccccd8bc761b6096bd79f7c970b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\capture-proposer.ts": {
+    "mtime": 1778743450.5503511,
+    "ast_hash": "65ab7fdde97af6a5749fa266e86c1636",
+    "semantic_hash": "65ab7fdde97af6a5749fa266e86c1636"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\command-runner.ts": {
+    "mtime": 1778743450.5538437,
+    "ast_hash": "c3736933b2ea33b82fb5791afcf45275",
+    "semantic_hash": "c3736933b2ea33b82fb5791afcf45275"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\compressed-output.ts": {
+    "mtime": 1778743450.5580049,
+    "ast_hash": "9b212181dce22c961de160590b06156b",
+    "semantic_hash": "9b212181dce22c961de160590b06156b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\current-task.ts": {
+    "mtime": 1778743450.5601277,
+    "ast_hash": "da00ad2ed198eca32d91fd827eb4faea",
+    "semantic_hash": "da00ad2ed198eca32d91fd827eb4faea"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\git-checkpoint.ts": {
+    "mtime": 1778743450.5626433,
+    "ast_hash": "6e3abbdbac23f14f5c2730745a9d5e4d",
+    "semantic_hash": "6e3abbdbac23f14f5c2730745a9d5e4d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\memory-staging.ts": {
+    "mtime": 1778743450.5662036,
+    "ast_hash": "17b2e19749a9f57526bc7e62417ce32a",
+    "semantic_hash": "17b2e19749a9f57526bc7e62417ce32a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\plan-drafter.ts": {
+    "mtime": 1778743450.5680728,
+    "ast_hash": "e1d00a73883dfa9de3c54dc88b1e6d1d",
+    "semantic_hash": "e1d00a73883dfa9de3c54dc88b1e6d1d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\policy-decision-writer.ts": {
+    "mtime": 1778743450.5695584,
+    "ast_hash": "5bd3866911b365987a380d8103ac20c0",
+    "semantic_hash": "5bd3866911b365987a380d8103ac20c0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\question-generator.ts": {
+    "mtime": 1778743450.5729308,
+    "ast_hash": "e01719ada93764e2971d9b5617c916f7",
+    "semantic_hash": "e01719ada93764e2971d9b5617c916f7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\step-executor.ts": {
+    "mtime": 1778743450.577144,
+    "ast_hash": "60c85358370abe752b8d9851d546af3a",
+    "semantic_hash": "60c85358370abe752b8d9851d546af3a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\task-lifecycle.ts": {
+    "mtime": 1778743450.580472,
+    "ast_hash": "be0c184e48a7743ca1b6d7ab675f1635",
+    "semantic_hash": "be0c184e48a7743ca1b6d7ab675f1635"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\shared\\task-loader.ts": {
+    "mtime": 1778743450.5829449,
+    "ast_hash": "910d0d1f22327d0de817b9808de8a425",
+    "semantic_hash": "910d0d1f22327d0de817b9808de8a425"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\policy\\decision-flow.ts": {
+    "mtime": 1778743450.5949252,
+    "ast_hash": "00554bb3d90a954de83b0541d5b90af3",
+    "semantic_hash": "00554bb3d90a954de83b0541d5b90af3"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\policy\\tier-resolver.ts": {
+    "mtime": 1778743450.5979965,
+    "ast_hash": "0cdd7c2c9593ea48081a5d483e13cc24",
+    "semantic_hash": "0cdd7c2c9593ea48081a5d483e13cc24"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\policy\\tool-classes.ts": {
+    "mtime": 1778743450.6009932,
+    "ast_hash": "d6e397fc217787d7ba99b45c814ef8cc",
+    "semantic_hash": "d6e397fc217787d7ba99b45c814ef8cc"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\policy\\tool-registry.ts": {
+    "mtime": 1778743450.6039946,
+    "ast_hash": "6411580d9fdd5b825414503e592b6b6d",
+    "semantic_hash": "6411580d9fdd5b825414503e592b6b6d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\policy\\trust-registry.ts": {
+    "mtime": 1778743450.6060042,
+    "ast_hash": "01c01651a3fea92fb13197bd4f1f546a",
+    "semantic_hash": "01c01651a3fea92fb13197bd4f1f546a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\tools\\pi-agent-executor.ts": {
+    "mtime": 1778743450.6175184,
+    "ast_hash": "bc1b551d259b36e478dff9bba89d5981",
+    "semantic_hash": "bc1b551d259b36e478dff9bba89d5981"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\tools\\pi-tool-defaults.ts": {
+    "mtime": 1778743450.6205072,
+    "ast_hash": "6fd1dd716920191b077fe9e6c8bebfda",
+    "semantic_hash": "6fd1dd716920191b077fe9e6c8bebfda"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\tools\\tool-id-conventions.ts": {
+    "mtime": 1778743450.6235046,
+    "ast_hash": "461b15af926116b933cba0d4ad9a32c7",
+    "semantic_hash": "461b15af926116b933cba0d4ad9a32c7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\approval.ts": {
+    "mtime": 1778743450.6265073,
+    "ast_hash": "ea752229f42486c423737bc1f540e761",
+    "semantic_hash": "ea752229f42486c423737bc1f540e761"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\authority.ts": {
+    "mtime": 1778743450.6286001,
+    "ast_hash": "8d07e81dd0d72cb93f41e35c5e914a32",
+    "semantic_hash": "8d07e81dd0d72cb93f41e35c5e914a32"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\binding.ts": {
+    "mtime": 1778743450.631601,
+    "ast_hash": "7ab16b33e12c42876e31b1701e88569d",
+    "semantic_hash": "7ab16b33e12c42876e31b1701e88569d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\constitution.ts": {
+    "mtime": 1778743450.633787,
+    "ast_hash": "87c42baf7793ff5df926f1a28ebbaaa3",
+    "semantic_hash": "87c42baf7793ff5df926f1a28ebbaaa3"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\doc-detector.ts": {
+    "mtime": 1778743450.6368206,
+    "ast_hash": "f6626efc1487a3c58c4f3841c28187b1",
+    "semantic_hash": "f6626efc1487a3c58c4f3841c28187b1"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\doctor.ts": {
+    "mtime": 1778926658.2465558,
+    "ast_hash": "a41c242ba23bc27170e8a988826c59fe",
+    "semantic_hash": "a41c242ba23bc27170e8a988826c59fe"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\event-log.ts": {
+    "mtime": 1778743450.6416178,
+    "ast_hash": "d053a6db745d244445633bb35c9d9c4f",
+    "semantic_hash": "d053a6db745d244445633bb35c9d9c4f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\events.ts": {
+    "mtime": 1778743450.6426265,
+    "ast_hash": "01bc0dff23856c2572803e4344ed8b82",
+    "semantic_hash": "01bc0dff23856c2572803e4344ed8b82"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\hash.ts": {
+    "mtime": 1778743450.6446295,
+    "ast_hash": "f99cec3586c5c532739e1bf5e23a3cce",
+    "semantic_hash": "f99cec3586c5c532739e1bf5e23a3cce"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\health.ts": {
+    "mtime": 1778743450.647627,
+    "ast_hash": "a3634e285ba203dcbb0eff0129874b01",
+    "semantic_hash": "a3634e285ba203dcbb0eff0129874b01"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\interceptor.ts": {
+    "mtime": 1778743450.6496277,
+    "ast_hash": "714e208be2ff1c21cee7dee41f7dadcc",
+    "semantic_hash": "714e208be2ff1c21cee7dee41f7dadcc"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\lock.ts": {
+    "mtime": 1778743450.651628,
+    "ast_hash": "68049830fe864aabbe43715edf678572",
+    "semantic_hash": "68049830fe864aabbe43715edf678572"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\manifest.ts": {
+    "mtime": 1778743450.6536233,
+    "ast_hash": "4e97086695864aae9b390c3ac2831249",
+    "semantic_hash": "4e97086695864aae9b390c3ac2831249"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\memory-router.ts": {
+    "mtime": 1778743450.6561275,
+    "ast_hash": "ba56ac55e2ab648274ee0529cd072a02",
+    "semantic_hash": "ba56ac55e2ab648274ee0529cd072a02"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\models.ts": {
+    "mtime": 1778743450.658137,
+    "ast_hash": "34ec1522dbee0a00623c0969a57ec8ab",
+    "semantic_hash": "34ec1522dbee0a00623c0969a57ec8ab"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\narrator.ts": {
+    "mtime": 1778913776.1538446,
+    "ast_hash": "db3f8322da67363de5b6217bfd340378",
+    "semantic_hash": "db3f8322da67363de5b6217bfd340378"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\pack-plan-drafter.ts": {
+    "mtime": 1778743450.661138,
+    "ast_hash": "f9f467af0dd29ebc6f8de6f3ea9c40ec",
+    "semantic_hash": "f9f467af0dd29ebc6f8de6f3ea9c40ec"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\pack-question-generator.ts": {
+    "mtime": 1778743450.66314,
+    "ast_hash": "a0e518f2983d1c98dfe1073670d5c270",
+    "semantic_hash": "a0e518f2983d1c98dfe1073670d5c270"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\phase-registry.ts": {
+    "mtime": 1778743450.6654363,
+    "ast_hash": "44e0fc4d36bd9f0c0d10d1c045a90a95",
+    "semantic_hash": "44e0fc4d36bd9f0c0d10d1c045a90a95"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\projection.ts": {
+    "mtime": 1778743450.6679795,
+    "ast_hash": "fcfb07f118fc22909c5bf9cc7d0432ce",
+    "semantic_hash": "fcfb07f118fc22909c5bf9cc7d0432ce"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\projector.ts": {
+    "mtime": 1778913776.1573234,
+    "ast_hash": "80aa617c0e5aa0eb9b25a7fa746b91b7",
+    "semantic_hash": "80aa617c0e5aa0eb9b25a7fa746b91b7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\renderer.ts": {
+    "mtime": 1778913776.1600723,
+    "ast_hash": "f533abc03e273b04c2f551c14dbc8fc6",
+    "semantic_hash": "f533abc03e273b04c2f551c14dbc8fc6"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\runtime-paths.ts": {
+    "mtime": 1778743450.6748786,
+    "ast_hash": "b6ebb5f5f95826c9b8165fc081023782",
+    "semantic_hash": "b6ebb5f5f95826c9b8165fc081023782"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\schema.ts": {
+    "mtime": 1778743450.6776526,
+    "ast_hash": "b8b1ac3bf1adac1493389e0e2a3bbfb5",
+    "semantic_hash": "b8b1ac3bf1adac1493389e0e2a3bbfb5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\semver.ts": {
+    "mtime": 1778743450.678908,
+    "ast_hash": "1ee7ff50a0f21e80d448b9c5105ac1d9",
+    "semantic_hash": "1ee7ff50a0f21e80d448b9c5105ac1d9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\session-store.ts": {
+    "mtime": 1778743450.6821678,
+    "ast_hash": "35fc97f9ac959dd84814ab846672408f",
+    "semantic_hash": "35fc97f9ac959dd84814ab846672408f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\state.ts": {
+    "mtime": 1778743450.6834798,
+    "ast_hash": "9831e821b34248ba687975fc1b73f95f",
+    "semantic_hash": "9831e821b34248ba687975fc1b73f95f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\test-command-detector.ts": {
+    "mtime": 1778743450.6867511,
+    "ast_hash": "998e7c2278bb93d29262f0589b8afe3f",
+    "semantic_hash": "998e7c2278bb93d29262f0589b8afe3f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\validator-runner.ts": {
+    "mtime": 1778913776.1618128,
+    "ast_hash": "df7d61597a7d6308375ed5969da746c8",
+    "semantic_hash": "df7d61597a7d6308375ed5969da746c8"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\versioning.ts": {
+    "mtime": 1778743450.691549,
+    "ast_hash": "cd8e5ae18bc3ecadfc077e2990238aad",
+    "semantic_hash": "cd8e5ae18bc3ecadfc077e2990238aad"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\core\\workflow-pack-loader.ts": {
+    "mtime": 1778913776.165291,
+    "ast_hash": "4e5c3fc07a41535e810d1190eb10ee3f",
+    "semantic_hash": "4e5c3fc07a41535e810d1190eb10ee3f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\extension-helpers.ts": {
+    "mtime": 1778926658.3382201,
+    "ast_hash": "368b782af0917e7591038fc631d9a759",
+    "semantic_hash": "368b782af0917e7591038fc631d9a759"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\extension.ts": {
+    "mtime": 1778926658.3437598,
+    "ast_hash": "b521858390d5a65cfc418505cd8a7d7c",
+    "semantic_hash": "b521858390d5a65cfc418505cd8a7d7c"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\pi-session.ts": {
+    "mtime": 1778926658.3507216,
+    "ast_hash": "c8ff076a0e7cc07a882ac65605c8a8f3",
+    "semantic_hash": "c8ff076a0e7cc07a882ac65605c8a8f3"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\slash-commands.ts": {
+    "mtime": 1778743450.7040837,
+    "ast_hash": "3b9af591ba1fdf2778bd2f3c9bd02ca5",
+    "semantic_hash": "3b9af591ba1fdf2778bd2f3c9bd02ca5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\tool-call-handler.ts": {
+    "mtime": 1778743450.7072122,
+    "ast_hash": "b7a2df635f07569c651e9112084d4e7d",
+    "semantic_hash": "b7a2df635f07569c651e9112084d4e7d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\types.ts": {
+    "mtime": 1778743450.7095442,
+    "ast_hash": "a8b867bb219d254cdb98f1f098f71f88",
+    "semantic_hash": "a8b867bb219d254cdb98f1f098f71f88"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\ui.ts": {
+    "mtime": 1778743450.7115371,
+    "ast_hash": "87a54297020f8ec86cf2cbbccd1ffc85",
+    "semantic_hash": "87a54297020f8ec86cf2cbbccd1ffc85"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\continue.ts": {
+    "mtime": 1778926658.2603734,
+    "ast_hash": "8bb2f7b0d62b90c940276807b84b9780",
+    "semantic_hash": "8bb2f7b0d62b90c940276807b84b9780"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\diagnose.ts": {
+    "mtime": 1778926658.2626903,
+    "ast_hash": "23118870c3442ae805f3b45ae0c0d360",
+    "semantic_hash": "23118870c3442ae805f3b45ae0c0d360"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\doctor.ts": {
+    "mtime": 1778926658.2707462,
+    "ast_hash": "9681e5ffc9b37dcca0fed7aaa9e6d922",
+    "semantic_hash": "9681e5ffc9b37dcca0fed7aaa9e6d922"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\evaluate.ts": {
+    "mtime": 1778926658.27249,
+    "ast_hash": "0a9862c29421450da6c932228f8dc27d",
+    "semantic_hash": "0a9862c29421450da6c932228f8dc27d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\flight.ts": {
+    "mtime": 1778926658.278595,
+    "ast_hash": "b1924f6022a1e29c4f49872af6164861",
+    "semantic_hash": "b1924f6022a1e29c4f49872af6164861"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\flow.ts": {
+    "mtime": 1778926658.2819052,
+    "ast_hash": "25e6ad78c6b728172b88557505a3e541",
+    "semantic_hash": "25e6ad78c6b728172b88557505a3e541"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\grill.ts": {
+    "mtime": 1778926658.2877545,
+    "ast_hash": "054d17e4fcb0fe7074dedf5b92419f27",
+    "semantic_hash": "054d17e4fcb0fe7074dedf5b92419f27"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\init.ts": {
+    "mtime": 1778926658.2877545,
+    "ast_hash": "3a2bd1cccdf9bf9d758163d8917164dd",
+    "semantic_hash": "3a2bd1cccdf9bf9d758163d8917164dd"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\memory.ts": {
+    "mtime": 1778926658.2944853,
+    "ast_hash": "0045a169b3b13ffc1383ec4ff7ecb187",
+    "semantic_hash": "0045a169b3b13ffc1383ec4ff7ecb187"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\plan.ts": {
+    "mtime": 1778926658.301648,
+    "ast_hash": "82ccaea8b41d26ba8f5677a344fcc3b2",
+    "semantic_hash": "82ccaea8b41d26ba8f5677a344fcc3b2"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\quick-task.ts": {
+    "mtime": 1778926658.3068695,
+    "ast_hash": "d98531e8ceef97de04b0e78f9d091f37",
+    "semantic_hash": "d98531e8ceef97de04b0e78f9d091f37"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\remember.ts": {
+    "mtime": 1778926658.3122785,
+    "ast_hash": "446df3916f1e54cb077beecabdd10832",
+    "semantic_hash": "446df3916f1e54cb077beecabdd10832"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\review.ts": {
+    "mtime": 1778926658.317311,
+    "ast_hash": "5d421e8e6605a1358705bc5373751654",
+    "semantic_hash": "5d421e8e6605a1358705bc5373751654"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\run.ts": {
+    "mtime": 1778926658.3225658,
+    "ast_hash": "2257cb1e12cacb3604b2cca83ed1f766",
+    "semantic_hash": "2257cb1e12cacb3604b2cca83ed1f766"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\status.ts": {
+    "mtime": 1778926658.3277824,
+    "ast_hash": "353842831d204a46244facae6f53e8b8",
+    "semantic_hash": "353842831d204a46244facae6f53e8b8"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\pi\\commands\\verify.ts": {
+    "mtime": 1778926658.333002,
+    "ast_hash": "32edfa4f7990840a4015afa9ffdecd0e",
+    "semantic_hash": "32edfa4f7990840a4015afa9ffdecd0e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\fixtures\\v1.0.0\\.agent-os\\contracts\\index.json": {
+    "mtime": 1778743450.7268727,
+    "ast_hash": "f7bff0a2652b852cce47eca5c1d3c627",
+    "semantic_hash": "f7bff0a2652b852cce47eca5c1d3c627"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\fixtures\\v1.0.0\\.agent-os\\schemas\\constitution-binding.schema.json": {
+    "mtime": 1778743450.7303958,
+    "ast_hash": "b94dab4e908d4732fcb7ce0caefccf66",
+    "semantic_hash": "b94dab4e908d4732fcb7ce0caefccf66"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\fixtures\\v1.0.0\\.agent-os\\schemas\\permission-manifest.schema.json": {
+    "mtime": 1778743450.7323895,
+    "ast_hash": "a8235d8055ccccb9fb2a0499a60426b0",
+    "semantic_hash": "a8235d8055ccccb9fb2a0499a60426b0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\fixtures\\v1.0.0\\.agent-os\\schemas\\telemetry-event.schema.json": {
+    "mtime": 1778743450.7344294,
+    "ast_hash": "dc676e4c0562555e48d84a9066de5f78",
+    "semantic_hash": "dc676e4c0562555e48d84a9066de5f78"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\integration\\bind-smoke.test.ts": {
+    "mtime": 1778743450.7407472,
+    "ast_hash": "6206804d5b65f189de0f113699261578",
+    "semantic_hash": "6206804d5b65f189de0f113699261578"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\integration\\init-governance-bytes.test.ts": {
+    "mtime": 1778743450.7427454,
+    "ast_hash": "28633d3a8f38bdaf4df3096400555335",
+    "semantic_hash": "28633d3a8f38bdaf4df3096400555335"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\integration\\init.test.ts": {
+    "mtime": 1778913776.2000911,
+    "ast_hash": "7928fd3cde249dcb3bea08d0fc61de9e",
+    "semantic_hash": "7928fd3cde249dcb3bea08d0fc61de9e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\integration\\lifecycle.test.ts": {
+    "mtime": 1778743450.7477844,
+    "ast_hash": "0cbe697e8f8f336a6d238a8fada95e5b",
+    "semantic_hash": "0cbe697e8f8f336a6d238a8fada95e5b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\integration\\pack-selection-init.test.ts": {
+    "mtime": 1778913776.2018316,
+    "ast_hash": "357b13ee6dfbf57eb29822f0ec63d66e",
+    "semantic_hash": "357b13ee6dfbf57eb29822f0ec63d66e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\integration\\pi-extension-stub.test.ts": {
+    "mtime": 1778743450.7503695,
+    "ast_hash": "a8d2efcf22836a0813218b8d04585c45",
+    "semantic_hash": "a8d2efcf22836a0813218b8d04585c45"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\integration\\section-16-demo.test.ts": {
+    "mtime": 1778743450.7532377,
+    "ast_hash": "7f5379bcd48ca3b9a19510657c4c1f1b",
+    "semantic_hash": "7f5379bcd48ca3b9a19510657c4c1f1b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\approval.test.ts": {
+    "mtime": 1778743450.756096,
+    "ast_hash": "7291f16e5c4e061528c8d1bb8329ba28",
+    "semantic_hash": "7291f16e5c4e061528c8d1bb8329ba28"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\authority.test.ts": {
+    "mtime": 1778743450.7581272,
+    "ast_hash": "d34da30fcf73a7603ba87294c8fa02ea",
+    "semantic_hash": "d34da30fcf73a7603ba87294c8fa02ea"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\binding.test.ts": {
+    "mtime": 1778743450.7601283,
+    "ast_hash": "6231b71dfff33ee8fd6e8b73dc7293fd",
+    "semantic_hash": "6231b71dfff33ee8fd6e8b73dc7293fd"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\constitution.test.ts": {
+    "mtime": 1778743450.9070249,
+    "ast_hash": "72a5884074bb94fb718eb3fd015e5850",
+    "semantic_hash": "72a5884074bb94fb718eb3fd015e5850"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\diagnose-phased.test.ts": {
+    "mtime": 1778913776.2122746,
+    "ast_hash": "6ee164279ea06bcd8b9d76d8d0c161e0",
+    "semantic_hash": "6ee164279ea06bcd8b9d76d8d0c161e0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\doc-detector.test.ts": {
+    "mtime": 1778743450.9126334,
+    "ast_hash": "eb382e6c249528f5e8c44e852b061d00",
+    "semantic_hash": "eb382e6c249528f5e8c44e852b061d00"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\doctor.test.ts": {
+    "mtime": 1778926658.3576758,
+    "ast_hash": "4d849fbf9345d053897ef101e5981470",
+    "semantic_hash": "4d849fbf9345d053897ef101e5981470"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\engineering-core-pack.test.ts": {
+    "mtime": 1778913776.2170355,
+    "ast_hash": "25bc69c9b28f7630568f63cbb8e3a7af",
+    "semantic_hash": "25bc69c9b28f7630568f63cbb8e3a7af"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\event-log.test.ts": {
+    "mtime": 1778743450.9178681,
+    "ast_hash": "0df755ccdea329027b4af2254e8b400f",
+    "semantic_hash": "0df755ccdea329027b4af2254e8b400f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\events.test.ts": {
+    "mtime": 1778743450.9198709,
+    "ast_hash": "ced89ae6b8a491fdae01cfd17e35147a",
+    "semantic_hash": "ced89ae6b8a491fdae01cfd17e35147a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\hash.test.ts": {
+    "mtime": 1778743450.9221709,
+    "ast_hash": "c9f0d35456da1c6e360a6b27fbdfce09",
+    "semantic_hash": "c9f0d35456da1c6e360a6b27fbdfce09"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\interceptor.test.ts": {
+    "mtime": 1778743450.9252691,
+    "ast_hash": "e35bc95a6443b1f95b450fa5dfdbf90d",
+    "semantic_hash": "e35bc95a6443b1f95b450fa5dfdbf90d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\lock.test.ts": {
+    "mtime": 1778743450.9278126,
+    "ast_hash": "49527435d6f3aab98bac4332a17bcca0",
+    "semantic_hash": "49527435d6f3aab98bac4332a17bcca0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\manifest.test.ts": {
+    "mtime": 1778743450.9308088,
+    "ast_hash": "8e412299b3dcdd7252b1307c9fe8924b",
+    "semantic_hash": "8e412299b3dcdd7252b1307c9fe8924b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\memory-router.test.ts": {
+    "mtime": 1778743450.9340549,
+    "ast_hash": "785a3835fae65f63843399ecaf834c14",
+    "semantic_hash": "785a3835fae65f63843399ecaf834c14"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\models.test.ts": {
+    "mtime": 1778743450.9360514,
+    "ast_hash": "ffb2c3fc2d7377f20507b0e3429c5ffe",
+    "semantic_hash": "ffb2c3fc2d7377f20507b0e3429c5ffe"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\narrator-coverage.test.ts": {
+    "mtime": 1778926658.3646393,
+    "ast_hash": "42de0b91dcc24c9475ca9f1a396fdd98",
+    "semantic_hash": "42de0b91dcc24c9475ca9f1a396fdd98"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\pack-installer.test.ts": {
+    "mtime": 1778913776.2212207,
+    "ast_hash": "52df1b5c9da24979307d6f10e6b7733c",
+    "semantic_hash": "52df1b5c9da24979307d6f10e6b7733c"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\pack-loader-prompts.test.ts": {
+    "mtime": 1778913776.2248077,
+    "ast_hash": "395a03adbb5f992681ae4a26497b3110",
+    "semantic_hash": "395a03adbb5f992681ae4a26497b3110"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\pack-plan-drafter.test.ts": {
+    "mtime": 1778743450.9400527,
+    "ast_hash": "7b35c353be1adc327587b4ba8993510e",
+    "semantic_hash": "7b35c353be1adc327587b4ba8993510e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\pack-question-generator.test.ts": {
+    "mtime": 1778743450.9426818,
+    "ast_hash": "202c76fbaf10d84c0cfd8d9df4bb89a6",
+    "semantic_hash": "202c76fbaf10d84c0cfd8d9df4bb89a6"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\phase-registry.test.ts": {
+    "mtime": 1778913776.2270067,
+    "ast_hash": "b60604b8f08012f46ae2228009e8cd05",
+    "semantic_hash": "b60604b8f08012f46ae2228009e8cd05"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\projection.test.ts": {
+    "mtime": 1778743450.9563274,
+    "ast_hash": "eb21c26246faae0ed7bf69d4abcb5d1d",
+    "semantic_hash": "eb21c26246faae0ed7bf69d4abcb5d1d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\renderer-helpers.test.ts": {
+    "mtime": 1778913776.230524,
+    "ast_hash": "621c56646829a7ceaa84ba4151ffb302",
+    "semantic_hash": "621c56646829a7ceaa84ba4151ffb302"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\runtime-paths.test.ts": {
+    "mtime": 1778743450.9594207,
+    "ast_hash": "b494297c8d5da3c4675d7fb4ae5e156b",
+    "semantic_hash": "b494297c8d5da3c4675d7fb4ae5e156b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\schema.test.ts": {
+    "mtime": 1778743450.9612808,
+    "ast_hash": "43efe32318ae9a285c9c5a3982f0337a",
+    "semantic_hash": "43efe32318ae9a285c9c5a3982f0337a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\semver.test.ts": {
+    "mtime": 1778743450.9612808,
+    "ast_hash": "fccf0d101af61b0086314fb70147bc72",
+    "semantic_hash": "fccf0d101af61b0086314fb70147bc72"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\session-store.test.ts": {
+    "mtime": 1778743450.9644885,
+    "ast_hash": "2f7c9db2467b3ea1fa200d2e46ee438d",
+    "semantic_hash": "2f7c9db2467b3ea1fa200d2e46ee438d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\snapshot-status.test.ts": {
+    "mtime": 1778913776.230524,
+    "ast_hash": "36be9e54cda76270ea27d0a2270523e2",
+    "semantic_hash": "36be9e54cda76270ea27d0a2270523e2"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\state.test.ts": {
+    "mtime": 1778743450.9662285,
+    "ast_hash": "e99ce38160d55f0cfabd63bd1e9a91d4",
+    "semantic_hash": "e99ce38160d55f0cfabd63bd1e9a91d4"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\test-command-detector.test.ts": {
+    "mtime": 1778743450.9699123,
+    "ast_hash": "6de4952b6c3a49cab2845ce1c3f8ea4e",
+    "semantic_hash": "6de4952b6c3a49cab2845ce1c3f8ea4e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\validate-falsifiable-hypothesis.test.ts": {
+    "mtime": 1778913776.2337532,
+    "ast_hash": "f6f37250870d06ce46145553b0d1196e",
+    "semantic_hash": "f6f37250870d06ce46145553b0d1196e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\validate-no-stray-debug-tags.test.ts": {
+    "mtime": 1778913776.2367313,
+    "ast_hash": "51ae8bb89c3ca1a64c67e1789847aadd",
+    "semantic_hash": "51ae8bb89c3ca1a64c67e1789847aadd"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\validator-runner.test.ts": {
+    "mtime": 1778743450.9716656,
+    "ast_hash": "4fe4d9e7c47f37b160985fe04c9684e0",
+    "semantic_hash": "4fe4d9e7c47f37b160985fe04c9684e0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\versioning.test.ts": {
+    "mtime": 1778743450.9731312,
+    "ast_hash": "ebdc62fd09940d403a9467b42ada9ea3",
+    "semantic_hash": "ebdc62fd09940d403a9467b42ada9ea3"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\workflow-pack-loader.test.ts": {
+    "mtime": 1778743450.9731312,
+    "ast_hash": "9f1ee02eb09c02ee0871bed9bfe17d39",
+    "semantic_hash": "9f1ee02eb09c02ee0871bed9bfe17d39"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\ccp-events.test.ts": {
+    "mtime": 1778743450.7864952,
+    "ast_hash": "b63a5a0f2fb81ddd12395cc8c3d11510",
+    "semantic_hash": "b63a5a0f2fb81ddd12395cc8c3d11510"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\recovery.test.ts": {
+    "mtime": 1778743450.888307,
+    "ast_hash": "560f15f7a79106d3af25162c528511ef",
+    "semantic_hash": "560f15f7a79106d3af25162c528511ef"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\task-id.test.ts": {
+    "mtime": 1778743450.8900993,
+    "ast_hash": "10181e405b0e9229ac9771d790b1726f",
+    "semantic_hash": "10181e405b0e9229ac9771d790b1726f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\task-paths.test.ts": {
+    "mtime": 1778743450.8929048,
+    "ast_hash": "1e766fe9c3ddd030c0da93867dd4245f",
+    "semantic_hash": "1e766fe9c3ddd030c0da93867dd4245f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\task-state-machine.test.ts": {
+    "mtime": 1778743450.8950205,
+    "ast_hash": "53e37b4cdb8687d8da5156fb4aed6e8a",
+    "semantic_hash": "53e37b4cdb8687d8da5156fb4aed6e8a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\artifacts\\envelope.test.ts": {
+    "mtime": 1778743450.7641256,
+    "ast_hash": "5355114dcb93c80cfae43a3007eb3c4c",
+    "semantic_hash": "5355114dcb93c80cfae43a3007eb3c4c"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\artifacts\\execution-record.test.ts": {
+    "mtime": 1778743450.7671278,
+    "ast_hash": "5757d437ffbac87e8ab08124a3d84fdd",
+    "semantic_hash": "5757d437ffbac87e8ab08124a3d84fdd"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\artifacts\\grill-record.test.ts": {
+    "mtime": 1778743450.7691267,
+    "ast_hash": "3bf075edc9d5b7f45db9e251a3bd2f0f",
+    "semantic_hash": "3bf075edc9d5b7f45db9e251a3bd2f0f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\artifacts\\io.test.ts": {
+    "mtime": 1778743450.7721262,
+    "ast_hash": "d73665b4130b11d27d08eba7dd5d6c55",
+    "semantic_hash": "d73665b4130b11d27d08eba7dd5d6c55"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\artifacts\\knowledge-capture-record.test.ts": {
+    "mtime": 1778743450.7742832,
+    "ast_hash": "41e3980984c8bad5e38419d583a890eb",
+    "semantic_hash": "41e3980984c8bad5e38419d583a890eb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\artifacts\\plan-artifact.test.ts": {
+    "mtime": 1778743450.7758794,
+    "ast_hash": "756ae83bf28fb8e35fc1ee8d9fce813b",
+    "semantic_hash": "756ae83bf28fb8e35fc1ee8d9fce813b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\artifacts\\session-status.test.ts": {
+    "mtime": 1778743450.777119,
+    "ast_hash": "cd6dff0bbe49305fbcbb34f8b04559ed",
+    "semantic_hash": "cd6dff0bbe49305fbcbb34f8b04559ed"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\artifacts\\verification-record.test.ts": {
+    "mtime": 1778743450.7805498,
+    "ast_hash": "d872de543c8fa9847272d2d240522243",
+    "semantic_hash": "d872de543c8fa9847272d2d240522243"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\brain\\client.test.ts": {
+    "mtime": 1778743450.78449,
+    "ast_hash": "980a517384734469997b7df56c32ca6d",
+    "semantic_hash": "980a517384734469997b7df56c32ca6d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\doctor.test.ts": {
+    "mtime": 1778913776.2053137,
+    "ast_hash": "b7a3f87f09c2aa09deb65698b2f352de",
+    "semantic_hash": "b7a3f87f09c2aa09deb65698b2f352de"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\grill.test.ts": {
+    "mtime": 1778743450.8027718,
+    "ast_hash": "4e59675f8eff9a4e2eb8b76401517ccf",
+    "semantic_hash": "4e59675f8eff9a4e2eb8b76401517ccf"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init.test.ts": {
+    "mtime": 1778913776.2070541,
+    "ast_hash": "bd99bc4f9c6ed49d97d178f07de1f4ec",
+    "semantic_hash": "bd99bc4f9c6ed49d97d178f07de1f4ec"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\plan.test.ts": {
+    "mtime": 1778743450.8296273,
+    "ast_hash": "df0c2f5beaed5dd00b81294f4ce43f93",
+    "semantic_hash": "df0c2f5beaed5dd00b81294f4ce43f93"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\remember.test.ts": {
+    "mtime": 1778743450.8328536,
+    "ast_hash": "14dfa6a0dd84f062e1542f49f35e1dba",
+    "semantic_hash": "14dfa6a0dd84f062e1542f49f35e1dba"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\run.test.ts": {
+    "mtime": 1778743450.834357,
+    "ast_hash": "b04f956693fd2c46faa43596a52986b9",
+    "semantic_hash": "b04f956693fd2c46faa43596a52986b9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\status.test.ts": {
+    "mtime": 1778743450.868581,
+    "ast_hash": "74fdac91e36c97e2a08bdccebbb358cb",
+    "semantic_hash": "74fdac91e36c97e2a08bdccebbb358cb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\verify.test.ts": {
+    "mtime": 1778743450.8705812,
+    "ast_hash": "6fa6bc89116eb89aeaacf6433adb7518",
+    "semantic_hash": "6fa6bc89116eb89aeaacf6433adb7518"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init\\args.test.ts": {
+    "mtime": 1778743450.8090773,
+    "ast_hash": "35633ef0f6de58b722af520a67ed7de1",
+    "semantic_hash": "35633ef0f6de58b722af520a67ed7de1"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init\\brain-installer.test.ts": {
+    "mtime": 1778743450.8113263,
+    "ast_hash": "5c6ae445c8f875d0a1764efbfc2eda96",
+    "semantic_hash": "5c6ae445c8f875d0a1764efbfc2eda96"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init\\governance.test.ts": {
+    "mtime": 1778743450.8134422,
+    "ast_hash": "4764e7a5d15bc854f90ca7ca636da410",
+    "semantic_hash": "4764e7a5d15bc854f90ca7ca636da410"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init\\preflight.test.ts": {
+    "mtime": 1778743450.817179,
+    "ast_hash": "2ef5e5fc2659f76bb1888741e5025fb4",
+    "semantic_hash": "2ef5e5fc2659f76bb1888741e5025fb4"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init\\prompts.test.ts": {
+    "mtime": 1778743450.82018,
+    "ast_hash": "83689fa788ec8ee2a36c84ddb6cdd0ac",
+    "semantic_hash": "83689fa788ec8ee2a36c84ddb6cdd0ac"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init\\template.test.ts": {
+    "mtime": 1778743450.8229878,
+    "ast_hash": "e68db28827a577d386ee147701e3b105",
+    "semantic_hash": "e68db28827a577d386ee147701e3b105"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init\\validation.test.ts": {
+    "mtime": 1778743450.8245568,
+    "ast_hash": "da9fbc0dcf27bd1ebe4c8ff3191826d3",
+    "semantic_hash": "da9fbc0dcf27bd1ebe4c8ff3191826d3"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\init\\version.test.ts": {
+    "mtime": 1778743450.8268726,
+    "ast_hash": "fe4ec0ca5a7e0d28f8e6433cb71e55ed",
+    "semantic_hash": "fe4ec0ca5a7e0d28f8e6433cb71e55ed"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\capture-proposer.test.ts": {
+    "mtime": 1778743450.8376696,
+    "ast_hash": "2211aaefccbe720dcb0b6997d8e563c0",
+    "semantic_hash": "2211aaefccbe720dcb0b6997d8e563c0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\command-runner.test.ts": {
+    "mtime": 1778743450.8411846,
+    "ast_hash": "198fe16df2b54ea1d5ec137453a3ada9",
+    "semantic_hash": "198fe16df2b54ea1d5ec137453a3ada9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\compressed-output.test.ts": {
+    "mtime": 1778743450.843583,
+    "ast_hash": "114265ceb20193d45c78bd17a3fdf634",
+    "semantic_hash": "114265ceb20193d45c78bd17a3fdf634"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\current-task.test.ts": {
+    "mtime": 1778743450.8455844,
+    "ast_hash": "501b45d2425b4371c02a2a72ef6093e5",
+    "semantic_hash": "501b45d2425b4371c02a2a72ef6093e5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\git-checkpoint.test.ts": {
+    "mtime": 1778743450.848581,
+    "ast_hash": "3bf2004711c4c6365662514334b31043",
+    "semantic_hash": "3bf2004711c4c6365662514334b31043"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\memory-staging.test.ts": {
+    "mtime": 1778743450.8507662,
+    "ast_hash": "12956cd79a8c44fc9de57cc08db74d67",
+    "semantic_hash": "12956cd79a8c44fc9de57cc08db74d67"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\plan-drafter.test.ts": {
+    "mtime": 1778743450.8534865,
+    "ast_hash": "5cf91bb3f4df856f8372db0e023f7ca3",
+    "semantic_hash": "5cf91bb3f4df856f8372db0e023f7ca3"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\policy-decision-writer.test.ts": {
+    "mtime": 1778743450.854736,
+    "ast_hash": "831530bc6a0f5dfdc946c9604084fd70",
+    "semantic_hash": "831530bc6a0f5dfdc946c9604084fd70"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\question-generator.test.ts": {
+    "mtime": 1778743450.858112,
+    "ast_hash": "63c50ab4450a271c267b31d76fa608ab",
+    "semantic_hash": "63c50ab4450a271c267b31d76fa608ab"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\step-executor.test.ts": {
+    "mtime": 1778743450.8610463,
+    "ast_hash": "8253e80c167c8b856dce6372eb84228e",
+    "semantic_hash": "8253e80c167c8b856dce6372eb84228e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\task-lifecycle.test.ts": {
+    "mtime": 1778743450.864428,
+    "ast_hash": "df6697536bbf5334e73659ac41c5ecbd",
+    "semantic_hash": "df6697536bbf5334e73659ac41c5ecbd"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\shared\\task-loader.test.ts": {
+    "mtime": 1778743450.8668578,
+    "ast_hash": "b951c18ad06bbf8a56b807bafafcaab6",
+    "semantic_hash": "b951c18ad06bbf8a56b807bafafcaab6"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\policy\\decision-flow.test.ts": {
+    "mtime": 1778743450.8747697,
+    "ast_hash": "74f4d6de0138eebff3b111427d2adf11",
+    "semantic_hash": "74f4d6de0138eebff3b111427d2adf11"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\policy\\tier-resolver.test.ts": {
+    "mtime": 1778743450.8767908,
+    "ast_hash": "eb984beb41a50779518f54bc799612ed",
+    "semantic_hash": "eb984beb41a50779518f54bc799612ed"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\policy\\tool-classes.test.ts": {
+    "mtime": 1778743450.8801577,
+    "ast_hash": "3d82d0a0e05aa64cdbef34f3d26d077f",
+    "semantic_hash": "3d82d0a0e05aa64cdbef34f3d26d077f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\policy\\tool-registry.test.ts": {
+    "mtime": 1778743450.882671,
+    "ast_hash": "cae6851b72af24315cf7ec2dd3bdf752",
+    "semantic_hash": "cae6851b72af24315cf7ec2dd3bdf752"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\policy\\trust-registry.test.ts": {
+    "mtime": 1778743450.8853116,
+    "ast_hash": "94b5d28d3acc3645daf9e355e5099ab4",
+    "semantic_hash": "94b5d28d3acc3645daf9e355e5099ab4"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\tools\\pi-agent-executor.test.ts": {
+    "mtime": 1778743450.9002886,
+    "ast_hash": "c1d774afc80f116fd0c462f9ba3554e3",
+    "semantic_hash": "c1d774afc80f116fd0c462f9ba3554e3"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\tools\\pi-tool-defaults.test.ts": {
+    "mtime": 1778743450.9016142,
+    "ast_hash": "850a9e8a843f1ac4165d1682755ab4a5",
+    "semantic_hash": "850a9e8a843f1ac4165d1682755ab4a5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\tools\\tool-id-conventions.test.ts": {
+    "mtime": 1778743450.9038196,
+    "ast_hash": "5c2648b47725d5f2d3f5b81ed3d3df8b",
+    "semantic_hash": "5c2648b47725d5f2d3f5b81ed3d3df8b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\core\\health.test.ts": {
+    "mtime": 1778743450.9096315,
+    "ast_hash": "47cf711dcc3d83d225a81dd02ed3b97f",
+    "semantic_hash": "47cf711dcc3d83d225a81dd02ed3b97f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\core\\narrator.test.ts": {
+    "mtime": 1778913776.2105362,
+    "ast_hash": "7661462954ac05f40fa0713d451547b0",
+    "semantic_hash": "7661462954ac05f40fa0713d451547b0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\pi\\slash-commands.test.ts": {
+    "mtime": 1778743450.9506786,
+    "ast_hash": "10907f100c932ae51272be16e93ba77d",
+    "semantic_hash": "10907f100c932ae51272be16e93ba77d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\pi\\tool-call-handler.test.ts": {
+    "mtime": 1778743450.9530344,
+    "ast_hash": "d5fd95da94af4c0433a082a61d3ee1d0",
+    "semantic_hash": "d5fd95da94af4c0433a082a61d3ee1d0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\pi\\ui.test.ts": {
+    "mtime": 1778743450.9541306,
+    "ast_hash": "4653b6cbd4676ed6403729017af60e56",
+    "semantic_hash": "4653b6cbd4676ed6403729017af60e56"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\AGENTS.md": {
+    "mtime": 1778743450.1868682,
+    "ast_hash": "ea67fc385007c19b0530c0fae1ef9479",
+    "semantic_hash": "ea67fc385007c19b0530c0fae1ef9479"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\AGENT_OS_CONSTITUTION.md": {
+    "mtime": 1778743450.1893039,
+    "ast_hash": "10ac6fc33fdf677946da2fdea6d25980",
+    "semantic_hash": "10ac6fc33fdf677946da2fdea6d25980"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\AGENT_OS_ROADMAP.md": {
+    "mtime": 1778743450.1905713,
+    "ast_hash": "8124156747564c465dc30a3b5ea79c00",
+    "semantic_hash": "8124156747564c465dc30a3b5ea79c00"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\CHANGELOG.md": {
+    "mtime": 1778926658.1834514,
+    "ast_hash": "f19e2e2734875e1f854b058c7bfadead",
+    "semantic_hash": "f19e2e2734875e1f854b058c7bfadead"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\CLAUDE.md": {
+    "mtime": 1778926658.1885273,
+    "ast_hash": "5a9fb8df106593411d40b51ec5ab3173",
+    "semantic_hash": "5a9fb8df106593411d40b51ec5ab3173"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\CONTEXT.md": {
+    "mtime": 1778743450.1985285,
+    "ast_hash": "dcf91401b9b879c7b72dbd4d216c9f38",
+    "semantic_hash": "dcf91401b9b879c7b72dbd4d216c9f38"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\README.md": {
+    "mtime": 1778926658.1902707,
+    "ast_hash": "9029ac52d9f09da4fe5615ff4f9da271",
+    "semantic_hash": "9029ac52d9f09da4fe5615ff4f9da271"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.claude\\skills\\brain-capture\\example-draft.md": {
+    "mtime": 1778743450.176212,
+    "ast_hash": "33bf85621af7555ef934b12407b440ff",
+    "semantic_hash": "33bf85621af7555ef934b12407b440ff"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.claude\\skills\\brain-capture\\SKILL.md": {
+    "mtime": 1778743450.1738234,
+    "ast_hash": "2feb206700cb0d88837b5c3fee069879",
+    "semantic_hash": "2feb206700cb0d88837b5c3fee069879"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\.github\\copilot-instructions.md": {
+    "mtime": 1778743450.1815526,
+    "ast_hash": "e128ac9133f609294446e57c20dc04b7",
+    "semantic_hash": "e128ac9133f609294446e57c20dc04b7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\data_store\\README.md": {
+    "mtime": 1778743450.208051,
+    "ast_hash": "0a851223c4a79b78aacd3e841d983deb",
+    "semantic_hash": "0a851223c4a79b78aacd3e841d983deb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\2026-05-14-skill-pack-architecture-audit.md": {
+    "mtime": 1778913776.0782964,
+    "ast_hash": "a4956148d9c4941524d5b180d4155748",
+    "semantic_hash": "a4956148d9c4941524d5b180d4155748"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\compatibility.md": {
+    "mtime": 1778926658.1993382,
+    "ast_hash": "c7a2c92ff0a22d78e666f5f161646d7a",
+    "semantic_hash": "c7a2c92ff0a22d78e666f5f161646d7a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\narration-tags.md": {
+    "mtime": 1778913776.08156,
+    "ast_hash": "caca8df041d814d0d44dde2aa9e7c9e7",
+    "semantic_hash": "caca8df041d814d0d44dde2aa9e7c9e7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\release-notes-v1.6.0.md": {
+    "mtime": 1778926658.2010992,
+    "ast_hash": "c3c2003c90182392763ea41c628d9349",
+    "semantic_hash": "c3c2003c90182392763ea41c628d9349"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\architecture\\event-bus.md": {
+    "mtime": 1778743450.2167983,
+    "ast_hash": "19fe188d42541f4a7230868ce1b02467",
+    "semantic_hash": "19fe188d42541f4a7230868ce1b02467"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\architecture\\observability.md": {
+    "mtime": 1778743450.2185392,
+    "ast_hash": "21915b5c92311735e254c1a5c595eb25",
+    "semantic_hash": "21915b5c92311735e254c1a5c595eb25"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\architecture\\risk-framework.md": {
+    "mtime": 1778743450.2212856,
+    "ast_hash": "e4762c148085c8ba39cad1e40c9db071",
+    "semantic_hash": "e4762c148085c8ba39cad1e40c9db071"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\decisions\\2026-04-15-layering.md": {
+    "mtime": 1778743450.2285461,
+    "ast_hash": "f2d10f278e3da33e8abd93941f60f3d9",
+    "semantic_hash": "f2d10f278e3da33e8abd93941f60f3d9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\demo\\section-16-walkthrough.md": {
+    "mtime": 1778743450.2320275,
+    "ast_hash": "6a9cee0effb2c36448d2858b4e751ccb",
+    "semantic_hash": "6a9cee0effb2c36448d2858b4e751ccb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\design\\2026-04-22-brain-design.md": {
+    "mtime": 1778743450.2358727,
+    "ast_hash": "307d8450ea266ad70f8b504b5a47556f",
+    "semantic_hash": "307d8450ea266ad70f8b504b5a47556f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\design\\2026-04-22-context-os-design.md": {
+    "mtime": 1778743450.239128,
+    "ast_hash": "6f56e964998285745560a4ca7198107d",
+    "semantic_hash": "6f56e964998285745560a4ca7198107d"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\design\\2026-04-22-knowledge-os-design.md": {
+    "mtime": 1778743450.2438028,
+    "ast_hash": "c460b9714f37defd3e2451265301c1a7",
+    "semantic_hash": "c460b9714f37defd3e2451265301c1a7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\design\\2026-04-25-brain-capture-skill-design.md": {
+    "mtime": 1778743450.2456045,
+    "ast_hash": "9763da50df26317b7e4298268c641353",
+    "semantic_hash": "9763da50df26317b7e4298268c641353"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\design\\2026-04-26-agent-os-bundle-design.md": {
+    "mtime": 1778743450.2473435,
+    "ast_hash": "8c2915cf7a311137a2c82ba23cf5f384",
+    "semantic_hash": "8c2915cf7a311137a2c82ba23cf5f384"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\design\\2026-04-26-agent-os-v3-design.md": {
+    "mtime": 1778743450.250824,
+    "ast_hash": "86e1cac00c88a1112c5beb3e9daffb74",
+    "semantic_hash": "86e1cac00c88a1112c5beb3e9daffb74"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\strategies\\CLAUDE.md": {
+    "mtime": 1778743450.25735,
+    "ast_hash": "6566a60c8c8de29352d4fcd634d4040b",
+    "semantic_hash": "6566a60c8c8de29352d4fcd634d4040b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\strategies\\mes-supertrend.md": {
+    "mtime": 1778743450.259748,
+    "ast_hash": "9de5a899db6797a4c20ecac7b4851751",
+    "semantic_hash": "9de5a899db6797a4c20ecac7b4851751"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-04-25-brain-capture-skill.md": {
+    "mtime": 1778743450.2657487,
+    "ast_hash": "cd17f21d68a873fc68174be96a8188c7",
+    "semantic_hash": "cd17f21d68a873fc68174be96a8188c7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-04-26-agent-os-bundle-design.md": {
+    "mtime": 1778743450.268674,
+    "ast_hash": "0ed24f6ee542ac763e59b25123bf50a0",
+    "semantic_hash": "0ed24f6ee542ac763e59b25123bf50a0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-04-26-agent-os-v3.md": {
+    "mtime": 1778743450.2710924,
+    "ast_hash": "42f16c93a7640fd34ba12c61287c2aa0",
+    "semantic_hash": "42f16c93a7640fd34ba12c61287c2aa0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-04-27-agentic-os-runtime-core.md": {
+    "mtime": 1778743450.2744582,
+    "ast_hash": "c90c9a519dad73e68da326fc17b6e680",
+    "semantic_hash": "c90c9a519dad73e68da326fc17b6e680"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-04-28-canonical-runtime-layout-visibility.md": {
+    "mtime": 1778743450.2769728,
+    "ast_hash": "e4f31ab52d1fa9ec240d71ff499d2858",
+    "semantic_hash": "e4f31ab52d1fa9ec240d71ff499d2858"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-04-28-constitution-binding-hardening.md": {
+    "mtime": 1778743450.281185,
+    "ast_hash": "5b3aca5ef84eae5c64cdf63b60024d1b",
+    "semantic_hash": "5b3aca5ef84eae5c64cdf63b60024d1b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-04-28-constitution-event-alignment.md": {
+    "mtime": 1778743450.2831802,
+    "ast_hash": "4e0a8661c0241fbc507c839962c5357a",
+    "semantic_hash": "4e0a8661c0241fbc507c839962c5357a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-04-28-doctor-operator-ux.md": {
+    "mtime": 1778743450.2871802,
+    "ast_hash": "713c611db4c46193bf96210e26a2c221",
+    "semantic_hash": "713c611db4c46193bf96210e26a2c221"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\plans\\2026-05-14-phase1-pack-seam-narration.md": {
+    "mtime": 1778913776.0867786,
+    "ast_hash": "c71a11db9b77e5d8c7cdfe7ffce79885",
+    "semantic_hash": "c71a11db9b77e5d8c7cdfe7ffce79885"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\specs\\2026-04-27-agentic-os-runtime-design.md": {
+    "mtime": 1778743450.2921853,
+    "ast_hash": "8218cc101bd7ee38a07eb67460323dae",
+    "semantic_hash": "8218cc101bd7ee38a07eb67460323dae"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\specs\\2026-04-27-safety-operating-layer-design.md": {
+    "mtime": 1778743450.2972903,
+    "ast_hash": "08c3caff1a25fbe1b3fcbd886b71f80a",
+    "semantic_hash": "08c3caff1a25fbe1b3fcbd886b71f80a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\specs\\2026-04-28-constitution-binding-hardening-design.md": {
+    "mtime": 1778743450.301241,
+    "ast_hash": "80173790de42e4c32c024e79540402e5",
+    "semantic_hash": "80173790de42e4c32c024e79540402e5"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\specs\\2026-04-28-constitution-event-alignment-design.md": {
+    "mtime": 1778743450.3029816,
+    "ast_hash": "ace53d84e7ba3095e3366e7735598607",
+    "semantic_hash": "ace53d84e7ba3095e3366e7735598607"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\specs\\2026-04-28-doctor-operator-ux-design.md": {
+    "mtime": 1778743450.306463,
+    "ast_hash": "e4e3b01045c490110b4526a2ed06793e",
+    "semantic_hash": "e4e3b01045c490110b4526a2ed06793e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\specs\\2026-04-28-phase1-control-plane-credibility-design.md": {
+    "mtime": 1778743450.3099446,
+    "ast_hash": "d196fd9f24cccd3181314e05d37fbd6e",
+    "semantic_hash": "d196fd9f24cccd3181314e05d37fbd6e"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\docs\\superpowers\\specs\\2026-05-14-phase2-pack-content-ui-narration-design.md": {
+    "mtime": 1778913776.0885189,
+    "ast_hash": "fd10802110ce461f565f1ee03b02b9b2",
+    "semantic_hash": "fd10802110ce461f565f1ee03b02b9b2"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\SKILL_REGISTRY.md": {
+    "mtime": 1778743450.3170002,
+    "ast_hash": "2389250f68d973c415a034190c103467",
+    "semantic_hash": "2389250f68d973c415a034190c103467"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\agents\\design.agent.md": {
+    "mtime": 1778743450.3205972,
+    "ast_hash": "bed5b01a2ee121e1c8d4062b64e744b2",
+    "semantic_hash": "bed5b01a2ee121e1c8d4062b64e744b2"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\agents\\implementation.agent.md": {
+    "mtime": 1778743450.3240764,
+    "ast_hash": "5199be1e33aaaf6ab844738c4c585cfb",
+    "semantic_hash": "5199be1e33aaaf6ab844738c4c585cfb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\agents\\review.agent.md": {
+    "mtime": 1778743450.327554,
+    "ast_hash": "6b1f6418daf80bb0c3d034725929ea24",
+    "semantic_hash": "6b1f6418daf80bb0c3d034725929ea24"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\commands\\README.md": {
+    "mtime": 1778743450.3310356,
+    "ast_hash": "a7ee99198ca3a500940b26a0bebbc40f",
+    "semantic_hash": "a7ee99198ca3a500940b26a0bebbc40f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\protocols\\context-packet.md": {
+    "mtime": 1778743450.3659966,
+    "ast_hash": "5cb34dd9e8073eb1421b70de3a5a9515",
+    "semantic_hash": "5cb34dd9e8073eb1421b70de3a5a9515"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\protocols\\handoff.md": {
+    "mtime": 1778743450.3679018,
+    "ast_hash": "23eafb42f2170e14f54ef0e99f6806fd",
+    "semantic_hash": "23eafb42f2170e14f54ef0e99f6806fd"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\protocols\\verification-gate.md": {
+    "mtime": 1778743450.3696578,
+    "ast_hash": "7b6859d03ae527dfc83e46ad5848d5e0",
+    "semantic_hash": "7b6859d03ae527dfc83e46ad5848d5e0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\skills\\brainstorming\\SKILL.md": {
+    "mtime": 1778743450.373901,
+    "ast_hash": "b940a611e7a00abd5cf1a0880ebe4d2b",
+    "semantic_hash": "b940a611e7a00abd5cf1a0880ebe4d2b"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\skills\\debugging\\SKILL.md": {
+    "mtime": 1778743450.3806174,
+    "ast_hash": "a871942fb41dab7e6e62370b80f102c4",
+    "semantic_hash": "a871942fb41dab7e6e62370b80f102c4"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\skills\\planning\\SKILL.md": {
+    "mtime": 1778743450.3841388,
+    "ast_hash": "6453d973222605a4c85da6d7e8c0075a",
+    "semantic_hash": "6453d973222605a4c85da6d7e8c0075a"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\skills\\review\\SKILL.md": {
+    "mtime": 1778743450.3891146,
+    "ast_hash": "f7bd4c296b8a2a1cc0713ce141fa33b0",
+    "semantic_hash": "f7bd4c296b8a2a1cc0713ce141fa33b0"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\skills\\spec-writing\\SKILL.md": {
+    "mtime": 1778743450.3925958,
+    "ast_hash": "0f2403fbb134d9b7c17955e2f8002360",
+    "semantic_hash": "0f2403fbb134d9b7c17955e2f8002360"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\execution\\skills\\tdd\\SKILL.md": {
+    "mtime": 1778743450.395995,
+    "ast_hash": "7ff3f3e3d1eb5081882998417023ca39",
+    "semantic_hash": "7ff3f3e3d1eb5081882998417023ca39"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\memory\\MEMORY.md": {
+    "mtime": 1778743450.4000041,
+    "ast_hash": "f3441ed38f7b17deeffc450dd326d0fc",
+    "semantic_hash": "f3441ed38f7b17deeffc450dd326d0fc"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\agent-os-core\\workflow-pack.yaml": {
+    "mtime": 1778743450.5204253,
+    "ast_hash": "56712eb699819246c60ba3ef499ef832",
+    "semantic_hash": "56712eb699819246c60ba3ef499ef832"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\README.md": {
+    "mtime": 1778913776.1283693,
+    "ast_hash": "b190b99a1531d57a96b3c2b3708e59bc",
+    "semantic_hash": "b190b99a1531d57a96b3c2b3708e59bc"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\workflow-pack.yaml": {
+    "mtime": 1778913776.1489923,
+    "ast_hash": "3b687c70fe94aeb15787ad7cda77cfc9",
+    "semantic_hash": "3b687c70fe94aeb15787ad7cda77cfc9"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\prompts\\diagnose\\01-build-feedback-loop.md": {
+    "mtime": 1778913776.13097,
+    "ast_hash": "1df569691475a5f7792eab5be6f857a6",
+    "semantic_hash": "1df569691475a5f7792eab5be6f857a6"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\prompts\\diagnose\\02-reproduce.md": {
+    "mtime": 1778913776.132175,
+    "ast_hash": "df58dc66ccc881b36add37c9e7b1fdfa",
+    "semantic_hash": "df58dc66ccc881b36add37c9e7b1fdfa"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\prompts\\diagnose\\03-falsifiable-hypothesis.md": {
+    "mtime": 1778913776.1349301,
+    "ast_hash": "9e7d1d48878ba023da97386cd5e3e8ab",
+    "semantic_hash": "9e7d1d48878ba023da97386cd5e3e8ab"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\prompts\\diagnose\\04-instrument.md": {
+    "mtime": 1778913776.1364262,
+    "ast_hash": "e11476a0264b66ffb5a508ba2f479545",
+    "semantic_hash": "e11476a0264b66ffb5a508ba2f479545"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\prompts\\diagnose\\05-fix-at-seam.md": {
+    "mtime": 1778913776.140007,
+    "ast_hash": "1d289c15ff0d768c94869cc92e87f8ce",
+    "semantic_hash": "1d289c15ff0d768c94869cc92e87f8ce"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\prompts\\diagnose\\06-cleanup.md": {
+    "mtime": 1778913776.1413662,
+    "ast_hash": "4e6069cd5feb7ff1e3b71427d7e7edf2",
+    "semantic_hash": "4e6069cd5feb7ff1e3b71427d7e7edf2"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\prompts\\grill\\intro.md": {
+    "mtime": 1778913776.1426048,
+    "ast_hash": "23520bc3919ea58c28523ded481bb491",
+    "semantic_hash": "23520bc3919ea58c28523ded481bb491"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\src\\ccp\\commands\\init\\packs\\engineering-core\\prompts\\grill\\legacy-safe.md": {
+    "mtime": 1778913776.1426048,
+    "ast_hash": "4461ea2d3d130841cbf78281ec8c4cd7",
+    "semantic_hash": "4461ea2d3d130841cbf78281ec8c4cd7"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\fixtures\\constitution-good.md": {
+    "mtime": 1778743450.717657,
+    "ast_hash": "bb9dbfc6e20ad964cb3fbf315e53166f",
+    "semantic_hash": "bb9dbfc6e20ad964cb3fbf315e53166f"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\fixtures\\project.yaml": {
+    "mtime": 1778743450.7196524,
+    "ast_hash": "6e817ed1be280310e54741e038e46dc2",
+    "semantic_hash": "6e817ed1be280310e54741e038e46dc2"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\fixtures\\v1.0.0\\AGENT_OS_CONSTITUTION.md": {
+    "mtime": 1778743450.7366242,
+    "ast_hash": "10ac6fc33fdf677946da2fdea6d25980",
+    "semantic_hash": "10ac6fc33fdf677946da2fdea6d25980"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\__fixtures__\\fake-packs\\fake-pack\\workflow-pack.yaml": {
+    "mtime": 1778743450.7935429,
+    "ast_hash": "5f0d3a6c6637d91890e4811d3f9148bb",
+    "semantic_hash": "5f0d3a6c6637d91890e4811d3f9148bb"
+  },
+  "C:\\Users\\agnivad\\OneDrive - Microsoft\\Agniva\\starter\\Agent_OS\\tests\\unit\\ccp\\commands\\__fixtures__\\fake-packs\\zzz-pack\\workflow-pack.yaml": {
+    "mtime": 1778743450.795429,
+    "ast_hash": "4ea1a84d5b3dded24af4e695ee4cee6a",
+    "semantic_hash": "4ea1a84d5b3dded24af4e695ee4cee6a"
+  }
+}

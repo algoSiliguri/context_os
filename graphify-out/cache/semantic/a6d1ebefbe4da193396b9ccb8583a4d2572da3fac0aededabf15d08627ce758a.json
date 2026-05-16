@@ -1,0 +1,1 @@
+{"nodes": [{"id": "diagnose_p1_buildfeedbackloop", "label": "Diagnose Phase 1: Build feedback loop", "file_type": "rationale", "source_file": "src/ccp/commands/init/packs/engineering-core/prompts/diagnose/01-build-feedback-loop.md", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}
