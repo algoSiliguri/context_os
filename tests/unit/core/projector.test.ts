@@ -49,7 +49,7 @@ describe('emitAndProject', () => {
 
     const lines = readFileSync(eventsPath, 'utf8').trim().split('\n');
     expect(lines).toHaveLength(1);
-    const parsed = JSON.parse(lines[0]);
+    const parsed = JSON.parse(lines[0]!);
     expect(parsed.event_type).toBe('TEST_CHARACTERIZATION');
     expect(parsed.event_id).toBe('test-event-id');
   });
@@ -81,7 +81,7 @@ describe('emitAndProject', () => {
     expect(existsSync(eventsPath)).toBe(true);
     const lines = readFileSync(eventsPath, 'utf8').trim().split('\n');
     expect(lines).toHaveLength(1);
-    const parsed = JSON.parse(lines[0]);
+    const parsed = JSON.parse(lines[0]!);
     expect(parsed.event_type).toBe('TEST_CHARACTERIZATION');
   });
 });

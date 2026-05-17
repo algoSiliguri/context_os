@@ -85,19 +85,6 @@ export function readArtifactRaw(
   }
 }
 
-// Write without TypeBox schema validation — for artifact types without a schema yet.
-export function writeArtifactRaw(
-  repoRoot: string,
-  taskId: string,
-  type: ArtifactType,
-  record: unknown,
-): void {
-  const path = taskArtifactPath(repoRoot, taskId, type);
-  mkdirSync(dirname(path), { recursive: true });
-  const tmp = `${path}.tmp`;
-  writeFileSync(tmp, YAML.stringify(record, { indent: 2 }), 'utf-8');
-  renameSync(tmp, path);
-}
 
 export function readArtifact<T extends SchemaArtifactType>(
   repoRoot: string,
