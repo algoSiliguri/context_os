@@ -91,3 +91,77 @@ describe('task-state-machine', () => {
     );
   });
 });
+
+// Exhaustive characterization of the full HAPPY transition table.
+// Re-declares the table as a test snapshot — if the source changes, this fails.
+describe('HAPPY table: exhaustive characterization', () => {
+  const S = TaskState;
+
+  const EXPECTED_HAPPY: Record<TaskState, ReadonlySet<TaskState>> = {
+    NEW_IDEA:                new Set([S.GRILLING, S.DIAGNOSING, S.QUICK_TASKING]),
+    DIAGNOSING:              new Set([S.SHARED_UNDERSTANDING, S.FAILED_BLOCKED]),
+    GRILLING:                new Set([S.SHARED_UNDERSTANDING, S.FAILED_BLOCKED]),
+    SHARED_UNDERSTANDING:    new Set([S.PLANNING]),
+    PLANNING:                new Set([S.AWAITING_PLAN_APPROVAL, S.FAILED_BLOCKED]),
+    AWAITING_PLAN_APPROVAL:  new Set([S.EXECUTING, S.SHARED_UNDERSTANDING]),
+    QUICK_TASKING:           new Set([S.AWAITING_HUMAN_REVIEW, S.FAILED_RECOVERABLE]),
+    EXECUTING:               new Set([S.AWAITING_TOOL_APPROVAL, S.VERIFYING, S.FAILED_RECOVERABLE, S.FAILED_BLOCKED]),
+    AWAITING_TOOL_APPROVAL:  new Set([S.EXECUTING, S.FAILED_BLOCKED]),
+    VERIFYING:               new Set([S.AWAITING_HUMAN_REVIEW, S.FAILED_RECOVERABLE]),
+    AWAITING_HUMAN_REVIEW:   new Set([S.EVALUATING, S.PERSISTING_KNOWLEDGE, S.COMPLETED, S.VERIFYING]),
+    EVALUATING:              new Set([S.PERSISTING_KNOWLEDGE, S.COMPLETED]),
+    PERSISTING_KNOWLEDGE:    new Set([S.COMPLETED]),
+    COMPLETED:               new Set(),
+    FAILED_RECOVERABLE:      new Set([S.EXECUTING, S.PLANNING, S.VERIFYING, S.QUICK_TASKING]),
+    FAILED_BLOCKED:          new Set([S.PLANNING]),
+    ABORTED:                 new Set(),
+  };
+
+  const TERMINAL_STATES: ReadonlySet<TaskState> = new Set([S.COMPLETED, S.ABORTED]);
+  const NON_TERMINAL = ALL_STATES.filter((s) => !TERMINAL_STATES.has(s));
+
+  it('every allowed (from → to) pair succeeds', () => {
+    for (const [from, targets] of Object.entries(EXPECTED_HAPPY) as [TaskState, ReadonlySet<TaskState>][]) {
+      for (const to of targets) {
+        expect(transitionTask(from as TaskState, to), `${from} → ${to}`).toBe(to);
+      }
+    }
+  });
+
+  it('every disallowed (from → to) pair throws', () => {
+    for (const [from, allowed] of Object.entries(EXPECTED_HAPPY) as [TaskState, ReadonlySet<TaskState>][]) {
+      if (TERMINAL_STATES.has(from as TaskState)) continue;
+      const disallowed = ALL_STATES.filter(
+        (to) => !allowed.has(to) && to !== S.ABORTED,
+      );
+      for (const to of disallowed) {
+        expect(
+          () => transitionTask(from as TaskState, to),
+          `${from} → ${to} should throw`,
+        ).toThrow(/invalid task transition/);
+      }
+    }
+  });
+
+  it('ABORTED target succeeds from every non-terminal state', () => {
+    for (const from of NON_TERMINAL) {
+      expect(transitionTask(from, S.ABORTED), `${from} → ABORTED`).toBe(S.ABORTED);
+    }
+  });
+
+  it('COMPLETED throws on any outgoing transition', () => {
+    for (const to of ALL_STATES) {
+      expect(() => transitionTask(S.COMPLETED, to), `COMPLETED → ${to}`).toThrow(/terminal/);
+    }
+  });
+
+  it('ABORTED throws on any outgoing transition', () => {
+    for (const to of ALL_STATES) {
+      expect(() => transitionTask(S.ABORTED, to), `ABORTED → ${to}`).toThrow(/terminal/);
+    }
+  });
+
+  it('HAPPY table covers all 17 states', () => {
+    expect(Object.keys(EXPECTED_HAPPY)).toHaveLength(17);
+  });
+});
