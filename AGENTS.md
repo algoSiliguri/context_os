@@ -101,11 +101,11 @@ GitHub Issues at `algoSiliguri/Agent_OS`
 
 ## Current Active Work
 
-Active epic: **#37 EPIC-001: State + Event Spine Protection**
-Current story: **#38 STORY-010: Characterize emitAndProject**
+Active epic: **#54 EPIC-002: Artifact Contract Hardening**
+Current story: **#55 STORY-018: Add unit coverage for /review artifact behavior**
 
 Default next action:
-Move #38 to In Progress → branch `story-010-characterize-emit-and-project` → add `tests/unit/core/projector.test.ts` → do not touch `src/` → run `npm test`.
+Move #55 to In Progress → branch `story-018-review-unit-tests` → add `tests/unit/ccp/commands/review.test.ts` → do not touch `src/` → run `npm test`.
 
 ---
 
