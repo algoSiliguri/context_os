@@ -51,6 +51,24 @@ describe('artifact io', () => {
     const dir = mkdtempSync(join(tmpdir(), 'aos-aio-'));
     expect(() => readArtifact(dir, 'T-999', 'grill')).toThrow();
   });
+
+  // Regression: review.ts and evaluate.ts now use readArtifact (validated, throws)
+  // instead of readArtifactRaw (returns null). These confirm the validated path
+  // rejects missing artifacts for the exact types those commands read.
+  it('readArtifact throws when plan file missing (review.ts regression)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'aos-aio-'));
+    expect(() => readArtifact(dir, 'T-999', 'plan')).toThrow();
+  });
+
+  it('readArtifact throws when verification file missing (review.ts + evaluate.ts regression)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'aos-aio-'));
+    expect(() => readArtifact(dir, 'T-999', 'verification')).toThrow();
+  });
+
+  it('readArtifact throws when review file missing (evaluate.ts regression)', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'aos-aio-'));
+    expect(() => readArtifact(dir, 'T-999', 'review')).toThrow();
+  });
 });
 
 describe('all 9 artifact types: write→read round-trip', () => {
