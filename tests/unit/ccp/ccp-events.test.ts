@@ -4,6 +4,10 @@ import {
   buildCommandCompletedEvent,
   buildCommandFailedEvent,
   buildCommandStartedEvent,
+  buildDiagnoseCompletedEvent,
+  buildDiagnoseStartedEvent,
+  buildEvaluateCompletedEvent,
+  buildEvaluateStartedEvent,
   buildFileChangedEvent,
   buildGrillStartedEvent,
   buildKnowledgeCaptureApprovedEvent,
@@ -13,6 +17,10 @@ import {
   buildPlanCreatedEvent,
   buildPlanRejectedEvent,
   buildQuestionAskedEvent,
+  buildQuickTaskCompletedEvent,
+  buildQuickTaskStartedEvent,
+  buildReviewCompletedEvent,
+  buildReviewStartedEvent,
   buildSharedUnderstandingCreatedEvent,
   buildStepCompletedEvent,
   buildStepFailedEvent,
@@ -146,4 +154,59 @@ describe('ccp-events', () => {
     expect(e.event_type).toBe('STEP_FAILED');
     expect(e.payload).toMatchObject({ step_id: 'S-4', reason: 'lint error', recoverable: false });
   });
+});
+
+describe('all 33 ccp-events builders: event_type, session_id, timestamp', () => {
+  const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+  const s = 'sess-char';
+  const t = 'T-char';
+
+  const cases: Array<[string, ReturnType<typeof buildTaskCreatedEvent>]> = [
+    ['TASK_CREATED', buildTaskCreatedEvent({ sessionId: s, taskId: t, goal: 'g', userType: 'developer' })],
+    ['TASK_STATE_TRANSITION', buildTaskStateTransitionEvent({ sessionId: s, taskId: t, from: 'NEW_IDEA', to: 'GRILLING', triggeredBy: '/grill' })],
+    ['TASK_COMPLETED', buildTaskCompletedEvent({ sessionId: s, taskId: t })],
+    ['TASK_FAILED', buildTaskFailedEvent({ sessionId: s, taskId: t, reason: 'r' })],
+    ['TASK_ABORTED', buildTaskAbortedEvent({ sessionId: s, taskId: t, reason: 'r' })],
+    ['GRILL_STARTED', buildGrillStartedEvent({ sessionId: s, taskId: t })],
+    ['QUESTION_ASKED', buildQuestionAskedEvent({ sessionId: s, taskId: t, questionId: 'Q-1', question: '?', whyItMatters: 'because' })],
+    ['ANSWER_RECORDED', buildAnswerRecordedEvent({ sessionId: s, taskId: t, questionId: 'Q-1', answer: 'a' })],
+    ['SHARED_UNDERSTANDING_CREATED', buildSharedUnderstandingCreatedEvent({ sessionId: s, taskId: t, decisionProceed: true })],
+    ['PLAN_CREATED', buildPlanCreatedEvent({ sessionId: s, taskId: t, planId: 'p-1', stepCount: 3 })],
+    ['PLAN_APPROVED', buildPlanApprovedEvent({ sessionId: s, taskId: t, planId: 'p-1' })],
+    ['PLAN_REJECTED', buildPlanRejectedEvent({ sessionId: s, taskId: t, planId: 'p-1', reason: 'no' })],
+    ['COMMAND_STARTED', buildCommandStartedEvent({ sessionId: s, taskId: t, stepId: 'S-1', command: 'ls' })],
+    ['COMMAND_COMPLETED', buildCommandCompletedEvent({ sessionId: s, taskId: t, stepId: 'S-1', command: 'ls', exitCode: 0 })],
+    ['COMMAND_FAILED', buildCommandFailedEvent({ sessionId: s, taskId: t, stepId: 'S-1', exitCode: 1, summary: 'fail' })],
+    ['FILE_CHANGED', buildFileChangedEvent({ sessionId: s, taskId: t, stepId: 'S-1', path: 'a.ts', operation: 'modify' })],
+    ['STEP_STARTED', buildStepStartedEvent({ sessionId: s, taskId: t, stepId: 'S-1', stepTitle: 'run', commandCount: 1 })],
+    ['STEP_COMPLETED', buildStepCompletedEvent({ sessionId: s, taskId: t, stepId: 'S-1' })],
+    ['STEP_FAILED', buildStepFailedEvent({ sessionId: s, taskId: t, stepId: 'S-1', reason: 'r', recoverable: false })],
+    ['VERIFICATION_STARTED', buildVerificationStartedEvent({ sessionId: s, taskId: t })],
+    ['VERIFICATION_PASSED', buildVerificationPassedEvent({ sessionId: s, taskId: t })],
+    ['VERIFICATION_FAILED', buildVerificationFailedEvent({ sessionId: s, taskId: t, summary: 'fail', nextAction: 'fix' })],
+    ['KNOWLEDGE_CAPTURE_PROPOSED', buildKnowledgeCaptureProposedEvent({ sessionId: s, taskId: t, captureId: 'K-1', captureType: 'convention' })],
+    ['KNOWLEDGE_CAPTURE_APPROVED', buildKnowledgeCaptureApprovedEvent({ sessionId: s, taskId: t, captureId: 'K-1', brainNodeId: 'kn-1' })],
+    ['KNOWLEDGE_CAPTURE_REJECTED', buildKnowledgeCaptureRejectedEvent({ sessionId: s, taskId: t, captureId: 'K-1' })],
+    ['DIAGNOSE_STARTED', buildDiagnoseStartedEvent({ sessionId: s, taskId: t })],
+    ['DIAGNOSE_COMPLETED', buildDiagnoseCompletedEvent({ sessionId: s, taskId: t, confidence: 'high', decision: 'fix' })],
+    ['QUICK_TASK_STARTED', buildQuickTaskStartedEvent({ sessionId: s, taskId: t })],
+    ['QUICK_TASK_COMPLETED', buildQuickTaskCompletedEvent({ sessionId: s, taskId: t, status: 'done', filesChanged: 2 })],
+    ['REVIEW_STARTED', buildReviewStartedEvent({ sessionId: s, taskId: t })],
+    ['REVIEW_COMPLETED', buildReviewCompletedEvent({ sessionId: s, taskId: t, status: 'approved' })],
+    ['EVALUATE_STARTED', buildEvaluateStartedEvent({ sessionId: s, taskId: t })],
+    ['EVALUATE_COMPLETED', buildEvaluateCompletedEvent({ sessionId: s, taskId: t, taskOutcome: 'success', criteriaSatisfactionRate: 1.0 })],
+  ];
+
+  it('has 33 builders', () => {
+    expect(cases).toHaveLength(33);
+  });
+
+  for (const [expectedType, e] of cases) {
+    it(`${expectedType}: event_type, session_id, timestamp`, () => {
+      expect(e.event_type).toBe(expectedType);
+      expect(e.session_id).toBe(s);
+      expect(e.timestamp).toMatch(ISO_RE);
+      expect(e.system_id).toBe('agent-os');
+    });
+  }
 });

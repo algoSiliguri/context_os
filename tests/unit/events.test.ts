@@ -3,13 +3,23 @@ import {
   buildBindingEvent,
   buildHeartbeatEvent,
   buildPermissionDeniedEvent,
+  buildPhaseBlockedEvent,
+  buildPhaseCompletedEvent,
+  buildPhaseFailedEvent,
+  buildPhaseStartedEvent,
+  buildPolicyDecisionEvent,
   buildSkillLoadEvent,
   buildSkillUnloadEvent,
   buildStateTransitionEvent,
   buildToolApprovedEvent,
   buildToolDeniedEvent,
   buildToolRequestedEvent,
+  buildValidatorFailedEvent,
+  buildValidatorPassedEvent,
+  buildValidatorStartedEvent,
   buildViolationEvent,
+  buildWorkflowPackLoadFailedEvent,
+  buildWorkflowPackLoadedEvent,
 } from '../../src/core/events';
 
 describe('event builders', () => {
@@ -67,5 +77,99 @@ describe('event builders', () => {
       queue_depth: 0,
       loaded_skills: [],
     });
+  });
+});
+
+describe('core/events remaining builders: event_type, session_id, timestamp', () => {
+  const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+  const s = 'sess-char';
+
+  it('WORKFLOW_PACK_LOADED', () => {
+    const e = buildWorkflowPackLoadedEvent({ sessionId: s, packId: 'p-1', packVersion: '1.0.0', packDir: '/tmp/p', phaseCount: 3 });
+    expect(e.event_type).toBe('WORKFLOW_PACK_LOADED');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ pack_id: 'p-1', pack_version: '1.0.0', phase_count: 3 });
+  });
+
+  it('WORKFLOW_PACK_LOAD_FAILED', () => {
+    const e = buildWorkflowPackLoadFailedEvent({ sessionId: s, packDir: '/tmp/p', error: 'not found' });
+    expect(e.event_type).toBe('WORKFLOW_PACK_LOAD_FAILED');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ pack_dir: '/tmp/p', error: 'not found' });
+  });
+
+  it('PHASE_STARTED', () => {
+    const e = buildPhaseStartedEvent({ sessionId: s, packId: 'p-1', phaseId: 'ph-1' });
+    expect(e.event_type).toBe('PHASE_STARTED');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ pack_id: 'p-1', phase_id: 'ph-1' });
+  });
+
+  it('PHASE_COMPLETED', () => {
+    const e = buildPhaseCompletedEvent({ sessionId: s, packId: 'p-1', phaseId: 'ph-1', nextAllowedPhases: ['ph-2'] });
+    expect(e.event_type).toBe('PHASE_COMPLETED');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ phase_id: 'ph-1', next_allowed_phases: ['ph-2'] });
+  });
+
+  it('PHASE_FAILED', () => {
+    const e = buildPhaseFailedEvent({ sessionId: s, packId: 'p-1', phaseId: 'ph-1', reason: 'timeout' });
+    expect(e.event_type).toBe('PHASE_FAILED');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ phase_id: 'ph-1', reason: 'timeout' });
+  });
+
+  it('PHASE_BLOCKED_PREDECESSOR', () => {
+    const e = buildPhaseBlockedEvent({ sessionId: s, packId: 'p-1', phaseId: 'ph-2', missingPredecessors: ['ph-1'] });
+    expect(e.event_type).toBe('PHASE_BLOCKED_PREDECESSOR');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ phase_id: 'ph-2', missing_predecessors: ['ph-1'] });
+  });
+
+  it('VALIDATOR_STARTED', () => {
+    const e = buildValidatorStartedEvent({ sessionId: s, packId: 'p-1', validatorId: 'v-1', phaseId: 'ph-1', mode: 'blocking' });
+    expect(e.event_type).toBe('VALIDATOR_STARTED');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ validator_id: 'v-1', mode: 'blocking' });
+  });
+
+  it('VALIDATOR_PASSED', () => {
+    const e = buildValidatorPassedEvent({ sessionId: s, packId: 'p-1', validatorId: 'v-1', phaseId: 'ph-1' });
+    expect(e.event_type).toBe('VALIDATOR_PASSED');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ validator_id: 'v-1', phase_id: 'ph-1' });
+  });
+
+  it('VALIDATOR_FAILED', () => {
+    const e = buildValidatorFailedEvent({ sessionId: s, packId: 'p-1', validatorId: 'v-1', phaseId: 'ph-1', mode: 'advisory', findings: ['f1'] });
+    expect(e.event_type).toBe('VALIDATOR_FAILED');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ validator_id: 'v-1', mode: 'advisory', findings: ['f1'] });
+  });
+
+  it('POLICY_DECISION', () => {
+    const e = buildPolicyDecisionEvent({
+      sessionId: s,
+      subjectType: 'command',
+      subjectName: 'npm test',
+      actionRequested: 'execute',
+      decision: 'allow',
+      reasonCode: 'policy_ok',
+      reason: 'in allowlist',
+      source: 'policy-engine',
+    });
+    expect(e.event_type).toBe('POLICY_DECISION');
+    expect(e.session_id).toBe(s);
+    expect(e.timestamp).toMatch(ISO_RE);
+    expect(e.payload).toMatchObject({ subject_type: 'command', decision: 'allow' });
   });
 });
