@@ -35,6 +35,8 @@ export function requireTaskState(repoRoot: string, taskId: string, allowed: stri
   return state;
 }
 
+// INTERNAL: only called from task-lifecycle.ts (after event emission).
+// Do not import this directly — use transitionTaskLifecycle() instead.
 export function writeTaskState(
   repoRoot: string,
   taskId: string,

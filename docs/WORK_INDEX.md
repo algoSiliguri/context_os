@@ -16,19 +16,23 @@ https://github.com/algoSiliguri/Agent_OS/issues/37
 
 ## Current Story
 
-**#43 STORY-015: Remove writeTaskState backdoor**
-https://github.com/algoSiliguri/Agent_OS/issues/43
-Status: Ready
+EPIC-001 STORIES COMPLETE. Next: STORY-016 (#48) or STORY-017 (#51).
+
+**#48 STORY-016: Migrate readArtifactRaw callers to validated readArtifact**
+https://github.com/algoSiliguri/Agent_OS/issues/48
+
+**#51 STORY-017: Move writeTaskState into task-lifecycle.ts as private**
+https://github.com/algoSiliguri/Agent_OS/issues/51
 
 ## Next Action
 
-Move #43 to In Progress → branch `story-015-remove-write-task-state-backdoor` → audit `writeTaskState` call sites → migrate or delete → run `npm test`.
+Pick one of the above → move to In Progress → create branch → work.
 
 ## Last Checkpoint
 
-- Commit: `3061074`
+- Commit: `3d24353`
 - Date: 2026-05-17
-- Branch: `story-014-characterize-task-state-machine` → PR #49 open
+- Branch: `story-015-remove-write-task-state-backdoor` → PR #50 open
 - Working tree: clean (graphify-out/ changes are untracked/generated)
 - `npm run typecheck`: PASS
 - `npm test`: PASS — 642 tests, 99 files
@@ -43,7 +47,7 @@ Use AGENTS.md. Continue the next Ready issue from the GitHub Project board.
 ## Notes
 
 - EPIC-000 complete (issues #27–#36 all closed).
-- EPIC-001 in progress: STORY-010–014 done (#38–#42, PRs #44–#49). STORY-015 (#43) in Inbox. STORY-016 (#48, readArtifactRaw migration) in Inbox.
+- EPIC-001 original stories complete: STORY-010–015 done (#38–#43, PRs #44–#50). Follow-ons: STORY-016 (#48, readArtifactRaw migration), STORY-017 (#51, writeTaskState encapsulation).
 - Do not start multiple stories.
 - Do not create more epics yet.
 - `agent-os-starter` stable tag not yet published.
