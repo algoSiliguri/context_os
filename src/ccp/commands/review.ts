@@ -1,7 +1,7 @@
 import { emitAndProject } from '../../core/projector';
 import type { UiAdapter } from '../../pi/ui';
 import { makeEnvelope } from '../artifacts/envelope';
-import { readArtifactRaw as readArtifact, writeArtifact } from '../artifacts/io';
+import { readArtifact, writeArtifact } from '../artifacts/io';
 import { buildReviewCompletedEvent, buildReviewStartedEvent } from '../ccp-events';
 import { taskArtifactPath } from '../task-paths';
 import { transitionTaskLifecycle } from './shared/task-lifecycle';
