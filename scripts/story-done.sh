@@ -23,8 +23,8 @@ if [[ -z "$ISSUE" ]]; then
   exit 1
 fi
 
-# Ensure no uncommitted changes
-if ! git diff --quiet || ! git diff --cached --quiet; then
+# Ensure no uncommitted changes (graphify-out/ is generated and always dirty — excluded)
+if ! git diff --quiet -- ':!graphify-out/' || ! git diff --cached --quiet -- ':!graphify-out/'; then
   echo "✗ Uncommitted changes detected — commit everything first" >&2
   exit 1
 fi

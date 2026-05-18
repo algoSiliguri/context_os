@@ -20,7 +20,8 @@ if [[ "$CURRENT" != "main" ]]; then
   echo "✗ Must be on main (currently: $CURRENT)" >&2
   exit 1
 fi
-if ! git diff --quiet || ! git diff --cached --quiet; then
+# graphify-out/ is generated and always dirty — excluded from clean check
+if ! git diff --quiet -- ':!graphify-out/' || ! git diff --cached --quiet -- ':!graphify-out/'; then
   echo "✗ Working tree is not clean — commit or stash first" >&2
   exit 1
 fi
