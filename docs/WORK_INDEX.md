@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-028 (#14) — Dead code housekeeping. Verification close: sync.sh canonical, no trading-playground comment, no ApprovalStore in repo. Cross-repo AC (knowledge_brain/approval_store.py) is out of scope for Agent_OS.
+STORY-029 (#15) — Protocol negotiation. Verification close: MIN_PROTOCOL_VERSION, probe(), brain_protocol_incompatible all in af84e02.
 
 ## Next Action
 
-After #14 closes: verification closes #15, #16, then implement #66.
+After #15 closes: verification close #16, then implement #66.
 
 ## Last Checkpoint
 
