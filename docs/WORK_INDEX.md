@@ -36,13 +36,20 @@ None started. Next: #17 — Canonical bootstrap docs (first story of EPIC-004).
 Use AGENTS.md. Continue the next Ready issue from the GitHub Project board.
 ```
 
+## Epic Roadmap
+
+| Epic | Issue | Stories | Status |
+|------|-------|---------|--------|
+| EPIC-001–003 | closed | Security, tests, smoke matrix | ✅ Done |
+| **EPIC-004** | **#78** | #17, #19–#23 | 🔄 Active — start #17 |
+| EPIC-005 | #79 | #80 Projector, #81 PackRuntime, #82 BrainResult | ⬜ Next |
+| EPIC-006 | #83 | #84 CommandRunner, #85 ArtifactRepo interface, #86 migrate callers, #87 ExtensionRoot | ⬜ Queued |
+| EPIC-007 | #88 | #89 LifecycleStore, #90 TaskPointer, #91 ValidatorGate | ⬜ Queued |
+| EPIC-008 | #92 | #93 /init split, #94 DoctorPolicy, #95 BindingReport | ⬜ Queued |
+
 ## Notes
 
-- EPIC-000 complete (#27–#36, closed).
-- EPIC-001 complete (#37–#43, PRs #44–#50, closed 2026-05-17). +62 characterization tests.
-- EPIC-002 complete (#54, closed 2026-05-18). Stories #55–#59 done. +17 tests, 2 bugs fixed.
-- EPIC-003 complete (#65, closed 2026-05-18). Stories #9–#16 + #66 done. 666 tests pass. readArtifactRaw deleted, BRAIN_DB_PATH hard-fail, supply chain pinned.
-- EPIC-004 created (#78). Stories: #17, #19–#23 (bootstrap/UX slices).
-- Board sync is fully automatic — no manual sync needed.
-- Do not start multiple stories.
+- Do EPIC-004 before EPIC-005 (feature work first, refactoring after).
+- EPIC-006 story #87 depends on EPIC-005 #81. EPIC-007 story #91 depends on EPIC-005 #81.
+- Board is authoritative. WORK_INDEX is agent handoff context only.
 - `agent-os-starter` stable tag not yet published.

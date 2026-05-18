@@ -106,6 +106,27 @@ Default next action:
 
 ---
 
+## Full Epic Roadmap (do in order)
+
+| Epic | Issue | Title | Stories | Status |
+|------|-------|-------|---------|--------|
+| EPIC-001–003 | closed | Security hardening, characterization tests, smoke matrix | — | ✅ Done |
+| **EPIC-004** | **#78** | **Bootstrap, /init UX, Knowledge DB Reliability** | #17, #19–#23 | 🔄 Active |
+| EPIC-005 | #79 | Failure Boundary Hardening | #80, #81, #82 | ⬜ Next |
+| EPIC-006 | #83 | Runtime Port Decomposition | #84, #85, #86, #87 | ⬜ Queued |
+| EPIC-007 | #88 | Workflow State Authority | #89, #90, #91 | ⬜ Queued |
+| EPIC-008 | #92 | Init And Doctor Reliability Slice | #93, #94, #95 | ⬜ Queued |
+
+**Story dependency order within epics:**
+- EPIC-005: #80 → #81 → #82 (independent, but 1.2 must precede 3.3)
+- EPIC-006: #84, #85 first → #86 (depends on #85) → #87 (depends on EPIC-005 #81)
+- EPIC-007: #89, #90 (independent) → #91 (depends on EPIC-005 #81)
+- EPIC-008: #93, #94, #95 (independent)
+
+**Board:** https://github.com/users/algoSiliguri/projects/1/views/1
+
+---
+
 ## God Nodes (characterization test required before any change)
 
 | Node | File | Edges |
