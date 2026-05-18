@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-025 (#11) — BrainClient failure classification. Verification close: implementation shipped in af84e02, all ACs satisfied.
+STORY-026 (#12) — BRAIN_DB_PATH hard-fail. Real implementation: dbPath removed from BrainClientOptions, constructor throws BindingError if env absent, dbPathArgs() reads BRAIN_DB_PATH, sibling-relative paths removed from remember/memory commands.
 
 ## Next Action
 
-After #11 closes: implement STORY-026 (#12) — BRAIN_DB_PATH hard-fail (real code change needed).
+After #12 closes: verification closes for #13, #14, #15, #16, then implement #66 (plan.ts migration).
 
 ## Last Checkpoint
 

@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 // tests/integration/section-16-demo.test.ts
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { BrainClient, type BrainSpawnFn } from '../../src/ccp/brain/client';
 import { runGrill } from '../../src/ccp/commands/grill';
 import { runInit } from '../../src/ccp/commands/init';
@@ -65,6 +65,8 @@ function scriptedUi(answers: string[], confirmAnswers: boolean[] = []) {
 }
 
 describe('Section-16 demo — end-to-end', () => {
+  beforeEach(() => { process.env.BRAIN_DB_PATH = '/test/knowledge.db'; });
+  afterEach(() => { delete process.env.BRAIN_DB_PATH; });
   it('grill → plan → run (with one recoverable failure) → resume → verify → remember → status', async () => {
     const { dir, sessionId } = await setupRepo();
 
@@ -149,7 +151,7 @@ describe('Section-16 demo — end-to-end', () => {
         exitCode: 0,
       };
     };
-    const brain = new BrainClient({ dbPath: '/brain.db', spawn: brainSpawn, repoRoot: dir });
+    const brain = new BrainClient({ spawn: brainSpawn, repoRoot: dir });
     const rememberResult = await runRemember({
       repoRoot: dir,
       sessionId,

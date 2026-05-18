@@ -17,7 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import YAML from 'yaml';
 import { makeEnvelope } from '../../src/ccp/artifacts/envelope';
 import { writeArtifact } from '../../src/ccp/artifacts/io';
@@ -306,7 +306,9 @@ describe('lifecycle: memory recovery path', () => {
     const dbPath = join(dir, 'data_store', 'knowledge.db');
     execFileSync('brain', ['--db-path', dbPath, 'init']);
 
-    const client = new BrainClient({ dbPath, repoRoot: dir });
+    const prevDbPath = process.env.BRAIN_DB_PATH;
+    process.env.BRAIN_DB_PATH = dbPath;
+    const client = new BrainClient({ repoRoot: dir });
     const result = await client.write({
       content: 'test convention from lifecycle',
       type: 'convention',
@@ -318,10 +320,16 @@ describe('lifecycle: memory recovery path', () => {
     expect(result.deferred).toBe(false);
     expect(result.id).toBeTruthy();
     expect(typeof result.id).toBe('string');
+    if (prevDbPath !== undefined) process.env.BRAIN_DB_PATH = prevDbPath;
+    else delete process.env.BRAIN_DB_PATH;
   });
 
   it('BrainClient.probe succeeds with real brain CLI', async () => {
+    const prev = process.env.BRAIN_DB_PATH;
+    process.env.BRAIN_DB_PATH = '/test/knowledge.db';
     const client = new BrainClient({});
+    if (prev !== undefined) process.env.BRAIN_DB_PATH = prev;
+    else delete process.env.BRAIN_DB_PATH;
     await expect(client.probe()).resolves.not.toThrow();
   });
 });

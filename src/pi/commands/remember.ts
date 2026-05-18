@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { join } from 'node:path';
 import { basename } from 'node:path';
 import { BrainClient } from '../../ccp/brain/client';
 import { runRemember } from '../../ccp/commands/remember';
@@ -20,10 +19,7 @@ export function register(pi: any, _session: PiSession): void {
         return;
       }
       const config = loadPolicyConfig(ctx.cwd);
-      const brain = new BrainClient({
-        dbPath: join(ctx.cwd, 'data_store', 'knowledge.db'),
-        repoRoot: ctx.cwd,
-      });
+      const brain = new BrainClient({ repoRoot: ctx.cwd });
       ctx.ui.setStatus('agent-os', 'remembering…');
       try {
         const pendingBefore = listPendingCandidates(ctx.cwd, taskId);
