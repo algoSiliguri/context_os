@@ -4,7 +4,7 @@ import { emitAndProject } from '../../core/projector';
 import { loadWorkflowPacks } from '../../core/workflow-pack-loader';
 import type { UiAdapter } from '../../pi/ui';
 import { makeEnvelope } from '../artifacts/envelope';
-import { readArtifact, readArtifactRaw, writeArtifact } from '../artifacts/io';
+import { readArtifact, writeArtifact } from '../artifacts/io';
 import {
   buildPlanApprovedEvent,
   buildPlanCreatedEvent,
@@ -73,9 +73,11 @@ export async function runPlan(args: RunPlanArgs): Promise<{ outcome: PlanOutcome
     grillConstraints = grill.constraints ?? [];
     grillCriteria = grill.success_criteria ?? [];
   } catch {
-    // No grill.yaml — try diagnosis.yaml (diagnose → plan flow)
-    const diagnosis = readArtifactRaw(args.repoRoot, args.taskId, 'diagnosis');
-    grillGoal = String(diagnosis?.bug_summary ?? 'bugfix task');
+    // No grill.yaml — try diagnosis.yaml (diagnose → plan flow); throws if absent
+    const diagnosis = readArtifact(args.repoRoot, args.taskId, 'diagnosis') as unknown as {
+      bug_summary: string;
+    };
+    grillGoal = diagnosis.bug_summary;
   }
 
   const drafter = args.drafter ?? buildPlanDrafterFromActivePack(args.repoRoot);
