@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-029 (#15) — Protocol negotiation. Verification close: MIN_PROTOCOL_VERSION, probe(), brain_protocol_incompatible all in af84e02.
+STORY-030 (#16) — Supply chain pinning. All URLs pinned to @v1.0.1. Added static test: validate-supply-chain-pins.test.ts asserts no unpinned git+ URLs.
 
 ## Next Action
 
-After #15 closes: verification close #16, then implement #66.
+After #16 closes: implement #66 — plan.ts migration to readArtifact('diagnosis').
 
 ## Last Checkpoint
 
