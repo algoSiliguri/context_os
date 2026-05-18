@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-030 (#16) — Supply chain pinning. All URLs pinned to @v1.0.1. Added static test: validate-supply-chain-pins.test.ts asserts no unpinned git+ URLs.
+STORY-031 (#66) — plan.ts migration. readArtifactRaw deleted; plan.ts catch uses readArtifact('diagnosis') which throws on missing file. +2 tests.
 
 ## Next Action
 
-After #16 closes: implement #66 — plan.ts migration to readArtifact('diagnosis').
+EPIC-003 complete after #66 closes. Create EPIC-004 from issues #17–#23 (bootstrap/UX slices).
 
 ## Last Checkpoint
 

@@ -69,23 +69,6 @@ export function writeArtifact<T extends SchemaArtifactType>(
   renameSync(tmp, path);
 }
 
-// Read without TypeBox schema validation — for artifact types without a schema yet.
-export function readArtifactRaw(
-  repoRoot: string,
-  taskId: string,
-  type: ArtifactType,
-): Record<string, unknown> | null {
-  try {
-    const path = taskArtifactPath(repoRoot, taskId, type);
-    const text = readFileSync(path, 'utf-8');
-    const parsed = YAML.parse(text);
-    return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
-  } catch {
-    return null;
-  }
-}
-
-
 export function readArtifact<T extends SchemaArtifactType>(
   repoRoot: string,
   taskId: string,

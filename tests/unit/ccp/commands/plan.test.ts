@@ -7,6 +7,7 @@ import { makeEnvelope } from '../../../../src/ccp/artifacts/envelope';
 import { writeArtifact } from '../../../../src/ccp/artifacts/io';
 import { runPlan } from '../../../../src/ccp/commands/plan';
 import { PackPlanDrafter } from '../../../../src/core/pack-plan-drafter';
+import { defaultPlanDrafter } from '../../../../src/ccp/commands/shared/plan-drafter';
 import { writeTaskState } from '../../../../src/ccp/commands/shared/task-loader';
 import { taskArtifactPath, taskStatePath } from '../../../../src/ccp/task-paths';
 import { readEvents } from '../../../../src/core/event-log';
@@ -64,6 +65,35 @@ const approveUi = {
   input: async () => '',
   select: async (_m: string, choices: string[]) => choices[0]!,
 };
+
+function fixtureWithDiagnosis(bugSummary = 'fix the null pointer crash'): { dir: string; taskId: string } {
+  const dir = mkdtempSync(join(tmpdir(), 'aos-pln-dx-'));
+  mkdirSync(join(dir, '.agent-os', 'runtime'), { recursive: true });
+  const taskId = 'T-001';
+  mkdirSync(join(dir, '.agent-os', 'tasks', taskId), { recursive: true });
+  writeFileSync(
+    join(dir, '.agent-os', 'runtime', 'session.json'),
+    JSON.stringify({ session_id: 's1', current_task_id: taskId }),
+    'utf-8',
+  );
+  writeTaskState(dir, taskId, 'SHARED_UNDERSTANDING');
+  const env = makeEnvelope({ taskId, artifactType: 'DiagnosisRecord' });
+  writeArtifact(dir, taskId, 'diagnosis', {
+    ...env,
+    artifact_type: 'DiagnosisRecord',
+    bug_summary: bugSummary,
+    reported_behavior: 'crashes on null input',
+    expected_behavior: 'handles null gracefully',
+    minimal_case: 'pass null to foo()',
+    suspected_root_cause: 'missing null check',
+    confidence: 'high',
+    decision: 'proceed',
+    open_blockers: [],
+    phases: [],
+    hypotheses: [],
+  });
+  return { dir, taskId };
+}
 
 describe('runPlan', () => {
   it('drafts, prompts, and writes PlanArtifact when approved', async () => {
@@ -197,5 +227,35 @@ describe('runPlan', () => {
     await runPlan({ repoRoot: dir, sessionId: 's1', taskId, ui: approveUi, drafter: explicitDrafter });
     const yaml = YAML.parse(readFileSync(taskArtifactPath(dir, taskId, 'plan'), 'utf-8'));
     expect(yaml.steps[0].verification).toEqual([]);
+  });
+
+  it('diagnose → plan flow: uses bug_summary from diagnosis.yaml when no grill.yaml', async () => {
+    const { dir, taskId } = fixtureWithDiagnosis('fix the null pointer crash');
+    const capturedGoals: string[] = [];
+    const base = defaultPlanDrafter();
+    const drafter = {
+      draft: async (args: Parameters<typeof base.draft>[0]) => {
+        capturedGoals.push(args.goal);
+        return base.draft(args);
+      },
+    };
+    await runPlan({ repoRoot: dir, sessionId: 's1', taskId, ui: approveUi, drafter });
+    expect(capturedGoals[0]).toBe('fix the null pointer crash');
+  });
+
+  it('diagnose → plan flow: throws when both grill.yaml and diagnosis.yaml are absent', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'aos-pln-nodx-'));
+    mkdirSync(join(dir, '.agent-os', 'runtime'), { recursive: true });
+    const taskId = 'T-001';
+    mkdirSync(join(dir, '.agent-os', 'tasks', taskId), { recursive: true });
+    writeFileSync(
+      join(dir, '.agent-os', 'runtime', 'session.json'),
+      JSON.stringify({ session_id: 's1', current_task_id: taskId }),
+      'utf-8',
+    );
+    writeTaskState(dir, taskId, 'SHARED_UNDERSTANDING');
+    await expect(
+      runPlan({ repoRoot: dir, sessionId: 's1', taskId, ui: approveUi }),
+    ).rejects.toThrow();
   });
 });
