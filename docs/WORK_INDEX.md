@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-027 (#13) — Constitution hash. Verification close: implementation shipped in af84e02, all ACs satisfied.
+STORY-028 (#14) — Dead code housekeeping. Verification close: sync.sh canonical, no trading-playground comment, no ApprovalStore in repo. Cross-repo AC (knowledge_brain/approval_store.py) is out of scope for Agent_OS.
 
 ## Next Action
 
-After #13 closes: verification closes #14, #15, #16, then implement #66.
+After #14 closes: verification closes #15, #16, then implement #66.
 
 ## Last Checkpoint
 
