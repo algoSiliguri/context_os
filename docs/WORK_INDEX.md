@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-026 (#12) — BRAIN_DB_PATH hard-fail. Real implementation: dbPath removed from BrainClientOptions, constructor throws BindingError if env absent, dbPathArgs() reads BRAIN_DB_PATH, sibling-relative paths removed from remember/memory commands.
+STORY-027 (#13) — Constitution hash. Verification close: implementation shipped in af84e02, all ACs satisfied.
 
 ## Next Action
 
-After #12 closes: verification closes for #13, #14, #15, #16, then implement #66 (plan.ts migration).
+After #13 closes: verification closes #14, #15, #16, then implement #66.
 
 ## Last Checkpoint
 
