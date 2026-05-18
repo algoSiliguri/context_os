@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-None started. Next: STORY-023 (#9) — Tier-policy floor (P1, ship-blocking).
+STORY-023 (#9) — Tier-policy floor. Verification close: implementation shipped in af84e02, all ACs satisfied.
 
 ## Next Action
 
-Start STORY-023 (#9). Branch `story-023-tier-policy-floor`.
+After #9 closes: start STORY-024 (#10) — Executor policy gate.
 
 ## Last Checkpoint
 
