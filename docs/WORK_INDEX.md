@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-023 (#9) — Tier-policy floor. Verification close: implementation shipped in af84e02, all ACs satisfied.
+STORY-024 (#10) — Executor policy gate. Verification close: implementation shipped in af84e02, all ACs satisfied.
 
 ## Next Action
 
-After #9 closes: start STORY-024 (#10) — Executor policy gate.
+After #10 closes: start STORY-025 (#11) — BrainClient failure classification.
 
 ## Last Checkpoint
 
