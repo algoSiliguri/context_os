@@ -98,11 +98,11 @@ GitHub Issues at `algoSiliguri/Agent_OS`
 
 ## Current Active Work
 
-Active epic: **#65 EPIC-003: Pre-v1 Security Hardening and Contract Formalization**
-Current story: **#9 STORY-023: Tier-policy floor** (next Ready story)
+Active epic: **#78 EPIC-004: Bootstrap, /init UX, and Knowledge DB Reliability**
+Current story: **#17** — Canonical bootstrap docs + /init idempotency (first Ready story)
 
 Default next action:
-`scripts/story-start.sh 9`
+`scripts/story-start.sh 17`
 
 ---
 

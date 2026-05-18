@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-031 (#66) — plan.ts migration. readArtifactRaw deleted; plan.ts catch uses readArtifact('diagnosis') which throws on missing file. +2 tests.
+None started. Next: #17 — Canonical bootstrap docs (first story of EPIC-004).
 
 ## Next Action
 
-EPIC-003 complete after #66 closes. Create EPIC-004 from issues #17–#23 (bootstrap/UX slices).
+`scripts/story-start.sh 17`
 
 ## Last Checkpoint
 
@@ -40,13 +40,9 @@ Use AGENTS.md. Continue the next Ready issue from the GitHub Project board.
 
 - EPIC-000 complete (#27–#36, closed).
 - EPIC-001 complete (#37–#43, PRs #44–#50, closed 2026-05-17). +62 characterization tests.
-- STORY-016 done (#48, PR #52). review.ts + evaluate.ts migrated to validated readArtifact.
-- STORY-017 done (#51, PR #53). Annotation clarified; full encapsulation not feasible (17 test uses).
 - EPIC-002 complete (#54, closed 2026-05-18). Stories #55–#59 done. +17 tests, 2 bugs fixed.
-- STORY-021 done (#58, PR #64 merged). Matrix + CONTEXT.md updated.
-- STORY-022 done (#59, closed). Spike: readArtifactRaw → migrate plan.ts to readArtifact('diagnosis').
-- EPIC-003 created (#65). Stories: #9–#16 (existing) + #66 (new, plan.ts migration).
-- STORY-023 (#9) is next — tier-policy floor, P1 ship-blocking security fix.
-- Board sync is now fully automatic — no manual sync needed.
+- EPIC-003 complete (#65, closed 2026-05-18). Stories #9–#16 + #66 done. 666 tests pass. readArtifactRaw deleted, BRAIN_DB_PATH hard-fail, supply chain pinned.
+- EPIC-004 created (#78). Stories: #17, #19–#23 (bootstrap/UX slices).
+- Board sync is fully automatic — no manual sync needed.
 - Do not start multiple stories.
 - `agent-os-starter` stable tag not yet published.
