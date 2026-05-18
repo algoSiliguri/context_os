@@ -15,21 +15,20 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-**STORY-018** (#55) — Add unit coverage for /review artifact behavior
+**STORY-020** (#57) — Add unit coverage for /quick-task artifact behavior
 Status: **In Review** — PR open, awaiting merge.
 
 ## Next Action
 
-Merge PR for STORY-018, then start STORY-019.
+Merge PR for STORY-020, then start STORY-021.
 
 ## Last Checkpoint
 
-- Commit: `96fb716`
+- Commit: on branch `story-020-quick-task-unit-tests` (PR open)
 - Date: 2026-05-18
-- Branch: `story-018-review-unit-tests` (PR open)
 - Working tree: clean
 - `npm run typecheck`: PASS
-- `npm test`: PASS — 651 tests, 100 files (+6 new)
+- `npm test`: PASS — 662 tests, 102 files
 - `npm run lint`: KNOWN FAIL — 173 Biome formatting errors, non-blocking
 
 ## Resume Command
@@ -45,7 +44,9 @@ Use AGENTS.md. Continue the next Ready issue from the GitHub Project board.
 - STORY-016 done (#48, PR #52). review.ts + evaluate.ts migrated to validated readArtifact.
 - STORY-017 done (#51, PR #53). Annotation clarified; full encapsulation not feasible (17 test uses).
 - EPIC-002 created (#54). Stories #55–#59 on board.
-- STORY-018 in review (#55, PR open). +6 characterization tests for runReview.
+- STORY-018 done (#55, PR #60 merged). +6 characterization tests for runReview.
+- STORY-019 done (#56, PR #61 merged). +8 characterization tests for runEvaluate. Two bugs fixed in PR #62.
+- STORY-020 in review (#57, PR open). +3 characterization tests for runQuickTask.
 - Board sync is now fully automatic — no manual sync needed.
 - Do not start multiple stories.
 - `agent-os-starter` stable tag not yet published.
