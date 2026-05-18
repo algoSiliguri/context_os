@@ -43,7 +43,10 @@ BRANCH="story-${PADDED}-${SLUG}"
 git checkout -b "$BRANCH"
 echo "  ✓ Branch: $BRANCH"
 
-# Board
+# Board — ensure on project, then move
+REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+gh project item-add "$BOARD_PROJECT_NUMBER" --owner "$(_board_owner)" \
+  --url "https://github.com/${REPO}/issues/${ISSUE}" > /dev/null 2>&1 || true
 board_move_issue "$ISSUE" "In Progress"
 
 echo ""

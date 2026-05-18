@@ -51,7 +51,9 @@ PR_URL=$(gh pr create \
 
 echo "  ✓ $PR_URL"
 
-# Board
+# Board — ensure issue is on the project board, then move
+gh project item-add "$BOARD_PROJECT_NUMBER" --owner "$(_board_owner)" \
+  --url "https://github.com/${REPO}/issues/${ISSUE}" > /dev/null 2>&1 || true
 board_move_issue "$ISSUE" "In Review"
 
 echo ""

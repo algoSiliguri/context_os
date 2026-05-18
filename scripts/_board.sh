@@ -33,7 +33,7 @@ _board_item_id() {
   local owner
   owner=$(_board_owner)
   _board_gql \
-    "{ user(login: \"$owner\") { projectV2(number: $BOARD_PROJECT_NUMBER) { items(first: 200) { nodes { id content { ... on Issue { number } } } } } } }" \
+    "{ user(login: \"$owner\") { projectV2(number: $BOARD_PROJECT_NUMBER) { items(first: 100) { nodes { id content { ... on Issue { number } } } } } } }" \
     --jq ".data.user.projectV2.items.nodes[] | select(.content.number == $issue_number) | .id"
 }
 
