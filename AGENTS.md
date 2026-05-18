@@ -63,10 +63,8 @@ GitHub Issues at `algoSiliguri/Agent_OS`
 4. If `gh` CLI is available: `gh issue list --repo algoSiliguri/Agent_OS --state open`.
 5. Identify Active Epic and Current Story from `docs/WORK_INDEX.md`.
 6. If the story is Ready, work only on it.
-7. Move the issue to In Progress before touching any file.
-8. Create or checkout one branch: `story-NNN-short-title`.
-9. Restate acceptance criteria before editing anything.
-10. Do not create new epics unless explicitly instructed.
+7. Run `scripts/story-start.sh <issue-number>` — creates branch, moves board → In Progress, prints acceptance criteria.
+8. Do not create new epics unless explicitly instructed.
 
 ## Work Protocol
 
@@ -80,13 +78,12 @@ GitHub Issues at `algoSiliguri/Agent_OS`
 
 ## Stop Protocol
 
-1. Run `git status --short` and `git diff --name-only`.
-2. Record what changed.
-3. Record verification commands and results.
-4. If `gh` CLI available: add completion evidence to the GitHub issue.
-5. Update `docs/WORK_INDEX.md` (Current Story, Last Checkpoint).
-6. State the exact next action.
-7. Stop.
+1. Commit all changes on the story branch.
+2. Run `scripts/story-done.sh` — runs tests, pushes branch, creates PR, moves board → In Review.
+3. After PR is merged: run `scripts/story-close.sh <issue-number>` — routes board → Dev Verified or Done, returns to main.
+4. State the exact next action. Stop.
+
+> `docs/WORK_INDEX.md` is optional agent context — the board is authoritative. Update WORK_INDEX only when adding handoff value not visible on the board.
 
 ## Safety Rules
 
@@ -101,11 +98,11 @@ GitHub Issues at `algoSiliguri/Agent_OS`
 
 ## Current Active Work
 
-Active epic: **#54 EPIC-002: Artifact Contract Hardening**
-Current story: **#55 STORY-018: Add unit coverage for /review artifact behavior**
+Active epic: **#65 EPIC-003: Pre-v1 Security Hardening and Contract Formalization**
+Current story: **#9 STORY-023: Tier-policy floor** (next Ready story)
 
 Default next action:
-Move #55 to In Progress → branch `story-018-review-unit-tests` → add `tests/unit/ccp/commands/review.test.ts` → do not touch `src/` → run `npm test`.
+`scripts/story-start.sh 9`
 
 ---
 
