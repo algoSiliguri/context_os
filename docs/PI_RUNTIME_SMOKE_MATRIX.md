@@ -2,7 +2,7 @@
 
 Status values: **Exists** | **Missing** | **Required** | **Optional** | **Not needed**
 
-Based on test files in `tests/` as of v1.6.1.
+Based on test files in `tests/` as of v1.6.1 (updated 2026-05-18).
 
 ---
 
@@ -15,14 +15,14 @@ Based on test files in `tests/` as of v1.6.1.
 | `/plan` | **Exists** | **Exists** | Optional | Not needed | **Required** | Missing | **Required** |
 | `/run` | **Exists** | **Exists** | Optional | Not needed | **Required** | Missing | **Required** |
 | `/verify` | **Exists** | Missing | Optional | Not needed | **Required** | Missing | **Required** |
-| `/review` | **Missing** | Missing | Optional | Not needed | Missing | Missing | Missing |
-| `/evaluate` | **Missing** | Missing | Optional | Not needed | Missing | Missing | Missing |
+| `/review` | **Exists** | Missing | Optional | Not needed | **Exists** | Missing | **Exists** |
+| `/evaluate` | **Exists** | Missing | Optional | Not needed | **Exists** | Missing | **Exists** |
 | `/remember` | **Exists** | Missing | Optional | Not needed | **Required** | Missing | **Required** |
 | `/flow` | **Missing** | Missing | **Required** | Not needed | Missing | Missing | Missing |
 | `/memory` | Missing | Missing | Optional | Not needed | Not needed | Not needed | Not needed |
 | `/continue` | Missing | Missing | Optional | Not needed | Not needed | Not needed | Missing |
 | `/diagnose` | **Exists** | Missing | Optional | Not needed | **Required** | Missing | **Required** |
-| `/quick-task` | Missing | Missing | Optional | Not needed | Missing | Missing | Missing |
+| `/quick-task` | **Exists** | Missing | Optional | Not needed | **Exists** | Missing | **Exists** |
 | `/flight` | Missing | Missing | Optional | Not needed | Not needed | Not needed | Not needed |
 
 ---
@@ -33,12 +33,9 @@ These need at minimum one characterization test before any refactor touches thei
 
 | Command | CCP orchestrator | Pi adapter | Priority |
 |---|---|---|---|
-| `/review` | `src/ccp/commands/review.ts` | `src/pi/commands/review.ts` | P2 |
-| `/evaluate` | `src/ccp/commands/evaluate.ts` | `src/pi/commands/evaluate.ts` | P2 |
 | `/flow` | `src/ccp/commands/flow.ts` (uses grill+plan+run+remember internally) | `src/pi/commands/flow.ts` | P1 — composes many commands |
 | `/continue` | `src/pi/commands/continue.ts` (Pi-only) | — | P2 |
 | `/memory` | `src/pi/commands/memory.ts` (Pi-only) | — | P2 |
-| `/quick-task` | `src/ccp/commands/quick-task.ts` | `src/pi/commands/quick-task.ts` | P2 |
 | `/flight` | `src/ccp/commands/trace.ts` | `src/pi/commands/flight.ts` | P3 |
 
 ---

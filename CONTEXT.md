@@ -24,11 +24,16 @@ fresh Pi session.
 
 ## State machine (per task)
 
+Main flow:
 `NEW_IDEA → GRILLING → SHARED_UNDERSTANDING → PLANNING → AWAITING_PLAN_APPROVAL
 → EXECUTING ⇄ AWAITING_TOOL_APPROVAL → VERIFYING → AWAITING_HUMAN_REVIEW
-→ PERSISTING_KNOWLEDGE → COMPLETED`
+→ EVALUATING → PERSISTING_KNOWLEDGE → COMPLETED`
 
-Plus side branches: `FAILED_RECOVERABLE`, `FAILED_BLOCKED`, `ABORTED`.
+Quick-task branch: `NEW_IDEA → QUICK_TASKING → AWAITING_HUMAN_REVIEW` (or `FAILED_RECOVERABLE`)
+
+Diagnose branch: `NEW_IDEA → DIAGNOSING → SHARED_UNDERSTANDING`
+
+Side states: `FAILED_RECOVERABLE`, `FAILED_BLOCKED`, `ABORTED`.
 
 ## Task lifecycle
 
@@ -50,7 +55,7 @@ verification are Adapters over this Module: step execution adds scope checking
 and execution-record shaping, while verification consumes command outcomes for
 verification records.
 
-## Six artifacts
+## Eight artifacts
 
 Each task produces these YAML artifacts at `.agent-os/tasks/<task-id>/`:
 
@@ -58,6 +63,9 @@ Each task produces these YAML artifacts at `.agent-os/tasks/<task-id>/`:
 - `plan.yaml` — `PlanArtifact` (steps, expected files, commands, verification, rollback)
 - `execution.yaml` — `ExecutionRecord` (per-step status, files changed, approvals)
 - `verification.yaml` — `VerificationRecord` (commands run, pass/fail, next action)
+- `review.yaml` — `ReviewRecord` (review outcome, scope drift, plan step count)
+- `evaluation.yaml` — `EvaluationRecord` (task outcome, criteria satisfaction rate, process quality)
+- `quick-task.yaml` — `QuickTaskRecord` (files changed, verification command, status)
 - `knowledge.yaml` — `KnowledgeCaptureRecord` (proposed/approved/rejected captures)
 
 Plus `SessionStatus` — computed by `/status`, never persisted.
@@ -115,7 +123,8 @@ Tagging convention on writes: `ccp:<task_id>`, `type:<type>`, `scope:<scope>`,
 │   ├── .next-id                  task counter
 │   └── T-NNN/
 │       ├── state.json            atomic snapshot of task state
-│       ├── grill.yaml | plan.yaml | execution.yaml | verification.yaml | knowledge.yaml
+│       ├── grill.yaml | plan.yaml | execution.yaml | verification.yaml
+│       ├── review.yaml | evaluation.yaml | quick-task.yaml | knowledge.yaml
 │       ├── pending-captures.yaml (only if brain is unavailable)
 │       └── raw/<hash>.txt        compressed-output backing store
 └── policy/

@@ -15,20 +15,20 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-**STORY-020** (#57) — Add unit coverage for /quick-task artifact behavior
+**STORY-021** (#58) — Update PI_RUNTIME_SMOKE_MATRIX after artifact command coverage
 Status: **In Review** — PR open, awaiting merge.
 
 ## Next Action
 
-Merge PR for STORY-020, then start STORY-021.
+Merge PR for STORY-021. EPIC-002 complete.
 
 ## Last Checkpoint
 
-- Commit: on branch `story-020-quick-task-unit-tests` (PR open)
+- Commit: on branch `story-021-smoke-matrix-update` (PR open)
 - Date: 2026-05-18
 - Working tree: clean
 - `npm run typecheck`: PASS
-- `npm test`: PASS — 662 tests, 102 files
+- `npm test`: PASS — 662 tests, 102 files (no new tests; docs-only story)
 - `npm run lint`: KNOWN FAIL — 173 Biome formatting errors, non-blocking
 
 ## Resume Command
@@ -46,7 +46,8 @@ Use AGENTS.md. Continue the next Ready issue from the GitHub Project board.
 - EPIC-002 created (#54). Stories #55–#59 on board.
 - STORY-018 done (#55, PR #60 merged). +6 characterization tests for runReview.
 - STORY-019 done (#56, PR #61 merged). +8 characterization tests for runEvaluate. Two bugs fixed in PR #62.
-- STORY-020 in review (#57, PR open). +3 characterization tests for runQuickTask.
+- STORY-020 done (#57, PR #63 merged). +3 characterization tests for runQuickTask.
+- STORY-021 in review (#58, PR open). Matrix + CONTEXT.md updated.
 - Board sync is now fully automatic — no manual sync needed.
 - Do not start multiple stories.
 - `agent-os-starter` stable tag not yet published.
