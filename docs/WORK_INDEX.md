@@ -15,11 +15,11 @@ https://github.com/users/algoSiliguri/projects/1/views/1
 
 ## Current Story
 
-STORY-024 (#10) — Executor policy gate. Verification close: implementation shipped in af84e02, all ACs satisfied.
+STORY-025 (#11) — BrainClient failure classification. Verification close: implementation shipped in af84e02, all ACs satisfied.
 
 ## Next Action
 
-After #10 closes: start STORY-025 (#11) — BrainClient failure classification.
+After #11 closes: implement STORY-026 (#12) — BRAIN_DB_PATH hard-fail (real code change needed).
 
 ## Last Checkpoint
 
