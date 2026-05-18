@@ -91,9 +91,6 @@ describe('runEvaluate', () => {
     expect(result.criteriaSatisfactionRate).toBe(1.0);
   });
 
-  // VerificationRecord schema only allows 'pass'|'fail'|'blocked' — 'pass_with_degradation'
-  // is not a valid result value, so the 0.75 branch in evaluate.ts is unreachable via
-  // valid artifacts. Characterizing the reachable 'blocked' path (also maps to 0.0).
   it('criteriaSatisfactionRate = 0.0 for verResult blocked', async () => {
     const { dir, taskId, sessionId } = makeFixture('blocked');
     const result = await runEvaluate({ repoRoot: dir, sessionId, taskId, ui: makeUi('PASS') });
@@ -102,7 +99,6 @@ describe('runEvaluate', () => {
 
   it('criteriaSatisfactionRate = 0.0 for verResult fail', async () => {
     const { dir, taskId, sessionId } = makeFixture('fail');
-    // PASS outcome used to avoid the EVALUATING→FAILED_RECOVERABLE state machine bug
     const result = await runEvaluate({ repoRoot: dir, sessionId, taskId, ui: makeUi('PASS') });
     expect(result.criteriaSatisfactionRate).toBe(0.0);
   });
@@ -121,14 +117,11 @@ describe('runEvaluate', () => {
     expect(state.state).toBe('PERSISTING_KNOWLEDGE');
   });
 
-  // Bug: evaluate.ts attempts EVALUATING→FAILED_RECOVERABLE which the state machine
-  // does not permit (EVALUATING only allows →PERSISTING_KNOWLEDGE or →COMPLETED).
-  // Characterizing actual behavior: runEvaluate throws on FAIL outcome.
-  it('throws on FAIL outcome due to invalid state transition EVALUATING→FAILED_RECOVERABLE', async () => {
+  it('transitions to FAILED_RECOVERABLE on FAIL', async () => {
     const { dir, taskId, sessionId } = makeFixture('fail');
-    await expect(
-      runEvaluate({ repoRoot: dir, sessionId, taskId, ui: makeUi('FAIL') }),
-    ).rejects.toThrow('invalid task transition: EVALUATING -> FAILED_RECOVERABLE');
+    await runEvaluate({ repoRoot: dir, sessionId, taskId, ui: makeUi('FAIL') });
+    const state = JSON.parse(readFileSync(taskStatePath(dir, taskId), 'utf-8'));
+    expect(state.state).toBe('FAILED_RECOVERABLE');
   });
 
   it('propagates readArtifact error when grill artifact is missing', async () => {

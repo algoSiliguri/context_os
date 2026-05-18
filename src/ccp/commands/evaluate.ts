@@ -65,14 +65,7 @@ export async function runEvaluate(args: EvaluateArgs): Promise<EvaluateResult> {
   const reviewStatus = typeof review?.status === 'string' ? review.status : 'unknown';
 
   // Compute criteria satisfaction rate from verification result
-  let criteriaSatisfactionRate: number;
-  if (verResult === 'pass') {
-    criteriaSatisfactionRate = 1.0;
-  } else if (verResult === 'pass_with_degradation') {
-    criteriaSatisfactionRate = 0.75;
-  } else {
-    criteriaSatisfactionRate = 0.0;
-  }
+  const criteriaSatisfactionRate = verResult === 'pass' ? 1.0 : 0.0;
 
   // Surface summary for human confirmation
   const metCount = Math.round(criteriaSatisfactionRate * Math.max(totalCriteria, 1));

@@ -45,7 +45,7 @@ const HAPPY: Record<TaskState, ReadonlySet<TaskState>> = {
     TaskState.COMPLETED,
     TaskState.VERIFYING,
   ]),
-  EVALUATING: new Set([TaskState.PERSISTING_KNOWLEDGE, TaskState.COMPLETED]),
+  EVALUATING: new Set([TaskState.PERSISTING_KNOWLEDGE, TaskState.COMPLETED, TaskState.FAILED_RECOVERABLE]),
   PERSISTING_KNOWLEDGE: new Set([TaskState.COMPLETED]),
   COMPLETED: new Set(),
   FAILED_RECOVERABLE: new Set([
