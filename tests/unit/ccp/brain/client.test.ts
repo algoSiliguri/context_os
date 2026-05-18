@@ -2,11 +2,25 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 // tests/unit/ccp/brain/client.test.ts
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { BindingError } from '../../../../src/core/binding';
 import { BrainClient, type BrainSpawnFn } from '../../../../src/ccp/brain/client';
 
 describe('BrainClient', () => {
+  beforeEach(() => {
+    process.env.BRAIN_DB_PATH = '/test/knowledge.db';
+  });
+  afterEach(() => {
+    delete process.env.BRAIN_DB_PATH;
+  });
+
+  it('throws brain_db_path_missing BindingError when BRAIN_DB_PATH is absent', () => {
+    delete process.env.BRAIN_DB_PATH;
+    expect(() => new BrainClient({})).toThrow(
+      expect.objectContaining({ name: 'BindingError', condition: 'brain_db_path_missing' }),
+    );
+  });
+
   it('write composes the brain CLI args from tagging convention', async () => {
     const calls: Array<{ args: string[] }> = [];
     const spawn: BrainSpawnFn = async (cmd, args) => {
@@ -23,7 +37,7 @@ describe('BrainClient', () => {
         exitCode: 0,
       };
     };
-    const client = new BrainClient({ dbPath: '/path/to/brain.db', spawn });
+    const client = new BrainClient({ spawn });
     const node = await client.write({
       content: 'rate-limit middleware lives at src/middleware/',
       type: 'convention',
@@ -34,7 +48,7 @@ describe('BrainClient', () => {
     expect(node.id).toBe('kn-1');
     const args = calls[0]!.args;
     expect(args).toContain('--db-path');
-    expect(args).toContain('/path/to/brain.db');
+    expect(args).toContain('/test/knowledge.db'); // from BRAIN_DB_PATH env, not options
     expect(args).toContain('write');
     const writeIdx = args.indexOf('write');
     expect(writeIdx).toBeGreaterThanOrEqual(0);
@@ -60,7 +74,7 @@ describe('BrainClient', () => {
     const spawn: BrainSpawnFn = async () => {
       throw Object.assign(new Error('ENOENT: brain not found'), { code: 'ENOENT' });
     };
-    const client = new BrainClient({ dbPath: '/some/path', spawn });
+    const client = new BrainClient({ spawn });
     await expect(
       client.write({ content: 'note', type: 'convention', scope: 'project', taskId: 'T-001', project: 'demo' }),
     ).rejects.toMatchObject({ name: 'BindingError', condition: 'brain_cli_missing' });
@@ -72,7 +86,7 @@ describe('BrainClient', () => {
     const spawn: BrainSpawnFn = async () => {
       throw Object.assign(new Error('spawn ETIMEDOUT'), { code: 'ETIMEDOUT' });
     };
-    const client = new BrainClient({ dbPath: '/some/path', spawn, repoRoot });
+    const client = new BrainClient({ spawn, repoRoot });
     const result = await client.write({
       content: 'note',
       type: 'convention',
@@ -98,7 +112,7 @@ describe('BrainClient', () => {
       stderr: '',
       exitCode: 0,
     });
-    const client = new BrainClient({ dbPath: '/some/path', spawn });
+    const client = new BrainClient({ spawn });
     const r = await client.query({ query: 'rate', tags: ['type:command'] });
     expect(r.items).toHaveLength(1);
   });
@@ -107,7 +121,7 @@ describe('BrainClient', () => {
     const spawn: BrainSpawnFn = async () => {
       throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
     };
-    const client = new BrainClient({ dbPath: '/x', spawn });
+    const client = new BrainClient({ spawn });
     const r = await client.query({ query: 'anything' });
     expect(r.items).toEqual([]);
     expect(r.total_matches).toBe(0);

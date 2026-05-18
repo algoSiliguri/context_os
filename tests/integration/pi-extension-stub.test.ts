@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 // tests/integration/pi-extension-stub.test.ts
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import piExtension from '../../src/pi/extension';
 import type { ExtensionAPI } from '../../src/pi/types';
 import { writeTaskState } from '../../src/ccp/commands/shared/task-loader';
@@ -165,6 +165,9 @@ describe('/flow command', () => {
 });
 
 describe('/memory command (orphan recovery)', () => {
+  beforeEach(() => { process.env.BRAIN_DB_PATH = '/test/knowledge.db'; });
+  afterEach(() => { delete process.env.BRAIN_DB_PATH; });
+
   it('reports no pending candidates when none exist', async () => {
     const dir = setupRepo();
     mkdirSync(join(dir, '.agent-os', 'tasks', 'T-001'), { recursive: true });

@@ -51,8 +51,6 @@ export interface WriteResult {
 }
 
 export interface BrainClientOptions {
-  /** Explicit DB path. When absent, the brain CLI resolves via BRAIN_DB_PATH env or its own default. */
-  dbPath?: string;
   spawn?: BrainSpawnFn;
   repoRoot?: string; // required for queueing on failure
   sessionId?: string; // when set, brain ops emit to session trajectory
@@ -69,13 +67,17 @@ const CONFIDENCE: Record<CaptureType, number> = {
 };
 
 export class BrainClient {
-  private readonly dbPath: string | undefined;
   private readonly spawn: BrainSpawnFn;
   private readonly repoRoot: string | undefined;
   private readonly sessionId: string | undefined;
 
   constructor(opts: BrainClientOptions) {
-    this.dbPath = opts.dbPath;
+    if (!process.env.BRAIN_DB_PATH) {
+      throw new BindingError(
+        'brain_db_path_missing',
+        'BRAIN_DB_PATH is not set. Export: export BRAIN_DB_PATH=$HOME/.knowledge-brain/knowledge.db',
+      );
+    }
     this.spawn = opts.spawn ?? defaultSpawn;
     this.repoRoot = opts.repoRoot;
     this.sessionId = opts.sessionId;
@@ -91,7 +93,7 @@ export class BrainClient {
   }
 
   private dbPathArgs(): string[] {
-    return this.dbPath ? ['--db-path', this.dbPath] : [];
+    return process.env.BRAIN_DB_PATH ? ['--db-path', process.env.BRAIN_DB_PATH] : [];
   }
 
   static confidenceFor(type: CaptureType): number {

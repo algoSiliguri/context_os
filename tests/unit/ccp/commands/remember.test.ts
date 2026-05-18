@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import YAML from 'yaml';
 import { BrainClient, type BrainSpawnFn } from '../../../../src/ccp/brain/client';
 import { buildCommandCompletedEvent, buildPlanApprovedEvent } from '../../../../src/ccp/ccp-events';
@@ -40,6 +40,9 @@ function fixtureReady(): { dir: string; taskId: string } {
 }
 
 describe('runRemember', () => {
+  beforeEach(() => { process.env.BRAIN_DB_PATH = '/test/knowledge.db'; });
+  afterEach(() => { delete process.env.BRAIN_DB_PATH; });
+
   it('proposes captures, prompts user, writes approved ones to brain, transitions to COMPLETED', async () => {
     const { dir, taskId } = fixtureReady();
     const writeCalls: Array<{ args: string[] }> = [];
@@ -57,7 +60,7 @@ describe('runRemember', () => {
         exitCode: 0,
       };
     };
-    const brain = new BrainClient({ dbPath: '/brain.db', spawn, repoRoot: dir });
+    const brain = new BrainClient({ spawn, repoRoot: dir });
 
     let prompts = 0;
     const ui = {
@@ -97,7 +100,7 @@ describe('runRemember', () => {
     const spawn: BrainSpawnFn = async () => {
       throw Object.assign(new Error('spawn ETIMEDOUT'), { code: 'ETIMEDOUT' });
     };
-    const brain = new BrainClient({ dbPath: '/brain.db', spawn, repoRoot: dir });
+    const brain = new BrainClient({ spawn, repoRoot: dir });
     // approve the first proposal
     let prompts = 0;
     const ui = {
@@ -139,7 +142,7 @@ describe('runRemember', () => {
       writeCalls.push({ args });
       return { stdout: '{}', stderr: '', exitCode: 0 };
     };
-    const brain = new BrainClient({ dbPath: '/brain.db', spawn, repoRoot: dir });
+    const brain = new BrainClient({ spawn, repoRoot: dir });
     const ui = {
       confirm: async () => true,
       input: async () => '',

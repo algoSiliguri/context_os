@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { join, basename } from 'node:path';
+import { basename } from 'node:path';
 import { BrainClient } from '../../ccp/brain/client';
 import { getCurrentTaskId } from '../../ccp/commands/shared/current-task';
 import {
@@ -22,10 +22,7 @@ export function register(pi: any, _session: PiSession): void {
         return;
       }
       const config = loadPolicyConfig(ctx.cwd);
-      const brain = new BrainClient({
-        dbPath: join(ctx.cwd, 'data_store', 'knowledge.db'),
-        repoRoot: ctx.cwd,
-      });
+      const brain = new BrainClient({ repoRoot: ctx.cwd });
       const sid = loadTaskSessionId(ctx.cwd, taskId) ?? randomUUID();
       const pending = listPendingCandidates(ctx.cwd, taskId);
       if (pending.length === 0) {

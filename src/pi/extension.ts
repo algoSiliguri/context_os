@@ -211,6 +211,12 @@ export default async function extension(pi: any): Promise<void> {
 
   // ── session_start ─────────────────────────────────────────────────────────
   pi.on('session_start', (_event: any, ctx: any) => {
+    if (ctx.hasUI && !process.env.BRAIN_DB_PATH) {
+      ctx.ui.notify(
+        'Agent OS: BRAIN_DB_PATH is not set — /remember and /memory will fail. Set: export BRAIN_DB_PATH=$HOME/.knowledge-brain/knowledge.db',
+        'error',
+      );
+    }
     if (ctx.hasUI) {
       const initialized = existsSync(join(ctx.cwd, '.agent-os', 'project.yaml'));
       if (!initialized) {
